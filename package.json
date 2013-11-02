@@ -1,0 +1,41 @@
+{
+  "name": "SVGPathDataParser",
+  "version": "0.0.0",
+  "description": "Parse SVG Path Datas",
+  "main": "dist/SVGPathDataParser.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nfroidure/SVGPathDataParser.git"
+  },
+  "keywords": [
+    "SVG",
+    "PathData",
+    "parser"
+  ],
+  "author": "Nicolas Froidure",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nfroidure/SVGPathDataParser/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-browserify": "~1.2.8",
+    "grunt-parallel": "~0.3.1",
+    "browserify": "~2.35.0",
+    "karma-script-launcher": "~0.1.0",
+    "karma-chrome-launcher": "~0.1.0",
+    "karma-firefox-launcher": "~0.1.0",
+    "karma-phantomjs-launcher": "~0.1.0",
+    "karma": "~0.10.2",
+    "grunt-karma": "~0.6.2",
+    "mocha": "~1.13.0",
+    "chai": "~1.8.1",
+    "karma-mocha": "~0.1.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "sinon": "~1.7.3"
+  }
+}
