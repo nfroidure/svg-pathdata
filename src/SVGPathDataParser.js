@@ -29,15 +29,25 @@ function SVGPathDataParser() {
             continue;
           }
         }
+        // Reading the exponent sign
+        if(this.state&SVGPathDataParser.STATE_NUMBER_EXPSIGN) {
+          this.state ^= SVGPathDataParser.STATE_NUMBER_EXPSIGN;
+          this.state |= SVGPathDataParser.STATE_NUMBER_DIGITS;
+          if(-1 !== SIGNS.indexOf(str[i])) {
+            this.curNumber += str[i];
+            continue;
+          }
+        }
         // Reading digits
         if(this.state&SVGPathDataParser.STATE_NUMBER_DIGITS) {
           if(-1 !== DIGITS.indexOf(str[i])) {
             this.curNumber += str[i];
             continue;
           }
+          this.state ^= SVGPathDataParser.STATE_NUMBER_DIGITS;
         }
         // Ended reading left side digits
-        if(this.state&SVGPathDataParser.STATE_NUMBER_DIGITS || i>=j-1) {
+        if(this.state&SVGPathDataParser.STATE_NUMBER_INT || i>=j-1) {
           this.state ^= SVGPathDataParser.STATE_NUMBER_INT;
           // if got a point, reading right side digits
           if(-1 !== DECPOINT.indexOf(str[i])) {
@@ -56,6 +66,27 @@ function SVGPathDataParser() {
           // else we're done with that number
           this.state ^= SVGPathDataParser.STATE_NUMBER;
         }
+        // Ended reading decimal digits
+        if(this.state&SVGPathDataParser.STATE_NUMBER_FLOAT) {
+          this.state ^= SVGPathDataParser.STATE_NUMBER_FLOAT;
+          // if got e/E, reading the exponent
+          if(-1 !== EXPONENTS.indexOf(str[i])) {
+            this.curNumber += str[i];
+            this.state |= SVGPathDataParser.STATE_NUMBER_EXP |
+              SVGPathDataParser.STATE_NUMBER_EXPSIGN;
+            continue;
+          }
+          // else we're done with that number
+          this.state ^= SVGPathDataParser.STATE_NUMBER;
+        }
+        // Ended reading exponent digits
+        if(this.state&SVGPathDataParser.STATE_NUMBER_EXP) {
+          this.state ^= SVGPathDataParser.STATE_NUMBER_EXP;
+          // we're done with that number
+          this.state ^= SVGPathDataParser.STATE_NUMBER |
+            SVGPathDataParser.STATE_NUMBER_EXP;
+        }
+       
       }
     // Coordinates parsing
     
@@ -69,8 +100,9 @@ SVGPathDataParser.STATE_NONE = 0;
 SVGPathDataParser.STATE_NUMBER = 1;
 SVGPathDataParser.STATE_NUMBER_DIGITS = 2;
 SVGPathDataParser.STATE_NUMBER_INT = 4;
-SVGPathDataParser.STATE_NUMBER_EXP = 8;
-SVGPathDataParser.STATE_NUMBER_FLOAT = 16;
+SVGPathDataParser.STATE_NUMBER_FLOAT = 8;
+SVGPathDataParser.STATE_NUMBER_EXP = 16;
+SVGPathDataParser.STATE_NUMBER_EXPSIGN = 32;
 SVGPathDataParser.STATE_NUMBER_MASK = SVGPathDataParser.STATE_NUMBER |
   SVGPathDataParser.STATE_NUMBER_DIGITS | SVGPathDataParser.STATE_NUMBER_INT |
   SVGPathDataParser.STATE_NUMBER_EXP | SVGPathDataParser.STATE_NUMBER_FLOAT;
