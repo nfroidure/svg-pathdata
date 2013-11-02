@@ -17,7 +17,7 @@ module.exports = function(config) {
       'node_modules/mocha/mocha.js',
       'node_modules/chai/chai.js',
       'node_modules/sinon/pkg/sinon.js',
-      'dist/PathDataParser.js',
+      'dist/SVGPathDataParser.js',
       'test/**/*.js'
     ],
 
