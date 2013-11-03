@@ -12,7 +12,10 @@ describe("Parsing smooth curve to commands", function() {
 
   it("should not work when badly declarated", function() {
     assert.throw(function() {
-      parser.parse('S10');
+      parser.parse('S');
+    }, SyntaxError, 'Unterminated command at index 0.');
+    assert.throw(function() {
+      new SVGPathDataParser().parse('S10');
     }, SyntaxError, 'Unterminated command at index 0.');
     assert.throw(function() {
       new SVGPathDataParser().parse('S10 10');

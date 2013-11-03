@@ -159,9 +159,11 @@ function SVGPathDataParser() {
             this.curCommand = {
               type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
               relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-              x2: this.curNumber,
-              invalid: true
+              invalid: true,
+              x2:  this.curNumber
             };
+          } else if('undefined' === typeof this.curCommand.x2) {
+            this.curCommand.x2 = this.curNumber;
           } else if('undefined' === typeof this.curCommand.y2) {
             this.curCommand.y2 = this.curNumber;
           } else if('undefined' === typeof this.curCommand.x) {
@@ -204,6 +206,12 @@ function SVGPathDataParser() {
       }
       // Detecting the next command
       this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
+      // Is the command relative
+      if(str[i]===str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_RELATIVE;
+      } else {
+        this.state ^= this.state&SVGPathDataParser.STATE_RELATIVE;
+      }
       // Horizontal move to command
       if('z' === str[i].toLowerCase()) {
         this.commands.push({
@@ -225,15 +233,14 @@ function SVGPathDataParser() {
       // Smooth curve to command
       } else if('s' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_SMOOTHTO;
+        this.curCommand = {
+          type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+          invalid: true
+        };
       // Unkown command
       } else {
         throw SyntaxError('Unexpected character "' + str[i] + '" at index ' + i + '.');
-      }
-      // Is the command relative
-      if(str[i]===str[i].toLowerCase()) {
-        this.state |= SVGPathDataParser.STATE_RELATIVE;
-      } else {
-        this.state ^= this.state&SVGPathDataParser.STATE_RELATIVE;
       }
       // White spaces ca follows a command
       this.state |= SVGPathDataParser.STATE_COMMAS_WSPS |
