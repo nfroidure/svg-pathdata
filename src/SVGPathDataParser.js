@@ -19,7 +19,7 @@ function SVGPathDataParser() {
   this.state = SVGPathDataParser.STATE_WSPS,
     SVGPathDataParser.STATE_COMMAS;
   this.curNumber = '';
-  this.curCoords = {};
+  this.curCommand = null;
   this.commands = [];
   this.read = function(str) {
     if(this.state === SVGPathDataParser.STATE_ENDED) {
@@ -121,21 +121,37 @@ function SVGPathDataParser() {
       }
       // New number
       if(this.curNumber) {
-        // Horizontal move to
+        // Horizontal move to command (x)
         if(this.state&SVGPathDataParser.STATE_HORIZ) {
+          this.curCommand = null;
           this.commands.push({
-            type: SVGPathDataParser.STATE_HORIZ,
+            type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
             relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
             x: this.curNumber
           });
           this.state |= SVGPathDataParser.STATE_NUMBER;
-        // Vertical move to
+        // Vertical move to command (y)
         } else if(this.state&SVGPathDataParser.STATE_VERT) {
+          this.curCommand = null;
           this.commands.push({
-            type: SVGPathDataParser.STATE_VERT,
+            type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
             relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-            x: this.curNumber
+            y: this.curNumber
           });
+          this.state |= SVGPathDataParser.STATE_NUMBER;
+        // Move to / line to commands (x, y)
+        } else if(this.state&SVGPathDataParser.STATE_MOVETO) {
+          if(null === this.curCommand) {
+            this.curCommand = {
+              type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              x: this.curNumber
+            };
+          } else {
+            this.curCommand.y = this.curNumber;
+            this.commands.push(this.curCommand);
+            this.curCommand = null;
+          }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         }
         this.curNumber = '';
@@ -146,6 +162,11 @@ function SVGPathDataParser() {
       }
       // End of a command
       if(-1 !== COMMANDS.indexOf(str[i]) || -1 !== EOT.indexOf(str[i])) {
+        // Adding residual command
+        if(null !== this.curCommand) {
+          this.commands.push(this.curCommand);
+          this.curCommand = null;
+        }
         // Ending the stream
         if(-1 !== EOT.indexOf(str[i])) {
           this.state = SVGPathDataParser.STATE_ENDED;
@@ -157,28 +178,28 @@ function SVGPathDataParser() {
       }
       // Detecting the next command
       this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
-      // Vertical move to
+      // Horizontal move to command
       if('h' === str[i].toLowerCase()) {
-        this.state |= SVGPathDataParser.STATE_HORIZ |
-          SVGPathDataParser.STATE_COMMAS_WSPS | SVGPathDataParser.STATE_NUMBER;
-        if(str[i]==='h') {
-          this.state |= SVGPathDataParser.STATE_RELATIVE;
-        } else {
-          this.state ^= this.state&SVGPathDataParser.STATE_RELATIVE;
-        }
-      // Vertical move to
+        this.state |= SVGPathDataParser.STATE_HORIZ;
+      // Vertical move to command
       } else if('v' === str[i].toLowerCase()) {
-        this.state |= SVGPathDataParser.STATE_VERT |
-          SVGPathDataParser.STATE_COMMAS_WSPS | SVGPathDataParser.STATE_NUMBER;
-        if(str[i]==='v') {
-          this.state |= SVGPathDataParser.STATE_RELATIVE;
-        } else {
-          this.state ^= this.state&SVGPathDataParser.STATE_RELATIVE;
-        }
+        this.state |= SVGPathDataParser.STATE_VERT;
+      // Move to command
+      } else if('m' === str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_MOVETO;
       // Unkown command
       } else {
         throw Error('Unexpected character "' + str[i] + '" at index ' + i + '.');
       }
+      // Is the command relative
+      if(str[i]===str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_RELATIVE;
+      } else {
+        this.state ^= this.state&SVGPathDataParser.STATE_RELATIVE;
+      }
+      // White spaces ca follows a command
+      this.state |= SVGPathDataParser.STATE_COMMAS_WSPS |
+        SVGPathDataParser.STATE_NUMBER;
     }
     return this;
   };
@@ -221,7 +242,7 @@ SVGPathDataParser.STATE_SMOOTHTO = 131072; // Smooth curve to command (s/S)
 SVGPathDataParser.STATE_QUADTO = 262144; // Quadratic bezier curve to command (q/Q)
 SVGPathDataParser.STATE_SMOOTHQUADTO = 524288; // Smooth quadratic bezier curve to command (t/T)
 SVGPathDataParser.STATE_ARC = 1048576; // Elliptic arc (a/A)
-SVGPathDataParser.STATE_COMMANDS_MASK = SVGPathDataParser.STATE_RELATIVE |
+SVGPathDataParser.STATE_COMMANDS_MASK = 
   SVGPathDataParser.STATE_CLOSEPATH | SVGPathDataParser.STATE_MOVETO |
   SVGPathDataParser.STATE_LINETO | SVGPathDataParser.STATE_HORIZ |
   SVGPathDataParser.STATE_VERT | SVGPathDataParser.STATE_CURVETO |
