@@ -230,6 +230,52 @@ function SVGPathDataParser() {
             throw Error('Unexpected behavior at index ' + i + '.');
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
+        // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
+        } else if(this.state&SVGPathDataParser.STATE_ARC) {
+          if(null === this.curCommand) {
+            this.curCommand = {
+              type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              invalid: true,
+              rX:  this.curNumber
+            };
+          } else if('undefined' === typeof this.curCommand.rX) {
+            if(Number(this.curNumber) < 0) {
+              throw SyntaxError('Expected positive number, got "'
+                + this.curNumber + '" at index "' + i + '"')
+            }
+            this.curCommand.rX = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.rY) {
+            if(Number(this.curNumber) < 0) {
+              throw SyntaxError('Expected positive number, got "'
+                + this.curNumber + '" at index "' + i + '"')
+            }
+            this.curCommand.rY = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.xRot) {
+            this.curCommand.xRot = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.lArcFlag) {
+            if('0' !== this.curNumber && '1' !== this.curNumber) {
+              throw SyntaxError('Expected a flag, got "' + this.curNumber
+                + '" at index "' + i + '"')
+            }
+            this.curCommand.lArcFlag = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.sweepFlag) {
+            if('0' !== this.curNumber && '1' !== this.curNumber) {
+              throw SyntaxError('Expected a flag, got "' + this.curNumber
+                +'" at index "' + i + '"')
+            }
+            this.curCommand.sweepFlag = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.x) {
+            this.curCommand.x = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.y) {
+            this.curCommand.y = this.curNumber;
+            delete this.curCommand.invalid;
+            this.commands.push(this.curCommand);
+            this.curCommand = null;
+          } else {
+            throw Error('Unexpected behavior at index ' + i + '.');
+          }
+          this.state |= SVGPathDataParser.STATE_NUMBER;
         }
         this.curNumber = '';
         // Continue if a white space or a comma was detected
@@ -310,6 +356,14 @@ function SVGPathDataParser() {
       // Smooth quadratic bezier curve to command
       } else if('t' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_SMOOTHQUADTO;
+      // Elliptic arc command
+      } else if('a' === str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_ARC;
+        this.curCommand = {
+          type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+          invalid: true
+        };
       // Unkown command
       } else {
         throw SyntaxError('Unexpected character "' + str[i] + '" at index ' + i + '.');
@@ -358,7 +412,7 @@ SVGPathDataParser.STATE_CURVETO = 65536; // Curve to command (c/C)
 SVGPathDataParser.STATE_SMOOTHTO = 131072; // Smooth curve to command (s/S)
 SVGPathDataParser.STATE_QUADTO = 262144; // Quadratic bezier curve to command (q/Q)
 SVGPathDataParser.STATE_SMOOTHQUADTO = 524288; // Smooth quadratic bezier curve to command (t/T)
-SVGPathDataParser.STATE_ARC = 1048576; // Elliptic arc (a/A)
+SVGPathDataParser.STATE_ARC = 1048576; // Elliptic arc command (a/A)
 SVGPathDataParser.STATE_COMMANDS_MASK = 
   SVGPathDataParser.STATE_CLOSEPATH | SVGPathDataParser.STATE_MOVETO |
   SVGPathDataParser.STATE_LINETO | SVGPathDataParser.STATE_HORIZ |
