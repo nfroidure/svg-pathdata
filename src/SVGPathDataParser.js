@@ -16,8 +16,7 @@ var WSP = [' ', '\t', '\r', '\n']
   
 function SVGPathDataParser() {
   // Parsing vars
-  this.state = SVGPathDataParser.STATE_WSPS,
-    SVGPathDataParser.STATE_COMMAS;
+  this.state = SVGPathDataParser.STATE_COMMAS_WSPS;
   this.curNumber = '';
   this.curCommand = null;
   this.commands = [];
@@ -140,7 +139,8 @@ function SVGPathDataParser() {
           });
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Move to / line to commands (x, y)
-        } else if(this.state&SVGPathDataParser.STATE_MOVETO) {
+        } else if(this.state&SVGPathDataParser.STATE_MOVETO
+          || this.state&SVGPathDataParser.STATE_LINETO) {
           if(null === this.curCommand) {
             this.curCommand = {
               type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
@@ -179,7 +179,13 @@ function SVGPathDataParser() {
       // Detecting the next command
       this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
       // Horizontal move to command
-      if('h' === str[i].toLowerCase()) {
+      if('z' === str[i].toLowerCase()) {
+        this.commands.push({
+          type: SVGPathDataParser.STATE_CLOSEPATH
+        });
+        this.state = SVGPathDataParser.STATE_COMMAS_WSPS;
+      // Horizontal move to command
+      } else if('h' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_HORIZ;
       // Vertical move to command
       } else if('v' === str[i].toLowerCase()) {
@@ -187,6 +193,9 @@ function SVGPathDataParser() {
       // Move to command
       } else if('m' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_MOVETO;
+      // Line to command
+      } else if('l' === str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_LINETO;
       // Unkown command
       } else {
         throw Error('Unexpected character "' + str[i] + '" at index ' + i + '.');
