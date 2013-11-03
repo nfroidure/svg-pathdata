@@ -205,6 +205,30 @@ function SVGPathDataParser() {
             throw Error('Unexpected behavior at index ' + i + '.');
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
+        // Quadratic bezier curve to commands (x1, y1, x, y)
+        } else if(this.state&SVGPathDataParser.STATE_QUADTO) {
+          if(null === this.curCommand) {
+            this.curCommand = {
+              type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              invalid: true,
+              x1:  this.curNumber
+            };
+          } else if('undefined' === typeof this.curCommand.x1) {
+            this.curCommand.x1 = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.y1) {
+            this.curCommand.y1 = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.x) {
+            this.curCommand.x = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.y) {
+            this.curCommand.y = this.curNumber;
+            delete this.curCommand.invalid;
+            this.commands.push(this.curCommand);
+            this.curCommand = null;
+          } else {
+            throw Error('Unexpected behavior at index ' + i + '.');
+          }
+          this.state |= SVGPathDataParser.STATE_NUMBER;
         }
         this.curNumber = '';
         // Continue if a white space or a comma was detected
@@ -269,6 +293,14 @@ function SVGPathDataParser() {
       // Smooth curve to command
       } else if('s' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_SMOOTHTO;
+        this.curCommand = {
+          type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+          invalid: true
+        };
+      // Quadratic bezier curve to command
+      } else if('q' === str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_QUADTO;
         this.curCommand = {
           type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
           relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
