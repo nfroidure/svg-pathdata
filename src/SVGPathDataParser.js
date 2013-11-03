@@ -138,9 +138,10 @@ function SVGPathDataParser() {
             y: this.curNumber
           });
           this.state |= SVGPathDataParser.STATE_NUMBER;
-        // Move to / line to commands (x, y)
+        // Move to / line to / smooth quadratic curve to commands (x, y)
         } else if(this.state&SVGPathDataParser.STATE_MOVETO
-          || this.state&SVGPathDataParser.STATE_LINETO) {
+          || this.state&SVGPathDataParser.STATE_LINETO
+          || this.state&SVGPathDataParser.STATE_SMOOTHQUADTO) {
           if(null === this.curCommand) {
             this.curCommand = {
               type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
@@ -306,6 +307,9 @@ function SVGPathDataParser() {
           relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
           invalid: true
         };
+      // Smooth quadratic bezier curve to command
+      } else if('t' === str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_SMOOTHQUADTO;
       // Unkown command
       } else {
         throw SyntaxError('Unexpected character "' + str[i] + '" at index ' + i + '.');
