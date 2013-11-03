@@ -153,6 +153,28 @@ function SVGPathDataParser() {
             this.curCommand = null;
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
+        // Smooth curve to commands (x1, y1, x, y)
+        } else if(this.state&SVGPathDataParser.STATE_SMOOTHTO) {
+          if(null === this.curCommand) {
+            this.curCommand = {
+              type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              x2: this.curNumber,
+              invalid: true
+            };
+          } else if('undefined' === typeof this.curCommand.y2) {
+            this.curCommand.y2 = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.x) {
+            this.curCommand.x = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.y) {
+            this.curCommand.y = this.curNumber;
+            delete this.curCommand.invalid;
+            this.commands.push(this.curCommand);
+            this.curCommand = null;
+          } else {
+            throw Error('Unexpected behavior at index ' + i + '.');
+          }
+          this.state |= SVGPathDataParser.STATE_NUMBER;
         }
         this.curNumber = '';
         // Continue if a white space or a comma was detected
@@ -164,8 +186,12 @@ function SVGPathDataParser() {
       if(-1 !== COMMANDS.indexOf(str[i]) || -1 !== EOT.indexOf(str[i])) {
         // Adding residual command
         if(null !== this.curCommand) {
+          if(this.curCommand.invalid) {
+            throw SyntaxError('Unterminated command at index ' + i + '.');
+          }
           this.commands.push(this.curCommand);
           this.curCommand = null;
+          this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
         }
         // Ending the stream
         if(-1 !== EOT.indexOf(str[i])) {
@@ -196,9 +222,12 @@ function SVGPathDataParser() {
       // Line to command
       } else if('l' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_LINETO;
+      // Smooth curve to command
+      } else if('s' === str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_SMOOTHTO;
       // Unkown command
       } else {
-        throw Error('Unexpected character "' + str[i] + '" at index ' + i + '.');
+        throw SyntaxError('Unexpected character "' + str[i] + '" at index ' + i + '.');
       }
       // Is the command relative
       if(str[i]===str[i].toLowerCase()) {
