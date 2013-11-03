@@ -37,6 +37,30 @@ describe("Parsing eliptical arc commands", function() {
     }, SyntaxError, 'Unterminated command at index 14.');
   });
 
+  it("should not work with bad rX value", function() {
+    assert.throw(function() {
+      parser.parse('A,-30,50,0,0,1,162.55,162.45');
+    }, SyntaxError, 'Expected positive number, got "-30" at index "5"');
+  });
+
+  it("should not work with bad rY value", function() {
+    assert.throw(function() {
+      parser.parse('A,30,-50,0,0,1,162.55,162.45');
+    }, SyntaxError, 'Expected positive number, got "-50" at index "8"');
+  });
+
+  it("should not work with bad lArcFlag value", function() {
+    assert.throw(function() {
+      parser.parse('A,30,50,0,15,1,162.55,162.45');
+    }, SyntaxError, 'Expected a flag, got "15" at index "12"');
+  });
+
+  it("should not work with bad sweepFlag value", function() {
+    assert.throw(function() {
+      parser.parse('A,30,50,0,0,15,162.55,162.45');
+    }, SyntaxError, 'Expected a flag, got "15" at index "14"');
+  });
+
   it("should work with comma separated coordinates", function() {
     var commands = parser.parse('A,30,50,0,0,1,162.55,162.45');
     assert.equal(commands[0].type, SVGPathDataParser.STATE_ARC);
