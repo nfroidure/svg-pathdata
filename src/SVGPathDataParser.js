@@ -186,7 +186,8 @@ function SVGPathDataParser() {
     return this.read(EOT[0]);
   };
   this.parse = function(str) {
-    return this.read(str).end();
+    this.read(str).end();
+    return this.commands;
   };
 }
 
