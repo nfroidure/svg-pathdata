@@ -153,6 +153,34 @@ function SVGPathDataParser() {
             this.curCommand = null;
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
+        // Curve to commands (x1, y1, x2, y2, x, y)
+        } else if(this.state&SVGPathDataParser.STATE_CURVETO) {
+          if(null === this.curCommand) {
+            this.curCommand = {
+              type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              invalid: true,
+              x2:  this.curNumber
+            };
+          } else if('undefined' === typeof this.curCommand.x2) {
+            this.curCommand.x2 = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.y2) {
+            this.curCommand.y2 = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.x1) {
+            this.curCommand.x1 = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.y1) {
+            this.curCommand.y1 = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.x) {
+            this.curCommand.x = this.curNumber;
+          } else if('undefined' === typeof this.curCommand.y) {
+            this.curCommand.y = this.curNumber;
+            delete this.curCommand.invalid;
+            this.commands.push(this.curCommand);
+            this.curCommand = null;
+          } else {
+            throw Error('Unexpected behavior at index ' + i + '.');
+          }
+          this.state |= SVGPathDataParser.STATE_NUMBER;
         // Smooth curve to commands (x1, y1, x, y)
         } else if(this.state&SVGPathDataParser.STATE_SMOOTHTO) {
           if(null === this.curCommand) {
@@ -230,6 +258,14 @@ function SVGPathDataParser() {
       // Line to command
       } else if('l' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_LINETO;
+      // Curve to command
+      } else if('c' === str[i].toLowerCase()) {
+        this.state |= SVGPathDataParser.STATE_CURVETO;
+        this.curCommand = {
+          type: this.state&SVGPathDataParser.STATE_COMMANDS_MASK,
+          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+          invalid: true
+        };
       // Smooth curve to command
       } else if('s' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_SMOOTHTO;
@@ -281,7 +317,7 @@ SVGPathDataParser.STATE_CLOSEPATH = 2048; // Close path command (z/Z)
 SVGPathDataParser.STATE_MOVETO = 4096; // Move to command (m/M)
 SVGPathDataParser.STATE_LINETO = 8192; // Line to command (l/L=)
 SVGPathDataParser.STATE_HORIZ = 16384; // Horizontal line to command (h/H)
-SVGPathDataParser.STATE_VERT = 32768; // Vertical line to command (h/H)
+SVGPathDataParser.STATE_VERT = 32768; // Vertical line to command (v/V)
 SVGPathDataParser.STATE_CURVETO = 65536; // Curve to command (c/C)
 SVGPathDataParser.STATE_SMOOTHTO = 131072; // Smooth curve to command (s/S)
 SVGPathDataParser.STATE_QUADTO = 262144; // Quadratic bezier curve to command (q/Q)
