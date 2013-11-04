@@ -60,7 +60,7 @@ describe("Parsing move to commands", function() {
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, '123');
     assert.equal(commands[0].y, '456');
-    assert.equal(commands[1].type, SVGPathData.MOVE_TO);
+    assert.equal(commands[1].type, SVGPathData.LINE_TO);
     assert.equal(commands[1].relative, false);
     assert.equal(commands[1].x, '7890');
     assert.equal(commands[1].y, '9876');
@@ -72,7 +72,7 @@ describe("Parsing move to commands", function() {
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, '123');
     assert.equal(commands[0].y, '456');
-    assert.equal(commands[1].type, SVGPathData.MOVE_TO);
+    assert.equal(commands[1].type, SVGPathData.LINE_TO);
     assert.equal(commands[1].relative, true);
     assert.equal(commands[1].x, '7890');
     assert.equal(commands[1].y, '9876');
@@ -84,7 +84,7 @@ describe("Parsing move to commands", function() {
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, '123');
     assert.equal(commands[0].y, '456');
-    assert.equal(commands[1].type, SVGPathData.MOVE_TO);
+    assert.equal(commands[1].type, SVGPathData.LINE_TO);
     assert.equal(commands[1].relative, false);
     assert.equal(commands[1].x, '7890');
     assert.equal(commands[1].y, '9876');
@@ -97,7 +97,7 @@ describe("Parsing move to commands", function() {
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, '123');
     assert.equal(commands[0].y, '456');
-    assert.equal(commands[1].type, SVGPathData.MOVE_TO);
+    assert.equal(commands[1].type, SVGPathData.LINE_TO);
     assert.equal(commands[1].relative, false);
     assert.equal(commands[1].x, '7890');
     assert.equal(commands[1].y, '9876');
@@ -105,7 +105,7 @@ describe("Parsing move to commands", function() {
     assert.equal(commands[2].relative, true);
     assert.equal(commands[2].x, '123');
     assert.equal(commands[2].y, '456');
-    assert.equal(commands[3].type, SVGPathData.MOVE_TO);
+    assert.equal(commands[3].type, SVGPathData.LINE_TO);
     assert.equal(commands[3].relative, true);
     assert.equal(commands[3].x, '7890');
     assert.equal(commands[3].y, '9876');

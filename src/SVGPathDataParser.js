@@ -162,6 +162,9 @@ function SVGPathDataParser(cmdCallback) {
           || this.state&SVGPathDataParser.STATE_LINE_TO
           || this.state&SVGPathDataParser.STATE_SMOOTH_QUAD_TO) {
           if(null === this.curCommand) {
+            if(this.state&SVGPathDataParser.STATE_MOVE_TO) {
+              throw Error('You are not supposed to see this error!')
+            }
             this.curCommand = {
               type: (this.state&SVGPathDataParser.STATE_MOVE_TO ?
                 SVGPathData.MOVE_TO :
@@ -179,6 +182,11 @@ function SVGPathDataParser(cmdCallback) {
             this.curCommand.y = this.curNumber;
             cmdCallback(this.curCommand);
             this.curCommand = null;
+            // Switch to line to state
+            if(this.state&SVGPathDataParser.STATE_MOVE_TO) {
+              this.state ^= SVGPathDataParser.STATE_MOVE_TO;
+              this.state |= SVGPathDataParser.STATE_LINE_TO;
+            }
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Curve to commands (x1, y1, x2, y2, x, y)
