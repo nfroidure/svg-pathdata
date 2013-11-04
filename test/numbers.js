@@ -1,7 +1,8 @@
 var assert = chai.assert;
+var SVGPathDataParser = SVGPathData.Parser;
 
 describe("Parsing numbers", function() {
-  var parser = new SVGPathDataParser();
+  var parser = new SVGPathDataParser(function() {});
 
   beforeEach(function() {
     parser.state = SVGPathDataParser.STATE_NUMBER;
@@ -14,15 +15,11 @@ describe("Parsing numbers", function() {
   it("should work with a 1 char integer", function() {
     parser.read('0');
     assert.equal(parser.curNumber, '0');
-    assert.equal(parser.state&SVGPathDataParser.STATE_NUMBER,
-      SVGPathDataParser.STATE_NUMBER);
   });
 
   it("should work with a big integer", function() {
     parser.read('1234567890');
     assert.equal(parser.curNumber, '1234567890');
-    assert.equal(parser.state&SVGPathDataParser.STATE_NUMBER,
-      SVGPathDataParser.STATE_NUMBER);
   });
 
   it("should work with a explicitly positive integer", function() {
