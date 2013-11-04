@@ -11,10 +11,10 @@ module.exports = function(grunt) {
         
         browserify: {
             lib: {
-                src: 'src/SVGPathDataParser.js',
-                dest: 'dist/SVGPathDataParser.js',
+                src: 'src/SVGPathData.js',
+                dest: 'dist/SVGPathData.js',
                 options: {
-                    standalone: 'SVGPathDataParser'
+                    standalone: 'SVGPathData'
                 }
             }
         },
