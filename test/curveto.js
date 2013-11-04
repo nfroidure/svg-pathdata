@@ -138,3 +138,21 @@ describe("Parsing curve to commands", function() {
   });
 
 });
+
+describe("Encoding curve to commands", function() {
+
+  it("should work with one command", function() {
+      assert.equal(
+        new SVGPathData('C-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5 -50.0032e-5 -60.0032e-5').encode(),
+        'C-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5 -50.0032e-5 -60.0032e-5'
+      );
+  });
+
+  it("should work with several commands", function() {
+      assert.equal(
+        new SVGPathData('C-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5 -50.0032e-5 -60.0032e-5C-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5 -50.0032e-5 -60.0032e-5C-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5 -50.0032e-5 -60.0032e-5').encode(),
+        'C-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5 -50.0032e-5 -60.0032e-5C-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5 -50.0032e-5 -60.0032e-5C-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5 -50.0032e-5 -60.0032e-5'
+      );
+  });
+
+});

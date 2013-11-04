@@ -229,3 +229,20 @@ describe("Parsing nested vertical/horizontal commands", function() {
 
 });
 
+describe("Encoding nested vertical/horizontal commands", function() {
+
+  beforeEach(function() {
+  });
+
+  afterEach(function() {
+  });
+
+  it("should work", function() {
+    assert.equal(
+      new SVGPathData('V100H100v0.12h0.12V100h100v-10e-5H-10e-5').encode(),
+      'V100H100v0.12h0.12V100h100v-10e-5H-10e-5'
+    );
+  });
+
+});
+

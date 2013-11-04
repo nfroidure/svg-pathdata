@@ -167,3 +167,21 @@ describe("Parsing eliptical arc commands", function() {
   });
 
 });
+
+describe("Encoding eliptical arc commands", function() {
+
+  it("should work with one command", function() {
+      assert.equal(
+        new SVGPathData('A30 50 0 0 1 162.55 162.45').encode(),
+        'A30 50 0 0 1 162.55 162.45'
+      );
+  });
+
+  it("should work with several commands", function() {
+      assert.equal(
+        new SVGPathData('A30 50 0 0 1 162.55 162.45A30 50 0 0 1 162.55 162.45A30 50 0 0 1 162.55 162.45').encode(),
+        'A30 50 0 0 1 162.55 162.45A30 50 0 0 1 162.55 162.45A30 50 0 0 1 162.55 162.45'
+      );
+  });
+
+});

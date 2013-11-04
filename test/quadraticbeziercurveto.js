@@ -108,3 +108,21 @@ describe("Parsing quadratic bezier curve to commands", function() {
   });
 
 });
+
+describe("Encoding line to commands", function() {
+
+  it("should work with one command", function() {
+      assert.equal(
+        new SVGPathData('Q-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5').encode(),
+        'Q-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5'
+      );
+  });
+
+  it("should work with several commands", function() {
+      assert.equal(
+        new SVGPathData('Q-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5q-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5Q-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5').encode(),
+        'Q-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5q-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5Q-10.0032e-5 -20.0032e-5 -30.0032e-5 -40.0032e-5'
+      );
+  });
+
+});

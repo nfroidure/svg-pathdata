@@ -5,6 +5,13 @@ function SVGPathData(content) {
     that.commands.push(command);
   });
   parser.parse(content);
+  this.encode = function() {  
+    var content = '', encoder = new SVGPathData.Encoder(function(chunk) {
+      content += chunk;
+    });
+    encoder.write(this.commands);
+    return content;
+  }
 }
 
 // Commands static vars
@@ -23,3 +30,4 @@ module.exports = SVGPathData;
 
 // Expose the parser constructor
 SVGPathData.Parser = require('./SVGPathDataParser.js');
+SVGPathData.Encoder = require('./SVGPathDataEncoder.js');

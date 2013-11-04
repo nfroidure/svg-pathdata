@@ -442,9 +442,9 @@ SVGPathDataParser.STATE_WSP = 1;
 SVGPathDataParser.STATE_WSPS = 2;
 SVGPathDataParser.STATE_COMMA = 4;
 SVGPathDataParser.STATE_COMMAS = 8;
-SVGPathDataParser.STATE_COMMAS_WSPS = SVGPathDataParser.STATE_WSP |
-  SVGPathDataParser.STATE_WSPS | SVGPathDataParser.STATE_COMMA |
-  SVGPathDataParser.STATE_COMMAS;
+SVGPathDataParser.STATE_COMMAS_WSPS =
+  SVGPathDataParser.STATE_WSP | SVGPathDataParser.STATE_WSPS |
+  SVGPathDataParser.STATE_COMMA | SVGPathDataParser.STATE_COMMAS;
 SVGPathDataParser.STATE_NUMBER = 16;
 SVGPathDataParser.STATE_NUMBER_DIGITS = 32;
 SVGPathDataParser.STATE_NUMBER_INT = 64;
