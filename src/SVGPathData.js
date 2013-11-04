@@ -10,8 +10,8 @@ function SVGPathData(content) {
 // Commands static vars
 SVGPathData.CLOSE_PATH = 1;
 SVGPathData.MOVE_TO = 2;
-SVGPathData.HORIZ_MOVE_TO = 3;
-SVGPathData.VERT_MOVE_TO = 4;
+SVGPathData.HORIZ_LINE_TO = 3;
+SVGPathData.VERT_LINE_TO = 4;
 SVGPathData.LINE_TO = 5;
 SVGPathData.CURVE_TO = 6;
 SVGPathData.SMOOTH_CURVE_TO = 7;

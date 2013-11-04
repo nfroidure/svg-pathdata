@@ -128,10 +128,10 @@ function SVGPathDataParser(cmdCallback) {
       // New number
       if(this.curNumber) {
         // Horizontal move to command (x)
-        if(this.state&SVGPathDataParser.STATE_HORIZ_MOVE_TO) {
+        if(this.state&SVGPathDataParser.STATE_HORIZ_LINE_TO) {
           if(null === this.curCommand) {
             cmdCallback({
-              type: SVGPathData.HORIZ_MOVE_TO,
+              type: SVGPathData.HORIZ_LINE_TO,
               relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
               x: this.curNumber
             });
@@ -143,10 +143,10 @@ function SVGPathDataParser(cmdCallback) {
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Vertical move to command (y)
-        } else if(this.state&SVGPathDataParser.STATE_VERT_MOVE_TO) {
+        } else if(this.state&SVGPathDataParser.STATE_VERT_LINE_TO) {
           if(null === this.curCommand) {
             cmdCallback({
-              type: SVGPathData.VERT_MOVE_TO,
+              type: SVGPathData.VERT_LINE_TO,
               relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
               y: this.curNumber
             });
@@ -347,17 +347,17 @@ function SVGPathDataParser(cmdCallback) {
         continue;
       // Horizontal move to command
       } else if('h' === str[i].toLowerCase()) {
-        this.state |= SVGPathDataParser.STATE_HORIZ_MOVE_TO;
+        this.state |= SVGPathDataParser.STATE_HORIZ_LINE_TO;
         this.curCommand = {
-          type: SVGPathData.HORIZ_MOVE_TO,
+          type: SVGPathData.HORIZ_LINE_TO,
           relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
           invalid: true
         };
       // Vertical move to command
       } else if('v' === str[i].toLowerCase()) {
-        this.state |= SVGPathDataParser.STATE_VERT_MOVE_TO;
+        this.state |= SVGPathDataParser.STATE_VERT_LINE_TO;
         this.curCommand = {
-          type: SVGPathData.VERT_MOVE_TO,
+          type: SVGPathData.VERT_LINE_TO,
           relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
           invalid: true
         };
@@ -458,17 +458,17 @@ SVGPathDataParser.STATE_RELATIVE = 1024;
 SVGPathDataParser.STATE_CLOSE_PATH = 2048; // Close path command (z/Z)
 SVGPathDataParser.STATE_MOVE_TO = 4096; // Move to command (m/M)
 SVGPathDataParser.STATE_LINE_TO = 8192; // Line to command (l/L=)
-SVGPathDataParser.STATE_HORIZ_MOVE_TO = 16384; // Horizontal line to command (h/H)
-SVGPathDataParser.STATE_VERT_MOVE_TO = 32768; // Vertical line to command (v/V)
+SVGPathDataParser.STATE_HORIZ_LINE_TO = 16384; // Horizontal line to command (h/H)
+SVGPathDataParser.STATE_VERT_LINE_TO = 32768; // Vertical line to command (v/V)
 SVGPathDataParser.STATE_CURVE_TO = 65536; // Curve to command (c/C)
 SVGPathDataParser.STATE_SMOOTH_CURVE_TO = 131072; // Smooth curve to command (s/S)
 SVGPathDataParser.STATE_QUAD_TO = 262144; // Quadratic bezier curve to command (q/Q)
 SVGPathDataParser.STATE_SMOOTH_QUAD_TO = 524288; // Smooth quadratic bezier curve to command (t/T)
 SVGPathDataParser.STATE_ARC = 1048576; // Elliptic arc command (a/A)
-SVGPathDataParser.STATE_COMMANDS_MASK = 
+SVGPathDataParser.STATE_COMMANDS_MASK =
   SVGPathDataParser.STATE_CLOSE_PATH | SVGPathDataParser.STATE_MOVE_TO |
-  SVGPathDataParser.STATE_LINE_TO | SVGPathDataParser.STATE_HORIZ_MOVE_TO |
-  SVGPathDataParser.STATE_VERT_MOVE_TO | SVGPathDataParser.STATE_CURVE_TO |
+  SVGPathDataParser.STATE_LINE_TO | SVGPathDataParser.STATE_HORIZ_LINE_TO |
+  SVGPathDataParser.STATE_VERT_LINE_TO | SVGPathDataParser.STATE_CURVE_TO |
   SVGPathDataParser.STATE_SMOOTH_CURVE_TO | SVGPathDataParser.STATE_QUAD_TO |
   SVGPathDataParser.STATE_SMOOTH_QUAD_TO | SVGPathDataParser.STATE_ARC;
 
