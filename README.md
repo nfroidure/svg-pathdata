@@ -94,3 +94,8 @@ parser.read('L 10 60 \
 
 ## Transforming PathDatas (not possible)
 
+## Contributing
+Clone this project, run :
+```sh
+npm install; grunt test&
+```
