@@ -118,14 +118,14 @@ describe("Encoding move to commands", function() {
   it("should work with one command", function() {
       assert.equal(
         new SVGPathData('M-50.0032e-5 -60.0032e-5').encode(),
-        'M-50.0032e-5 -60.0032e-5'
+        'M-0.000500032 -0.000600032'
       );
   });
 
   it("should work with several commands", function() {
       assert.equal(
         new SVGPathData('M-50.0032e-5 -60.0032e-5M-50.0032e-5 -60.0032e-5M-50.0032e-5 -60.0032e-5').encode(),
-        'M-50.0032e-5 -60.0032e-5M-50.0032e-5 -60.0032e-5M-50.0032e-5 -60.0032e-5'
+        'M-0.000500032 -0.000600032M-0.000500032 -0.000600032M-0.000500032 -0.000600032'
       );
   });
 

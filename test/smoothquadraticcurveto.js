@@ -118,14 +118,14 @@ describe("Encoding smooth quadratic bezier curve to commands", function() {
   it("should work with one command", function() {
       assert.equal(
         new SVGPathData('T-50.0032e-5 -60.0032e-5').encode(),
-        'T-50.0032e-5 -60.0032e-5'
+        'T-0.000500032 -0.000600032'
       );
   });
 
   it("should work with several commands", function() {
       assert.equal(
-        new SVGPathData('T-50.0032e-5 -60.0032e-5T-50.0032e-5 -60.0032e-5T-50.0032e-5 -60.0032e-5').encode(),
-        'T-50.0032e-5 -60.0032e-5T-50.0032e-5 -60.0032e-5T-50.0032e-5 -60.0032e-5'
+        new SVGPathData('T-50.0032e-5 -60.0032e-5t-50.0032e-5 -60.0032e-5T-50.0032e-5 -60.0032e-5').encode(),
+        'T-0.000500032 -0.000600032t-0.000500032 -0.000600032T-0.000500032 -0.000600032'
       );
   });
 

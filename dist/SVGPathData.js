@@ -1,3 +1,122 @@
+!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.SVGPathData=e():"undefined"!=typeof global?global.SVGPathData=e():"undefined"!=typeof self&&(self.SVGPathData=e())}(function(){var define,module,exports;
+return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+function SVGPathData(content) {
+  var that = this, parser;
+  this.commands = [];
+  parser = new SVGPathData.Parser(function(command) {
+    that.commands.push(command);
+  });
+  parser.parse(content);
+  this.encode = function() {  
+    var content = '', encoder = new SVGPathData.Encoder(function(chunk) {
+      content += chunk;
+    });
+    encoder.write(this.commands);
+    return content;
+  }
+}
+
+// Commands static vars
+SVGPathData.CLOSE_PATH = 1;
+SVGPathData.MOVE_TO = 2;
+SVGPathData.HORIZ_LINE_TO = 3;
+SVGPathData.VERT_LINE_TO = 4;
+SVGPathData.LINE_TO = 5;
+SVGPathData.CURVE_TO = 6;
+SVGPathData.SMOOTH_CURVE_TO = 7;
+SVGPathData.QUAD_TO = 8;
+SVGPathData.SMOOTH_QUAD_TO = 9;
+SVGPathData.ARC = 10;
+
+module.exports = SVGPathData;
+
+// Expose the parser constructor
+SVGPathData.Parser = require('./SVGPathDataParser.js');
+SVGPathData.Encoder = require('./SVGPathDataEncoder.js');
+
+},{"./SVGPathDataEncoder.js":2,"./SVGPathDataParser.js":3}],2:[function(require,module,exports){
+// Encode SVG PathData
+// http://www.w3.org/TR/SVG/paths.html#PathDataBNF
+
+// Parse SVG PathData
+// http://www.w3.org/TR/SVG/paths.html#PathDataBNF
+
+// Access to SVGPathData constructor
+var SVGPathData = require('./SVGPathData.js');
+
+// Private consts : Char groups
+var WSP = ' ';
+  
+function SVGPathDataEncoder(outputCallback) {
+  // Callback needed
+  if('function' !== typeof outputCallback) {
+    throw Error('Please provide a callback to receive output.')
+  }
+  this.write = function(commands) {
+    if(!(commands instanceof Array)) {
+      commands = [commands];
+    }
+    for(var i=0, j=commands.length; i<j; i++) {
+      // Horizontal move to command
+      if(commands[i].type === SVGPathData.CLOSE_PATH) {
+        outputCallback('z');
+        continue;v
+      // Horizontal move to command
+      } else if(commands[i].type === SVGPathData.HORIZ_LINE_TO) {
+        outputCallback((commands[i].relative?'h':'H')
+          + commands[i].x);
+      // Vertical move to command
+      } else if(commands[i].type === SVGPathData.VERT_LINE_TO) {
+        outputCallback((commands[i].relative?'v':'V')
+          + commands[i].y);
+      // Move to command
+      } else if(commands[i].type === SVGPathData.MOVE_TO) {
+        outputCallback((commands[i].relative?'m':'M')
+          + commands[i].x + WSP + commands[i].y);
+      // Line to command
+      } else if(commands[i].type === SVGPathData.LINE_TO) {
+        outputCallback((commands[i].relative?'l':'L')
+          + commands[i].x + WSP + commands[i].y);
+      // Curve to command
+      } else if(commands[i].type === SVGPathData.CURVE_TO) {
+        outputCallback((commands[i].relative?'c':'C')
+          + commands[i].x2 + WSP + commands[i].y2
+          + WSP + commands[i].x1 + WSP + commands[i].y1
+          + WSP + commands[i].x + WSP + commands[i].y);
+      // Smooth curve to command
+      } else if(commands[i].type === SVGPathData.SMOOTH_CURVE_TO) {
+        outputCallback((commands[i].relative?'s':'S')
+          + commands[i].x2 + WSP + commands[i].y2
+          + WSP + commands[i].x + WSP + commands[i].y);
+      // Quadratic bezier curve to command
+      } else if(commands[i].type === SVGPathData.QUAD_TO) {
+        outputCallback((commands[i].relative?'q':'Q')
+          + commands[i].x1 + WSP + commands[i].y1
+          + WSP + commands[i].x + WSP + commands[i].y);
+      // Smooth quadratic bezier curve to command
+      } else if(commands[i].type === SVGPathData.SMOOTH_QUAD_TO) {
+        outputCallback((commands[i].relative?'t':'T')
+          + commands[i].x + WSP + commands[i].y);
+      // Elliptic arc command
+      } else if(commands[i].type === SVGPathData.ARC) {
+        outputCallback((commands[i].relative?'a':'A')
+          + commands[i].rX + WSP + commands[i].rY
+          + WSP + commands[i].xRot
+          + WSP + commands[i].lArcFlag + WSP + commands[i].sweepFlag
+          + WSP + commands[i].x + WSP + commands[i].y);
+      // Unkown command
+      } else {
+        throw SyntaxError('Unexpected command type "' + commands[i].type
+          + '" at index ' + i + '.');
+      }
+    }
+  };
+}
+
+module.exports = SVGPathDataEncoder;
+
+
+},{"./SVGPathData.js":1}],3:[function(require,module,exports){
 // Parse SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
@@ -482,3 +601,8 @@ SVGPathDataParser.STATE_COMMANDS_MASK =
 
 module.exports = SVGPathDataParser;
 
+
+},{"./SVGPathData.js":1}]},{},[1])
+(1)
+});
+;

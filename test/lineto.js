@@ -117,15 +117,15 @@ describe("Encoding line to commands", function() {
 
   it("should work with one command", function() {
       assert.equal(
-        new SVGPathData('L-50.0032e-5 -60.0032e-5').encode(),
-        'L-50.0032e-5 -60.0032e-5'
+        new SVGPathData('L-0.000500032 -0.000600032').encode(),
+        'L-0.000500032 -0.000600032'
       );
   });
 
   it("should work with several commands", function() {
       assert.equal(
         new SVGPathData('L-50.0032e-5 -60.0032e-5L-50.0032e-5 -60.0032e-5L-50.0032e-5 -60.0032e-5').encode(),
-        'L-50.0032e-5 -60.0032e-5L-50.0032e-5 -60.0032e-5L-50.0032e-5 -60.0032e-5'
+        'L-0.000500032 -0.000600032L-0.000500032 -0.000600032L-0.000500032 -0.000600032'
       );
   });
 

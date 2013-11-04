@@ -1,14 +1,14 @@
 {
-  "name": "SVGPathDataParser",
+  "name": "svg-pathdata",
   "version": "0.0.0",
-  "description": "Parse SVG Path Datas",
-  "main": "dist/SVGPathDataParser.js",
+  "description": "SVG Path Datas parsing",
+  "main": "dist/SVGPathData.js",
   "scripts": {
     "test": "grunt test"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nfroidure/SVGPathDataParser.git"
+    "url": "https://github.com/nfroidure/SVGPathData.git"
   },
   "keywords": [
     "SVG",
@@ -18,7 +18,7 @@
   "author": "Nicolas Froidure",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nfroidure/SVGPathDataParser/issues"
+    "url": "https://github.com/nfroidure/SVGPathData/issues"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
