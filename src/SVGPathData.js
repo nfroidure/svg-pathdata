@@ -6,6 +6,12 @@ SVGPathData.prototype.encode = function() {
   return SVGPathData.encode(this.commands);
 };
 
+SVGPathData.prototype.toAbs = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.TO_ABS);
+  return this;
+};
+
 // Static methods
 SVGPathData.encode = function(commands) {
   var content = '', encoder = new SVGPathData.Encoder();
@@ -25,6 +31,10 @@ SVGPathData.parse = function(content) {
   parser.write(content);
   parser.end();
   return commands;
+};
+
+SVGPathData.transform = function(commands, transformFunction) {
+  return commands.map(transformFunction());
 };
 
 // Commands static vars
