@@ -1,18 +1,31 @@
 function SVGPathData(content) {
-  var that = this, parser;
-  this.commands = [];
-  parser = new SVGPathData.Parser(function(command) {
-    that.commands.push(command);
-  });
-  parser.parse(content);
-  this.encode = function() {  
-    var content = '', encoder = new SVGPathData.Encoder(function(chunk) {
-      content += chunk;
-    });
-    encoder.write(this.commands);
-    return content;
-  }
+  this.commands = SVGPathData.parse(content);
 }
+
+SVGPathData.prototype.encode = function() {
+  return SVGPathData.encode(this.commands);
+};
+
+// Static methods
+SVGPathData.encode = function(commands) {
+  var content = '', encoder = new SVGPathData.Encoder();
+  encoder.on('data', function (str) {
+    content += str;
+  });
+  encoder.write(commands);
+  encoder.end();
+  return content;
+};
+
+SVGPathData.parse = function(content) {
+  var commands = [], parser = new SVGPathData.Parser();
+  parser.on('data', function (command) {
+    commands.push(command);
+  });
+  parser.write(content);
+  parser.end();
+  return commands;
+};
 
 // Commands static vars
 SVGPathData.CLOSE_PATH = 1;
@@ -31,3 +44,4 @@ module.exports = SVGPathData;
 // Expose the parser constructor
 SVGPathData.Parser = require('./SVGPathDataParser.js');
 SVGPathData.Encoder = require('./SVGPathDataEncoder.js');
+SVGPathData.Transformer = require('./SVGPathDataTransformer.js');

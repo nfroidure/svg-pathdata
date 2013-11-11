@@ -1,6 +1,6 @@
 {
   "name": "svg-pathdata",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "SVG Path Datas parsing",
   "main": "dist/SVGPathData.js",
   "scripts": {
@@ -20,6 +20,9 @@
   "bugs": {
     "url": "https://github.com/nfroidure/SVGPathData/issues"
   },
+	"engines": {
+		"node": "0.10.*"
+	},
   "devDependencies": {
     "grunt": "0.4.x",
     "grunt-parallel": "0.3.x",
