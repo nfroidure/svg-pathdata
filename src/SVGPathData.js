@@ -18,6 +18,12 @@ SVGPathData.prototype.toRel = function() {
   return this;
 };
 
+SVGPathData.prototype.ySymetry = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);
+  return this;
+};
+
 // Static methods
 SVGPathData.encode = function(commands) {
   var content = '', encoder = new SVGPathData.Encoder();
@@ -39,8 +45,8 @@ SVGPathData.parse = function(content) {
   return commands;
 };
 
-SVGPathData.transform = function(commands, transformFunction) {
-  return commands.map(transformFunction());
+SVGPathData.transform = function(commands, transformFunction, args) {
+  return commands.map(transformFunction.apply(null, args));
 };
 
 // Commands static vars

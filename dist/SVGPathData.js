@@ -7167,6 +7167,12 @@ SVGPathData.prototype.toRel = function() {
   return this;
 };
 
+SVGPathData.prototype.ySymetry = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);
+  return this;
+};
+
 // Static methods
 SVGPathData.encode = function(commands) {
   var content = '', encoder = new SVGPathData.Encoder();
@@ -7188,8 +7194,8 @@ SVGPathData.parse = function(content) {
   return commands;
 };
 
-SVGPathData.transform = function(commands, transformFunction) {
-  return commands.map(transformFunction());
+SVGPathData.transform = function(commands, transformFunction, args) {
+  return commands.map(transformFunction.apply(null, args));
 };
 
 // Commands static vars
@@ -7938,28 +7944,28 @@ SVGPathDataTransformer.TO_REL = function() {
 };
 
 // Symetry througth the Y axis
-SVGPathDataTransformer.Y_AXIS_SIMETRY = function() {
+SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
   var notFirst = false;
   return function(command) {
     if('undefined' !== command.y && command.y !== 0) {
       if(notFirst && command.relative) {
         command.y = -command.y;
       } else {
-        command.y = fontHeight - command.y;
+        command.y = yDecal - command.y;
       }
     }
     if('undefined' !== command.y1 && command.y1 !== 0) {
       if(notFirst && command.relative) {
         command.y1 = -command.y1;
       } else {
-        command.y1 = fontHeight - command.y1;
+        command.y1 = yDecal - command.y1;
       }
     }
     if('undefined' !== command.y2 && command.y2 !== 0) {
       if(notFirst && command.relative) {
         command.y2 = -command.y2;
       } else {
-        command.y2 = fontHeight - command.y2;
+        command.y2 = yDecal - command.y2;
       }
     }
     notFirst = true;

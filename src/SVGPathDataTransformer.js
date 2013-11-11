@@ -109,28 +109,28 @@ SVGPathDataTransformer.TO_REL = function() {
 };
 
 // Symetry througth the Y axis
-SVGPathDataTransformer.Y_AXIS_SIMETRY = function() {
+SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
   var notFirst = false;
   return function(command) {
     if('undefined' !== command.y && command.y !== 0) {
       if(notFirst && command.relative) {
         command.y = -command.y;
       } else {
-        command.y = fontHeight - command.y;
+        command.y = yDecal - command.y;
       }
     }
     if('undefined' !== command.y1 && command.y1 !== 0) {
       if(notFirst && command.relative) {
         command.y1 = -command.y1;
       } else {
-        command.y1 = fontHeight - command.y1;
+        command.y1 = yDecal - command.y1;
       }
     }
     if('undefined' !== command.y2 && command.y2 !== 0) {
       if(notFirst && command.relative) {
         command.y2 = -command.y2;
       } else {
-        command.y2 = fontHeight - command.y2;
+        command.y2 = yDecal - command.y2;
       }
     }
     notFirst = true;
