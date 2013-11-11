@@ -21,7 +21,7 @@ var SVGPathData = require('./SVGPathData.js')
     's', 'S', 'q', 'Q', 't', 'T', 'a', 'A']
 ;
 
-// Inherit of writeable stream
+// Inherit of transform stream
 util.inherits(SVGPathDataParser, TransformStream);
 
 // Constructor
@@ -51,7 +51,7 @@ function SVGPathDataParser(options) {
     callback();
   };
   this._transform = function(chunk, encoding, callback) {
-    var str = chunk.toString(encoding || 'utf8');
+    var str = chunk.toString(encoding !== 'buffer' ? encoding : 'utf8');
     if(this.state === SVGPathDataParser.STATE_ENDED) {
       this.emit('error',
         Error('Cannot parse more datas since the stream ended.'));

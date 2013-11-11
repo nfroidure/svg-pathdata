@@ -12,6 +12,12 @@ SVGPathData.prototype.toAbs = function() {
   return this;
 };
 
+SVGPathData.prototype.toRel = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.TO_REL);
+  return this;
+};
+
 // Static methods
 SVGPathData.encode = function(commands) {
   var content = '', encoder = new SVGPathData.Encoder();
@@ -55,3 +61,4 @@ module.exports = SVGPathData;
 SVGPathData.Parser = require('./SVGPathDataParser.js');
 SVGPathData.Encoder = require('./SVGPathDataEncoder.js');
 SVGPathData.Transformer = require('./SVGPathDataTransformer.js');
+

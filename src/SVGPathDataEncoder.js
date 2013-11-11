@@ -39,7 +39,7 @@ function SVGPathDataEncoder(options) {
 SVGPathDataEncoder.prototype._transform = function(commands, encoding, done) {
   var str = '';
   if(!(commands instanceof Array)) {
-    commands = [command];
+    commands = [commands];
   }
   for(var i=0, j=commands.length; i<j; i++) {
     // Horizontal move to command

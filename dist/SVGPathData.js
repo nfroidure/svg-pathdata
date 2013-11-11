@@ -7161,6 +7161,12 @@ SVGPathData.prototype.toAbs = function() {
   return this;
 };
 
+SVGPathData.prototype.toRel = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.TO_REL);
+  return this;
+};
+
 // Static methods
 SVGPathData.encode = function(commands) {
   var content = '', encoder = new SVGPathData.Encoder();
@@ -7205,6 +7211,7 @@ SVGPathData.Parser = require('./SVGPathDataParser.js');
 SVGPathData.Encoder = require('./SVGPathDataEncoder.js');
 SVGPathData.Transformer = require('./SVGPathDataTransformer.js');
 
+
 },{"./SVGPathDataEncoder.js":19,"./SVGPathDataParser.js":20,"./SVGPathDataTransformer.js":21}],19:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;// Encode SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
@@ -7247,7 +7254,7 @@ function SVGPathDataEncoder(options) {
 SVGPathDataEncoder.prototype._transform = function(commands, encoding, done) {
   var str = '';
   if(!(commands instanceof Array)) {
-    commands = [command];
+    commands = [commands];
   }
   for(var i=0, j=commands.length; i<j; i++) {
     // Horizontal move to command
@@ -7334,7 +7341,7 @@ var SVGPathData = require('./SVGPathData.js')
     's', 'S', 'q', 'Q', 't', 'T', 'a', 'A']
 ;
 
-// Inherit of writeable stream
+// Inherit of transform stream
 util.inherits(SVGPathDataParser, TransformStream);
 
 // Constructor
@@ -7364,7 +7371,7 @@ function SVGPathDataParser(options) {
     callback();
   };
   this._transform = function(chunk, encoding, callback) {
-    var str = chunk.toString(encoding || 'utf8');
+    var str = chunk.toString(encoding !== 'buffer' ? encoding : 'utf8');
     if(this.state === SVGPathDataParser.STATE_ENDED) {
       this.emit('error',
         Error('Cannot parse more datas since the stream ended.'));
@@ -7830,6 +7837,9 @@ var SVGPathData = require('./SVGPathData.js')
   , TransformStream = require('stream').Transform
   , util = require('util')
 ;
+
+// Inherit of transform stream
+util.inherits(SVGPathDataTransformer, TransformStream);
   
 function SVGPathDataTransformer(transformFunction) {
   // Ensure new were used
@@ -7859,9 +7869,10 @@ SVGPathDataTransformer.prototype._transform = function(command, encoding, done) 
 };
 
 // Predefined transforming functions
+// Relative to absolute commands
 SVGPathDataTransformer.TO_ABS = function() {
   var prevX = 0, prevY = 0;
-    return function(command) {
+  return function(command) {
     if(command.relative) {
       // x1/y1 values
       if('undefined' !== typeof command.x1) {
@@ -7884,17 +7895,52 @@ SVGPathDataTransformer.TO_ABS = function() {
       if('undefined' !== typeof command.y) {
         command.y = prevY + command.y;
       }
+      command.relative = false;
     }
     prevX = ('undefined' !== typeof command.x ? command.x : prevX);
     prevY = ('undefined' !== typeof command.y ? command.y : prevY);
-    command.relative = false;
     return command;
   };
 };
 
-SVGPathDataTransformer.Y_SIMETRY = function() {
+// Absolute to relative commands
+SVGPathDataTransformer.TO_REL = function() {
+  var prevX = 0, prevY = 0;
+  return function(command) {
+    if(!command.relative) {
+      // x1/y1 values
+      if('undefined' !== typeof command.x1) {
+        command.x1 = command.x1 - prevX;
+      }
+      if('undefined' !== typeof command.y1) {
+        command.y1 = command.y1 - prevY;
+      }
+      // x2/y2 values
+      if('undefined' !== typeof command.x2) {
+        command.x2 = command.x2 - prevX;
+      }
+      if('undefined' !== typeof command.y2) {
+        command.y2 = command.y2 - prevY;
+      }
+      // Finally x/y values
+      if('undefined' !== typeof command.x) {
+        command.x = command.x - prevX;
+      }
+      if('undefined' !== typeof command.y) {
+        command.y = command.y - prevY;
+      }
+    command.relative = true;
+    }
+    prevX = ('undefined' !== typeof command.x ? prevX + command.x : prevX);
+    prevY = ('undefined' !== typeof command.y ? prevY + command.y : prevY);
+    return command;
+  };
+};
+
+// Symetry througth the Y axis
+SVGPathDataTransformer.Y_AXIS_SIMETRY = function() {
   var notFirst = false;
-    return function(command) {
+  return function(command) {
     if('undefined' !== command.y && command.y !== 0) {
       if(notFirst && command.relative) {
         command.y = -command.y;
@@ -7917,7 +7963,7 @@ SVGPathDataTransformer.Y_SIMETRY = function() {
       }
     }
     notFirst = true;
-    cmdCallback(command);
+    return command;
   };
 };
 

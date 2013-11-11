@@ -2,6 +2,11 @@
 
 Manipulating SVG PathDatas (path[d] attribute content) simply and efficiently.
 
+## Including the library
+This library is fully node based (based on current stream implementation) but
+ you can also use it in modern browser with the browserified build or in your
+ own build using Browserify.
+
 ## Reading PathDatas
 ```js
 var pathData = new SVGPathData ('\
@@ -39,13 +44,14 @@ console.log(pathData.commands);
 
 ## Reading streamed PathDatas
 ```js
-var parser = new SVGPathData.Parser(function(cmd) {
+var parser = new SVGPathData.Parser();
+parser.on('data', function(cmd) {
   console.log(cmd);
 });
 
-parser.read('   ');
-parser.read('M 10');
-parser.read(' 10');
+parser.write('   ');
+parser.write('M 10');
+parser.write(' 10');
 
 // {
 //   "type": SVGPathData.MOVE_TO,
@@ -54,7 +60,7 @@ parser.read(' 10');
 // }
 
 
-parser.read('H 60');
+parser.write('H 60');
 
 // {
 //   "type": SVGPathData.HORIZ_LINE_TO,
@@ -63,8 +69,8 @@ parser.read('H 60');
 // }
 
 
-parser.read('V');
-parser.read('60');
+parser.write('V');
+parser.write('60');
 
 // {
 //   "type": SVGPathData.VERT_LINE_TO,
@@ -73,7 +79,7 @@ parser.read('60');
 // }
 
 
-parser.read('L 10 60 \
+parser.write('L 10 60 \
   Z');
 
 // {
@@ -86,6 +92,8 @@ parser.read('L 10 60 \
 // {
 //   "type": SVGPathData.CLOSE_PATH
 // }
+
+parser.end();
 ```
 
 ## Outputting PathDatas
@@ -104,8 +112,11 @@ console.log(pathData.encode());
 
 ## Streaming PathDatas out
 ```js
-var encoder = new SVGPathData.Encoder(function(chunk) {
-  console.log(chunk);
+var encoder = new SVGPathData.Encoder();
+encoder.setEncoding('utf8');
+
+encode.on('data', function(str) {
+  console.log(str);
 });
 
 encoder.write({
@@ -139,11 +150,42 @@ encoder.write({
   
 encoder.write({"type": SVGPathData.CLOSE_PATH});
 // "Z"
+
+encode.end();
 ```
 
 ## Transforming PathDatas
 This library was made to live decoding/transform/encoding SVG PathDatas. Here is
  [an example of that kind of use](https://github.com/nfroidure/grunt-fontfactory/commit/f7b7046cf08bd56d03ab4822056aae5548de9333#diff-3281a466fce36eeb82c74e380ba1b145R156).
+
+### The synchronous way
+```js
+console.log(
+  new SVGPathData ('\
+   m 10,10 \
+   h 60 \
+   v 60 \
+   l 10,60 \
+   z'
+  )
+  .toAbs()
+  .encode()
+);
+// "M10,10 H70 V70 L80,130 Z"
+```
+
+### The streaming/asynchronous way
+Here, we take SVGPathDatas from stdin and output it transformed to stdout.
+```js
+// stdin to parser
+process.stdin.pipe(new SVGPathData.Parser())
+// parser to transformer to absolute
+  .pipe(new SVGPathData.Transformer(SVGPathData.Transformer.TO_ABS))
+// transformer to encoder
+  .pipe(new SVGPathData.Encoder())
+// encoder to stdout
+  .pipe(process.stdout);
+```
 
 ## Contributing
 Clone this project, run :
