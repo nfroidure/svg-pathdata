@@ -7672,6 +7672,8 @@ function SVGPathDataParser(options) {
         // if a sign is detected, then parse the new number
         if(-1 !== SIGNS.indexOf(str[i])) {
           this.curNumber = str[i];
+          this.state |= SVGPathDataParser.STATE_NUMBER_INT |
+            SVGPathDataParser.STATE_NUMBER_DIGITS;
           continue;
         }
       }
