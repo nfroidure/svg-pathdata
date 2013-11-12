@@ -69,5 +69,19 @@ describe("Parsing commands with different numbers", function() {
     assert.equal(commands[1].y, -1234.456e-125);
   });
 
+  it("should work with decpoint separated numbers", function() {
+    var commands = new SVGPathData('M-123.123e-123.456e-456').commands;
+    assert.equal(commands[0].x, -123.123e-123);
+    assert.equal(commands[0].y, .456e-456);
+  });
+
+  it("should work with decpoint separated numbers", function() {
+    var commands = new SVGPathData('M-123.123e-123.456e-456.789e-789.123e-123').commands;
+    assert.equal(commands[0].x, -123.123e-123);
+    assert.equal(commands[0].y, .456e-456);
+    assert.equal(commands[1].x, .789e-789);
+    assert.equal(commands[1].y, .123e-123);
+  });
+
 });
 

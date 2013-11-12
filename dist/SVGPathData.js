@@ -7676,6 +7676,13 @@ function SVGPathDataParser(options) {
             SVGPathDataParser.STATE_NUMBER_DIGITS;
           continue;
         }
+        // if the decpoint is detected, then parse the new number
+        if(-1 !== DECPOINT.indexOf(str[i])) {
+          this.curNumber = str[i];
+          this.state |= SVGPathDataParser.STATE_NUMBER_FLOAT |
+            SVGPathDataParser.STATE_NUMBER_DIGITS;
+          continue;
+        }
       }
       // End of a command
       if(-1 !== COMMANDS.indexOf(str[i]) || -1 !== EOT.indexOf(str[i])) {
