@@ -55,5 +55,10 @@ describe("Parsing commands with different numbers", function() {
     assert.equal(new SVGPathData('H-123.456e-125').commands[0].x, -123.456e-125);
   });
 
+  it("should work with sign separated numbers", function() {
+    var commands = new SVGPathData('M-123.456e-125-123.456e-125').commands;
+    assert.equal(commands[0].x, -123.456e-125);
+  });
+
 });
 

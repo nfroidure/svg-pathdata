@@ -7669,6 +7669,11 @@ function SVGPathDataParser(options) {
         if(-1 !== WSP.indexOf(str[i]) || -1 !== COMMA.indexOf(str[i])) {
           continue;
         }
+        // if a sign is detected, then parse the new number
+        if(-1 !== SIGNS.indexOf(str[i])) {
+          this.curNumber = str[i];
+          continue;
+        }
       }
       // End of a command
       if(-1 !== COMMANDS.indexOf(str[i]) || -1 !== EOT.indexOf(str[i])) {
