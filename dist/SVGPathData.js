@@ -7872,7 +7872,7 @@ function SVGPathDataTransformer(transformFunction) {
   if('function' !== typeof transformFunction) {
     throw Error('Please provide a transform callback to receive commands.')
   }
-  this._transformer = transformFunction();
+  this._transformer = transformFunction.apply(null, Array.prototype.slice(arguments,1));
   if('function' !== typeof this._transformer) {
     throw Error('Please provide a valid transform (returning a function).')
   }
@@ -7961,21 +7961,21 @@ SVGPathDataTransformer.TO_REL = function() {
 SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
   var notFirst = false;
   return function(command) {
-    if('undefined' !== command.y && command.y !== 0) {
+    if('undefined' !== command.y) {
       if(notFirst && command.relative) {
         command.y = -command.y;
       } else {
         command.y = yDecal - command.y;
       }
     }
-    if('undefined' !== command.y1 && command.y1 !== 0) {
+    if('undefined' !== command.y1) {
       if(notFirst && command.relative) {
         command.y1 = -command.y1;
       } else {
         command.y1 = yDecal - command.y1;
       }
     }
-    if('undefined' !== command.y2 && command.y2 !== 0) {
+    if('undefined' !== command.y2) {
       if(notFirst && command.relative) {
         command.y2 = -command.y2;
       } else {
