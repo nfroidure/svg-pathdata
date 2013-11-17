@@ -108,6 +108,31 @@ SVGPathDataTransformer.TO_REL = function() {
   };
 };
 
+// Translation
+SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
+  return function(command) {
+    if('undefined' !== command.x) {
+      command.x += dX;
+    }
+    if('undefined' !== command.y) {
+      command.y += dY;
+    }
+    if('undefined' !== command.x1) {
+      command.x1 += dX;
+    }
+    if('undefined' !== command.y1) {
+      command.y1 += dY;
+    }
+    if('undefined' !== command.x2) {
+      command.x2 += dX;
+    }
+    if('undefined' !== command.y2) {
+      command.y2 += dY;
+    }
+    return command;
+  };
+};
+
 // Symetry througth the Y axis
 SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
   var notFirst = false;

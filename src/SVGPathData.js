@@ -18,6 +18,12 @@ SVGPathData.prototype.toRel = function() {
   return this;
 };
 
+SVGPathData.prototype.translate = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.TRANSLATE, arguments);
+  return this;
+};
+
 SVGPathData.prototype.ySymetry = function() {
   this.commands = SVGPathData.transform(this.commands,
     SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);
