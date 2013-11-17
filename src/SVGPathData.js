@@ -24,6 +24,12 @@ SVGPathData.prototype.translate = function() {
   return this;
 };
 
+SVGPathData.prototype.scale = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.SCALE, arguments);
+  return this;
+};
+
 SVGPathData.prototype.ySymetry = function() {
   this.commands = SVGPathData.transform(this.commands,
     SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);
