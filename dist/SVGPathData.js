@@ -7167,6 +7167,24 @@ SVGPathData.prototype.toRel = function() {
   return this;
 };
 
+SVGPathData.prototype.translate = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.TRANSLATE, arguments);
+  return this;
+};
+
+SVGPathData.prototype.scale = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.SCALE, arguments);
+  return this;
+};
+
+SVGPathData.prototype.rotate = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.ROTATE, arguments);
+  return this;
+};
+
 SVGPathData.prototype.ySymetry = function() {
   this.commands = SVGPathData.transform(this.commands,
     SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);
@@ -7954,6 +7972,86 @@ SVGPathDataTransformer.TO_REL = function() {
     prevX = ('undefined' !== typeof command.x ? prevX + command.x : prevX);
     prevY = ('undefined' !== typeof command.y ? prevY + command.y : prevY);
     return command;
+  };
+};
+
+// Translation
+SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
+  dY = dY || 0;
+  return function(command) {
+    if('undefined' !== command.x) {
+      command.x += dX;
+    }
+    if('undefined' !== command.y) {
+      command.y += dY;
+    }
+    if('undefined' !== command.x1) {
+      command.x1 += dX;
+    }
+    if('undefined' !== command.y1) {
+      command.y1 += dY;
+    }
+    if('undefined' !== command.x2) {
+      command.x2 += dX;
+    }
+    if('undefined' !== command.y2) {
+      command.y2 += dY;
+    }
+    return command;
+  };
+};
+
+// Scaling
+SVGPathDataTransformer.SCALE = function(dX, dY) {
+  dY = dY || dX;
+  return function(command) {
+    if('undefined' !== command.x) {
+      command.x *= dX;
+    }
+    if('undefined' !== command.y) {
+      command.y *= dY;
+    }
+    if('undefined' !== command.x1) {
+      command.x1 *= dX;
+    }
+    if('undefined' !== command.y1) {
+      command.y1 *= dY;
+    }
+    if('undefined' !== command.x2) {
+      command.x2 *= dX;
+    }
+    if('undefined' !== command.y2) {
+      command.y2 *= dY;
+    }
+    return command;
+  };
+};
+
+// Rotation
+SVGPathDataTransformer.ROTATE = function(a, x, y) {
+  var toOrigin = SVGPathDataTransformer.TRANSLATE(x || 0, y || 0)
+    , fromOrigin = SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0));
+  return function(command) {
+    command = toOrigin(command);
+    if('undefined' !== command.x) {
+      command.x = command.x*Math.cos(a) + command.y*Math.sin(a);
+    }
+    if('undefined' !== command.y) {
+      command.y = -1*command.x*Math.sin(a) + command.y*Math.cos(a);
+    }
+    if('undefined' !== command.x1) {
+      command.x1 = command.x1*Math.cos(a) + command.y1*Math.sin(a);
+    }
+    if('undefined' !== command.y1) {
+      command.y1 = -1*command.x1*Math.sin(a) + command.y1*Math.cos(a);
+    }
+    if('undefined' !== command.x2) {
+      command.x2 = command.x2*Math.cos(a) + command.y2*Math.sin(a);
+    }
+    if('undefined' !== command.y2) {
+      command.y2 = -1*command.x2*Math.sin(a) + command.y2*Math.cos(a);
+    }
+    return fromOrigin(command);
   };
 };
 

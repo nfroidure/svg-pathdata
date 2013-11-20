@@ -110,6 +110,7 @@ SVGPathDataTransformer.TO_REL = function() {
 
 // Translation
 SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
+  dY = dY || 0;
   return function(command) {
     if('undefined' !== command.x) {
       command.x += dX;
@@ -133,8 +134,9 @@ SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
   };
 };
 
-// Translation
+// Scaling
 SVGPathDataTransformer.SCALE = function(dX, dY) {
+  dY = dY || dX;
   return function(command) {
     if('undefined' !== command.x) {
       command.x *= dX;
@@ -155,6 +157,34 @@ SVGPathDataTransformer.SCALE = function(dX, dY) {
       command.y2 *= dY;
     }
     return command;
+  };
+};
+
+// Rotation
+SVGPathDataTransformer.ROTATE = function(a, x, y) {
+  var toOrigin = SVGPathDataTransformer.TRANSLATE(x || 0, y || 0)
+    , fromOrigin = SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0));
+  return function(command) {
+    command = toOrigin(command);
+    if('undefined' !== command.x) {
+      command.x = command.x*Math.cos(a) + command.y*Math.sin(a);
+    }
+    if('undefined' !== command.y) {
+      command.y = -1*command.x*Math.sin(a) + command.y*Math.cos(a);
+    }
+    if('undefined' !== command.x1) {
+      command.x1 = command.x1*Math.cos(a) + command.y1*Math.sin(a);
+    }
+    if('undefined' !== command.y1) {
+      command.y1 = -1*command.x1*Math.sin(a) + command.y1*Math.cos(a);
+    }
+    if('undefined' !== command.x2) {
+      command.x2 = command.x2*Math.cos(a) + command.y2*Math.sin(a);
+    }
+    if('undefined' !== command.y2) {
+      command.y2 = -1*command.x2*Math.sin(a) + command.y2*Math.cos(a);
+    }
+    return fromOrigin(command);
   };
 };
 

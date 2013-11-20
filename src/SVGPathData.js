@@ -30,6 +30,12 @@ SVGPathData.prototype.scale = function() {
   return this;
 };
 
+SVGPathData.prototype.rotate = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.ROTATE, arguments);
+  return this;
+};
+
 SVGPathData.prototype.ySymetry = function() {
   this.commands = SVGPathData.transform(this.commands,
     SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);
