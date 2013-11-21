@@ -36,6 +36,24 @@ SVGPathData.prototype.rotate = function() {
   return this;
 };
 
+SVGPathData.prototype.matrix = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.MATRIX, arguments);
+  return this;
+};
+
+SVGPathData.prototype.skewX = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.SKEW_X, arguments);
+  return this;
+};
+
+SVGPathData.prototype.skewY = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.SKEW_Y, arguments);
+  return this;
+};
+
 SVGPathData.prototype.ySymetry = function() {
   this.commands = SVGPathData.transform(this.commands,
     SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);

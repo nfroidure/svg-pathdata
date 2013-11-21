@@ -188,6 +188,39 @@ SVGPathDataTransformer.ROTATE = function(a, x, y) {
   };
 };
 
+// Matrix
+SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
+  return function(command) {
+    if('undefined' !== command.x) {
+      command.x =  command.x * a + command.y * c + e;
+    }
+    if('undefined' !== command.y) {
+      command.y =  command.x * b + command.y * d + f;
+    }
+    if('undefined' !== command.x1) {
+      command.x1 = command.x1 * a + command.y1 * c + e;
+    }
+    if('undefined' !== command.y1) {
+      command.y1 = command.x1 * b + command.y1 * d + f;
+    }
+    if('undefined' !== command.x2) {
+      command.x2 = command.x2 * a + command.y2 * c + e;
+    }
+    if('undefined' !== command.y2) {
+      command.y2 = command.x2 * b + command.y2 * d + f;
+    }
+    return command;
+  };
+};
+
+// Skew
+SVGPathDataTransformer.SKEW_X = function(a) {
+  return SVGPathDataTransformer.MATRIX(1, 0, Math.atan(a), 1, 0, 0);
+}
+SVGPathDataTransformer.SKEW_Y = function(a) {
+  return SVGPathDataTransformer.MATRIX(1, Math.atan(a), 0, 1, 0, 0);
+}
+
 // Symetry througth the Y axis
 SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
   var notFirst = false;
