@@ -108,87 +108,7 @@ SVGPathDataTransformer.TO_REL = function() {
   };
 };
 
-// Translation
-SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
-  dY = dY || 0;
-  return function(command) {
-    if('undefined' !== command.x) {
-      command.x += dX;
-    }
-    if('undefined' !== command.y) {
-      command.y += dY;
-    }
-    if('undefined' !== command.x1) {
-      command.x1 += dX;
-    }
-    if('undefined' !== command.y1) {
-      command.y1 += dY;
-    }
-    if('undefined' !== command.x2) {
-      command.x2 += dX;
-    }
-    if('undefined' !== command.y2) {
-      command.y2 += dY;
-    }
-    return command;
-  };
-};
-
-// Scaling
-SVGPathDataTransformer.SCALE = function(dX, dY) {
-  dY = dY || dX;
-  return function(command) {
-    if('undefined' !== command.x) {
-      command.x *= dX;
-    }
-    if('undefined' !== command.y) {
-      command.y *= dY;
-    }
-    if('undefined' !== command.x1) {
-      command.x1 *= dX;
-    }
-    if('undefined' !== command.y1) {
-      command.y1 *= dY;
-    }
-    if('undefined' !== command.x2) {
-      command.x2 *= dX;
-    }
-    if('undefined' !== command.y2) {
-      command.y2 *= dY;
-    }
-    return command;
-  };
-};
-
-// Rotation
-SVGPathDataTransformer.ROTATE = function(a, x, y) {
-  var toOrigin = SVGPathDataTransformer.TRANSLATE(x || 0, y || 0)
-    , fromOrigin = SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0));
-  return function(command) {
-    command = toOrigin(command);
-    if('undefined' !== command.x) {
-      command.x = command.x*Math.cos(a) + command.y*Math.sin(a);
-    }
-    if('undefined' !== command.y) {
-      command.y = -1*command.x*Math.sin(a) + command.y*Math.cos(a);
-    }
-    if('undefined' !== command.x1) {
-      command.x1 = command.x1*Math.cos(a) + command.y1*Math.sin(a);
-    }
-    if('undefined' !== command.y1) {
-      command.y1 = -1*command.x1*Math.sin(a) + command.y1*Math.cos(a);
-    }
-    if('undefined' !== command.x2) {
-      command.x2 = command.x2*Math.cos(a) + command.y2*Math.sin(a);
-    }
-    if('undefined' !== command.y2) {
-      command.y2 = -1*command.x2*Math.sin(a) + command.y2*Math.cos(a);
-    }
-    return fromOrigin(command);
-  };
-};
-
-// Matrix
+// Matrix : http://apike.ca/prog_svg_transform.html
 SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
   return function(command) {
     if('undefined' !== command.x) {
@@ -211,6 +131,29 @@ SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
     }
     return command;
   };
+};
+
+// Rotation
+SVGPathDataTransformer.ROTATE = function(a, x, y) {
+  return (function(toOrigin, fromOrigin, rotate) {
+    return function(command) {
+      return fromOrigin(rotate(toOrigin(command)));
+    };
+  })(SVGPathDataTransformer.TRANSLATE(x || 0, y || 0)
+   , SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0))
+   , SVGPathDataTransformer.MATRIX(Math.cos(a), Math.sin(a),
+      -Math.sin(a), Math.cos(a), 0, 0)
+  );
+};
+
+// Translation
+SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
+  return SVGPathDataTransformer.MATRIX(1, 0, 0, 1, dX, dY || 0);
+};
+
+// Scaling
+SVGPathDataTransformer.SCALE = function(dX, dY) {
+  return SVGPathDataTransformer.MATRIX(dX, 0, 0, dY || dX, 0, 0);
 };
 
 // Skew
