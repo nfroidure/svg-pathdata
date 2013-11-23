@@ -11,9 +11,15 @@
     "url": "https://github.com/nfroidure/SVGPathData.git"
   },
   "keywords": [
-    "SVG",
-    "PathData",
-    "parser"
+    "svg",
+    "path",
+    "data",
+    "parser",
+    "encoder",
+    "transformer",
+    "reader",
+    "writer",
+    "stream"
   ],
   "author": "Nicolas Froidure",
   "license": "MIT",

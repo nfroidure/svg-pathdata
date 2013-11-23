@@ -1,11 +1,12 @@
 # SVGPathData [![Build Status](https://travis-ci.org/nfroidure/SVGPathData.png?branch=master)](https://travis-ci.org/nfroidure/SVGPathData)
 
-Manipulating SVG PathDatas (path[d] attribute content) simply and efficiently.
+Manipulating SVG path datas (path[d] attribute content) simply and efficiently.
 
 ## Including the library
 This library is fully node based (based on current stream implementation) but
- you can also use it in modern browser with the browserified build or in your
- own build using Browserify.
+ you can also use it in modern browser with the
+ [browserified build](https://github.com/nfroidure/SVGPathData/blob/master/dist/SVGPathData.js)
+ or in your own build using Browserify.
 
 ## Reading PathDatas
 ```js
