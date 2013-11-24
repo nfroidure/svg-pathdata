@@ -7993,8 +7993,15 @@ SVGPathDataTransformer.TO_REL = function() {
   };
 };
 
+// SVG Transforms : http://www.w3.org/TR/SVGTiny12/coords.html#TransformList
 // Matrix : http://apike.ca/prog_svg_transform.html
 SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
+  if('number' !== typeof a, 'number' !== typeof b,
+    'number' !== typeof c, 'number' !== typeof d,
+    'number' !== typeof e, 'number' !== typeof f) {
+    throw Error('A matrix transformation requires parameters [a,b,c,d,e,f]'
+      +' to be set and to be numbers.');
+  }
   return function(command) {
     if('undefined' !== command.x) {
       command.x =  command.x * a + command.y * c + e;
@@ -8033,19 +8040,35 @@ SVGPathDataTransformer.ROTATE = function(a, x, y) {
 
 // Translation
 SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
+  if('number' !== typeof dX) {
+    throw Error('A translate transformation requires the parameter dX'
+      +' to be set and to be a number.');
+  }
   return SVGPathDataTransformer.MATRIX(1, 0, 0, 1, dX, dY || 0);
 };
 
 // Scaling
 SVGPathDataTransformer.SCALE = function(dX, dY) {
+  if('number' !== typeof dX) {
+    throw Error('A scale transformation requires the parameter dX'
+      +' to be set and to be a number.');
+  }
   return SVGPathDataTransformer.MATRIX(dX, 0, 0, dY || dX, 0, 0);
 };
 
 // Skew
 SVGPathDataTransformer.SKEW_X = function(a) {
+  if('number' !== typeof a) {
+    throw Error('A skewX transformation requires the parameter a'
+      +' to be set and to be a number.');
+  }
   return SVGPathDataTransformer.MATRIX(1, 0, Math.atan(a), 1, 0, 0);
 }
 SVGPathDataTransformer.SKEW_Y = function(a) {
+  if('number' !== typeof a) {
+    throw Error('A skewY transformation requires the parameter a'
+      +' to be set and to be a number.');
+  }
   return SVGPathDataTransformer.MATRIX(1, Math.atan(a), 0, 1, 0, 0);
 }
 
