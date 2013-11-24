@@ -54,6 +54,12 @@ SVGPathData.prototype.skewY = function() {
   return this;
 };
 
+SVGPathData.prototype.xSymetry = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.X_AXIS_SIMETRY, arguments);
+  return this;
+};
+
 SVGPathData.prototype.ySymetry = function() {
   this.commands = SVGPathData.transform(this.commands,
     SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);

@@ -202,6 +202,18 @@ SVGPathDataTransformer.SKEW_Y = function(a) {
   return SVGPathDataTransformer.MATRIX(1, Math.atan(a), 0, 1, 0, 0);
 }
 
+// Symetry througth the X axis
+SVGPathDataTransformer.X_AXIS_SIMETRY = function(xDecal) {
+  return (function(toAbs, scale, translate) {
+    return function(command) {
+      return translate(scale(toAbs(command)));
+    };
+  })(SVGPathDataTransformer.TO_ABS(),
+    SVGPathDataTransformer.SCALE(-1, 1),
+    SVGPathDataTransformer.TRANSLATE(xDecal || 0, 0)
+  );
+};
+
 // Symetry througth the Y axis
 SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
   return (function(toAbs, scale, translate) {
