@@ -111,6 +111,7 @@ SVGPathDataTransformer.TO_REL = function() {
 // SVG Transforms : http://www.w3.org/TR/SVGTiny12/coords.html#TransformList
 // Matrix : http://apike.ca/prog_svg_transform.html
 SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
+  var prevX = 0, prevY = 0;
   if('number' !== typeof a, 'number' !== typeof b,
     'number' !== typeof c, 'number' !== typeof d,
     'number' !== typeof e, 'number' !== typeof f) {
@@ -118,24 +119,38 @@ SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
       +' to be set and to be numbers.');
   }
   return function(command) {
-    if('undefined' !== command.x) {
-      command.x =  command.x * a + command.y * c + e;
+    if('undefined' !== typeof command.x) {
+      command.x =  command.x * a +
+        ('undefined' !== typeof command.y ?
+          command.y : (command.relative ? 0 : prevY)
+        ) * c
+        + e;
     }
-    if('undefined' !== command.y) {
-      command.y =  command.x * b + command.y * d + f;
+    if('undefined' !== typeof command.y) {
+      command.y = ('undefined' !== typeof command.x ?
+          command.x : (command.relative ? 0 : prevX)
+        ) * b
+        + command.y * d
+        + f;
     }
-    if('undefined' !== command.x1) {
+    if('undefined' !== typeof command.x1) {
       command.x1 = command.x1 * a + command.y1 * c + e;
     }
-    if('undefined' !== command.y1) {
+    if('undefined' !== typeof command.y1) {
       command.y1 = command.x1 * b + command.y1 * d + f;
     }
-    if('undefined' !== command.x2) {
+    if('undefined' !== typeof command.x2) {
       command.x2 = command.x2 * a + command.y2 * c + e;
     }
-    if('undefined' !== command.y2) {
+    if('undefined' !== typeof command.y2) {
       command.y2 = command.x2 * b + command.y2 * d + f;
     }
+    prevX = ('undefined' !== typeof command.x ?
+      (command.relative ? prevX + command.x : command.x) :
+      prevX);
+    prevY = ('undefined' !== typeof command.y ?
+      (command.relative ? prevY + command.y : command.y) :
+      prevY);
     return command;
   };
 };
@@ -189,32 +204,14 @@ SVGPathDataTransformer.SKEW_Y = function(a) {
 
 // Symetry througth the Y axis
 SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
-  var notFirst = false;
-  return function(command) {
-    if('undefined' !== command.y) {
-      if(notFirst && command.relative) {
-        command.y = -command.y;
-      } else {
-        command.y = yDecal - command.y;
-      }
-    }
-    if('undefined' !== command.y1) {
-      if(notFirst && command.relative) {
-        command.y1 = -command.y1;
-      } else {
-        command.y1 = yDecal - command.y1;
-      }
-    }
-    if('undefined' !== command.y2) {
-      if(notFirst && command.relative) {
-        command.y2 = -command.y2;
-      } else {
-        command.y2 = yDecal - command.y2;
-      }
-    }
-    notFirst = true;
-    return command;
-  };
+  return (function(toAbs, scale, translate) {
+    return function(command) {
+      return translate(scale(toAbs(command)));
+    };
+  })(SVGPathDataTransformer.TO_ABS(),
+    SVGPathDataTransformer.SCALE(1, -1),
+    SVGPathDataTransformer.TRANSLATE(0, yDecal || 0)
+  );
 };
 
 module.exports = SVGPathDataTransformer;
