@@ -1,6 +1,6 @@
 {
   "name": "svg-pathdata",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "SVG Path Datas parsing",
   "main": "dist/SVGPathData.js",
   "scripts": {
