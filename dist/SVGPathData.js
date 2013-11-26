@@ -8095,22 +8095,24 @@ SVGPathDataTransformer.SKEW_Y = function(a) {
 
 // Symetry througth the X axis
 SVGPathDataTransformer.X_AXIS_SIMETRY = function(xDecal) {
-  return (function(scale, translate) {
+  return (function(toAbs, scale, translate) {
     return function(command) {
-      return translate(scale(command));
+      return translate(scale(toAbs(command)));
     };
-  })(SVGPathDataTransformer.SCALE(-1, 1),
+  })(SVGPathDataTransformer.TO_ABS(),
+    SVGPathDataTransformer.SCALE(-1, 1),
     SVGPathDataTransformer.TRANSLATE(xDecal || 0, 0)
   );
 };
 
 // Symetry througth the Y axis
 SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
-  return (function(scale, translate) {
+  return (function(toAbs, scale, translate) {
     return function(command) {
-      return translate(scale(command));
+      return translate(scale(toAbs(command)));
     };
-  })(SVGPathDataTransformer.SCALE(1, -1),
+  })(SVGPathDataTransformer.TO_ABS(),
+    SVGPathDataTransformer.SCALE(1, -1),
     SVGPathDataTransformer.TRANSLATE(0, yDecal || 0)
   );
 };
