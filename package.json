@@ -2,7 +2,7 @@
   "name": "svg-pathdata",
   "version": "0.0.2",
   "description": "SVG Path Datas parsing",
-  "main": "dist/SVGPathData.js",
+  "main": "src/SVGPathData.js",
   "scripts": {
     "test": "grunt test"
   },
@@ -39,12 +39,12 @@
     "mocha": "1.13.x",
     "chai": "1.8.x",
     "sinon": "1.7.x",
-    "karma-script-launcher": "0.1.x",
     "karma-chrome-launcher": "0.1.x",
     "karma-firefox-launcher": "0.1.x",
     "karma-phantomjs-launcher": "0.1.x",
     "karma-mocha": "0.1.x",
     "karma": "0.10.x",
-    "grunt-karma": "0.6.x"
+    "grunt-karma": "0.6.x",
+    "matchdep": "latest"
   }
 }
