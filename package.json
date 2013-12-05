@@ -26,9 +26,9 @@
   "bugs": {
     "url": "https://github.com/nfroidure/SVGPathData/issues"
   },
-	"engines": {
-		"node": "0.10.*"
-	},
+  "engines": {
+    "node": "0.10.*"
+  },
   "devDependencies": {
     "grunt": "0.4.x",
     "grunt-parallel": "0.3.x",
@@ -45,6 +45,6 @@
     "karma-mocha": "0.1.x",
     "karma": "0.10.x",
     "grunt-karma": "0.6.x",
-    "matchdep": "latest"
+    "matchdep": "~0.3.0"
   }
 }

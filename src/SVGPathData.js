@@ -66,6 +66,12 @@ SVGPathData.prototype.ySymetry = function() {
   return this;
 };
 
+SVGPathData.prototype.aToC = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.A_TO_C, arguments);
+  return this;
+};
+
 // Static methods
 SVGPathData.encode = function(commands) {
   var content = '', encoder = new SVGPathData.Encoder();
@@ -88,7 +94,18 @@ SVGPathData.parse = function(content) {
 };
 
 SVGPathData.transform = function(commands, transformFunction, args) {
-  return commands.map(transformFunction.apply(null, args));
+  var newCommands = []
+    , transformFunction = transformFunction.apply(null, args)
+    , curCommands;
+  for(var i=0, ii=commands.length; i<ii; i++) {
+    curCommands = transformFunction(commands[i]);
+    if(curCommands instanceof Array) {
+      newCommands = newCommands.concat(curCommands);
+    } else {
+      newCommands.push(curCommands);
+    }
+  }
+  return newCommands;
 };
 
 // Commands static vars

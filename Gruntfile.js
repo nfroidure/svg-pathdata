@@ -1,10 +1,6 @@
 module.exports = function(grunt) {
 
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-browserify');
-    grunt.loadNpmTasks('grunt-karma');
-    grunt.loadNpmTasks('grunt-parallel');
+    require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
     
     grunt.initConfig({
         clean: ['dist'],
