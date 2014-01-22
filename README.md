@@ -189,7 +189,7 @@ process.stdin.pipe(new SVGPathData.Parser())
 ```
 
 ## Contributing
-Clone this project, run :
+Clone this project, run:
 ```sh
 npm install; grunt test&
 ```

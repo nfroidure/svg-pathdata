@@ -9,14 +9,11 @@ module.exports = function(config) {
 
 
     // frameworks to use
-    frameworks: ['mocha'],
+    frameworks: ['mocha', 'chai'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      'node_modules/mocha/mocha.js',
-      'node_modules/chai/chai.js',
-      'node_modules/sinon/pkg/sinon.js',
       'dist/SVGPathData.js',
       'test/**/*.js'
     ],
