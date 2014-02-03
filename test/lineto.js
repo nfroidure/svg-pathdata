@@ -1,6 +1,6 @@
 var assert = chai.assert;
 
-describe("Parsing move to commands", function() {
+describe("Parsing line to commands", function() {
 
   beforeEach(function() {
   });
@@ -8,11 +8,16 @@ describe("Parsing move to commands", function() {
   afterEach(function() {
   });
 
-  it("should work with single coordinate", function() {
-    var commands = new SVGPathData('L100').commands;
-    assert.equal(commands[0].type, SVGPathData.LINE_TO);
-    assert.equal(commands[0].relative, false);
-    assert.equal(commands[0].x, '100');
+  it("should not work with single coordinate", function() {
+    assert.throw(function() {
+      new SVGPathData('L100');
+    }, SyntaxError, 'Unterminated command at index 0.');
+  });
+
+  it("should not work with single complexer coordinate", function() {
+    assert.throw(function() {
+      new SVGPathData('l-10e-5');
+    }, SyntaxError, 'Unterminated command at index 0.');
   });
 
   it("should work with comma separated coordinates", function() {
@@ -29,13 +34,6 @@ describe("Parsing move to commands", function() {
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, '100');
     assert.equal(commands[0].y, '100');
-  });
-
-  it("should work with single complexer coordinate", function() {
-    var commands = new SVGPathData('l-10e-5').commands;
-    assert.equal(commands[0].type, SVGPathData.LINE_TO);
-    assert.equal(commands[0].relative, true);
-    assert.equal(commands[0].x, '-10e-5');
   });
 
   it("should work with complexer coordinates", function() {

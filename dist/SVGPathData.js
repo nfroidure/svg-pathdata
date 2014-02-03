@@ -7103,8 +7103,8 @@ function SVGPathDataParser(options) {
             };
           } else if('undefined' === typeof this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
-            delete this.curCommand.invalid;
           } else {
+            delete this.curCommand.invalid;
             this.curCommand.y = Number(this.curNumber);
             this.push(this.curCommand);
             this.curCommand = null;
