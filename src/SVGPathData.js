@@ -6,6 +6,12 @@ SVGPathData.prototype.encode = function() {
   return SVGPathData.encode(this.commands);
 };
 
+SVGPathData.prototype.round = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.ROUND, arguments);
+  return this;
+};
+
 SVGPathData.prototype.toAbs = function() {
   this.commands = SVGPathData.transform(this.commands,
     SVGPathData.Transformer.TO_ABS);

@@ -6670,6 +6670,12 @@ SVGPathData.prototype.encode = function() {
   return SVGPathData.encode(this.commands);
 };
 
+SVGPathData.prototype.round = function() {
+  this.commands = SVGPathData.transform(this.commands,
+    SVGPathData.Transformer.ROUND, arguments);
+  return this;
+};
+
 SVGPathData.prototype.toAbs = function() {
   this.commands = SVGPathData.transform(this.commands,
     SVGPathData.Transformer.TO_ABS);
@@ -7468,6 +7474,35 @@ SVGPathDataTransformer.prototype._transform = function(commands, encoding, done)
 };
 
 // Predefined transforming functions
+// Rounds commands values
+SVGPathDataTransformer.ROUND = function(roundVal) {
+  rounVal = roundVal || 10e12;
+  return function(command) {
+    // x1/y1 values
+    if('undefined' !== typeof command.x1) {
+      command.x1 = Math.round(command.x1*roundVal)/roundVal;
+    }
+    if('undefined' !== typeof command.y1) {
+      command.y1 = Math.round(command.y1*roundVal)/roundVal;
+    }
+    // x2/y2 values
+    if('undefined' !== typeof command.x2) {
+      command.x2 = Math.round(command.x2*roundVal)/roundVal;
+    }
+    if('undefined' !== typeof command.y2) {
+      command.y2 = Math.round(command.y2*roundVal)/roundVal;
+    }
+    // Finally x/y values
+    if('undefined' !== typeof command.x) {
+      command.x = Math.round(command.x*roundVal,12)/roundVal;
+    }
+    if('undefined' !== typeof command.y) {
+      command.y = Math.round(command.y*roundVal,12)/roundVal;
+    }
+    return command;
+  };
+};
+
 // Relative to absolute commands
 SVGPathDataTransformer.TO_ABS = function() {
   var prevX = 0, prevY = 0;
