@@ -15,7 +15,7 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       'dist/SVGPathData.js',
-      'test/**/*.js'
+      'tests/**/*.mocha.js'
     ],
 
 

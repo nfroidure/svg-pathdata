@@ -47,7 +47,7 @@ SVGPathDataTransformer.prototype._transform = function(commands, encoding, done)
 // Predefined transforming functions
 // Rounds commands values
 SVGPathDataTransformer.ROUND = function(roundVal) {
-  rounVal = roundVal || 10e12;
+  roundVal = roundVal || 10e12;
   return function(command) {
     // x1/y1 values
     if('undefined' !== typeof command.x1) {

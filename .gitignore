@@ -1,4 +1,6 @@
-node_modules/*
 *~
 *.swp
-*.swo
+node_modules/
+test/results
+.git
+.coveralls.yml

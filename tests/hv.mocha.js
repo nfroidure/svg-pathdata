@@ -1,4 +1,14 @@
-var assert = chai.assert;
+var assert = (
+    global && global.chai
+    ? global.chai.assert
+    : require('chai').assert
+  )
+  , SVGPathData = (
+    global && global.SVGPathData
+    ? global.SVGPathData
+    : require(__dirname + '/../src/SVGPathData.js')
+  )
+;
 
 describe("Parsing horizontal commands", function() {
 
