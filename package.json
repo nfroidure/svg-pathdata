@@ -33,6 +33,10 @@
     "node": "0.10.*"
   },
   "devDependencies": {
+    "mocha": "~1.17.1",
+    "mocha-lcov-reporter": "0.0.1",
+    "coveralls": "~2.7.1",
+    "istanbul": "~0.2.4",
     "karma": "~0.10.8",
     "karma-chrome-launcher": "~0.1.1",
     "karma-firefox-launcher": "~0.1.2",
