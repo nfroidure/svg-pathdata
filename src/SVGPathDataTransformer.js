@@ -5,7 +5,7 @@
 var SVGPathData = require('./SVGPathData.js')
 
 // TransformStream inherance required modules
-  , TransformStream = require('stream').Transform
+  , TransformStream = require('readable-stream').Transform
   , util = require('util')
 ;
 
