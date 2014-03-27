@@ -4,9 +4,9 @@
   "description": "SVG Path Datas parsing",
   "main": "src/SVGPathData.js",
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha tests/*.mocha.js",
-    "coveralls": "./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha --report lcovonly -- tests/*.mocha.js -R spec -t 5000 && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
-    "cover": "./node_modules/istanbul/lib/cli.js cover --report html ./node_modules/mocha/bin/_mocha -- tests/*.mocha.js -R spec -t 5000"
+    "test": "mocha tests/*.mocha.js",
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- tests/*.mocha.js -R spec -t 5000 | coveralls < ./coverage/lcov.info && rimraf ./coverage",
+    "cover": "istanbul cover --report html ./node_modules/mocha/bin/_mocha -- tests/*.mocha.js -R spec -t 5000"
   },
   "repository": {
     "type": "git",
@@ -52,6 +52,7 @@
     "karma-chai": "0.0.2",
     "karma-sinon": "1.0.0",
     "matchdep": "~0.3.0",
-    "chai": "~1.9.0"
+    "chai": "~1.9.0",
+    "rimraf": "~2.2.6"
   }
 }
