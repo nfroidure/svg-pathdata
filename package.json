@@ -5,7 +5,7 @@
   "main": "src/SVGPathData.js",
   "scripts": {
     "test": "mocha tests/*.mocha.js",
-    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- tests/*.mocha.js -R spec -t 5000 | coveralls < ./coverage/lcov.info && rimraf ./coverage",
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- tests/*.mocha.js -R spec -t 5000 && coveralls < ./coverage/lcov.info && rimraf ./coverage",
     "cover": "istanbul cover --report html ./node_modules/mocha/bin/_mocha -- tests/*.mocha.js -R spec -t 5000"
   },
   "repository": {
