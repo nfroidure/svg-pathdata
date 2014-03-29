@@ -3,6 +3,11 @@
 
 [![NPM version](https://badge.fury.io/js/svg-pathdata.png)](https://npmjs.org/package/svg-pathdata) [![Build status](https://secure.travis-ci.org/nfroidure/SVGPathData.png)](https://travis-ci.org/nfroidure/SVGPathData) [![Dependency Status](https://david-dm.org/nfroidure/SVGPathData.png)](https://david-dm.org/nfroidure/SVGPathData) [![devDependency Status](https://david-dm.org/nfroidure/SVGPathData/dev-status.png)](https://david-dm.org/nfroidure/SVGPathData#info=devDependencies) [![Coverage Status](https://coveralls.io/repos/nfroidure/SVGPathData/badge.png?branch=master)](https://coveralls.io/r/nfroidure/SVGPathData?branch=master)
 
+## Stats
+
+[![NPM](https://nodei.co/npm/svg-pathdata.png?downloads=true&stars=true)](https://nodei.co/npm/svg-pathdata/)
+[![NPM](https://nodei.co/npm-dl/svg-pathdata.png)](https://nodei.co/npm/svg-pathdata/)
+
 ## Including the library
 This library is fully node based (based on current stream implementation) but
  you can also use it in modern browser with the
