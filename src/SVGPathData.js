@@ -126,10 +126,10 @@ SVGPathData.QUAD_TO = 8;
 SVGPathData.SMOOTH_QUAD_TO = 9;
 SVGPathData.ARC = 10;
 
-module.exports = SVGPathData;
-
-// Expose the parser constructor
+// Expose the internal constructors
 SVGPathData.Parser = require('./SVGPathDataParser.js');
 SVGPathData.Encoder = require('./SVGPathDataEncoder.js');
 SVGPathData.Transformer = require('./SVGPathDataTransformer.js');
+
+module.exports = SVGPathData;
 

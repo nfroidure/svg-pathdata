@@ -261,7 +261,6 @@ SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
 };
 
 // Convert arc commands to curve commands
-
 SVGPathDataTransformer.A_TO_C = function() {
   var prevX = 0, prevY = 0, args;
   return (function(toAbs) {
