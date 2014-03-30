@@ -191,10 +191,6 @@ function SVGPathDataParser(options) {
           || this.state&SVGPathDataParser.STATE_LINE_TO
           || this.state&SVGPathDataParser.STATE_SMOOTH_QUAD_TO) {
           if(null === this.curCommand) {
-            if(this.state&SVGPathDataParser.STATE_MOVE_TO) {
-              this.emit('error',
-                new Error('You are not supposed to see this error!'));
-            }
             this.curCommand = {
               type: (this.state&SVGPathDataParser.STATE_MOVE_TO ?
                 SVGPathData.MOVE_TO :
@@ -243,8 +239,6 @@ function SVGPathDataParser(options) {
             delete this.curCommand.invalid;
             this.push(this.curCommand);
             this.curCommand = null;
-          } else {
-            this.emit('error', new Error('Unexpected behavior at index ' + i + '.'));
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Smooth curve to commands (x1, y1, x, y)
@@ -267,8 +261,6 @@ function SVGPathDataParser(options) {
             delete this.curCommand.invalid;
             this.push(this.curCommand);
             this.curCommand = null;
-          } else {
-            this.emit('error', new Error('Unexpected behavior at index ' + i + '.'));
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Quadratic bezier curve to commands (x1, y1, x, y)
@@ -291,8 +283,6 @@ function SVGPathDataParser(options) {
             delete this.curCommand.invalid;
             this.push(this.curCommand);
             this.curCommand = null;
-          } else {
-            this.emit('error', new Error('Unexpected behavior at index ' + i + '.'));
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
@@ -337,8 +327,6 @@ function SVGPathDataParser(options) {
             delete this.curCommand.invalid;
             this.push(this.curCommand);
             this.curCommand = null;
-          } else {
-            this.emit('error', new Error('Unexpected behavior at index ' + i + '.'));
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         }
