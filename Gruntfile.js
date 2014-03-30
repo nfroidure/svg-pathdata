@@ -10,7 +10,9 @@ module.exports = function(grunt) {
                 src: 'src/SVGPathData.js',
                 dest: 'dist/SVGPathData.js',
                 options: {
-                    standalone: 'SVGPathData'
+                    bundleOptions: {
+                       standalone: 'SVGPathData'
+                    }
                 }
             }
         },
@@ -22,7 +24,7 @@ module.exports = function(grunt) {
             travis: {
                 configFile: 'karma.conf.js',
                 singleRun: true,
-                browsers: ['Firefox', 'PhantomJS']
+                browsers: ['Firefox']
             }
         },
 
