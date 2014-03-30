@@ -29,7 +29,7 @@ function SVGPathDataEncoder(options) {
 
   // Setting objectMode separately
   this._writableState.objectMode = true;
-  this._readableState.objectMode = true;
+  this._readableState.objectMode = false;
 
 }
 
