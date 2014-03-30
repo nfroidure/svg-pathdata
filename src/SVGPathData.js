@@ -84,8 +84,14 @@ SVGPathData.prototype.transform = function(transformFunction) {
 // Static methods
 SVGPathData.encode = function(commands) {
   var content = '', encoder = new SVGPathData.Encoder();
-  encoder.on('data', function (str) {
-    content += str;
+  encoder.on('readable', function () {
+    var str;
+    do {
+      str = encoder.read();
+      if(str !== null) {
+        content += str;
+      }
+    } while(str !== null);
   });
   encoder.write(commands);
   encoder.end();
@@ -94,8 +100,14 @@ SVGPathData.encode = function(commands) {
 
 SVGPathData.parse = function(content) {
   var commands = [], parser = new SVGPathData.Parser();
-  parser.on('data', function (command) {
-    commands.push(command);
+  parser.on('readable', function () {
+    var command;
+    do {
+      command = parser.read();
+      if(command !== null) {
+        commands.push(command);
+      }
+    } while(command !== null);
   });
   parser.write(content);
   parser.end();

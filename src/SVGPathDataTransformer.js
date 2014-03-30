@@ -46,9 +46,9 @@ SVGPathDataTransformer.prototype._transform = function(commands, encoding, done)
 
 // Predefined transforming functions
 // Rounds commands values
-SVGPathDataTransformer.ROUND = function(roundVal) {
+SVGPathDataTransformer.ROUND = function roundGenerator(roundVal) {
   roundVal = roundVal || 10e12;
-  return function(command) {
+  return function round(command) {
     // x1/y1 values
     if('undefined' !== typeof command.x1) {
       command.x1 = Math.round(command.x1*roundVal)/roundVal;
@@ -75,9 +75,9 @@ SVGPathDataTransformer.ROUND = function(roundVal) {
 };
 
 // Relative to absolute commands
-SVGPathDataTransformer.TO_ABS = function() {
+SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
   var prevX = 0, prevY = 0;
-  return function(command) {
+  return function toAbs(command) {
     if(command.relative) {
       // x1/y1 values
       if('undefined' !== typeof command.x1) {
@@ -109,9 +109,9 @@ SVGPathDataTransformer.TO_ABS = function() {
 };
 
 // Absolute to relative commands
-SVGPathDataTransformer.TO_REL = function() {
+SVGPathDataTransformer.TO_REL = function toRelGenerator() {
   var prevX = 0, prevY = 0;
-  return function(command) {
+  return function toRel(command) {
     if(!command.relative) {
       // x1/y1 values
       if('undefined' !== typeof command.x1) {
@@ -144,7 +144,7 @@ SVGPathDataTransformer.TO_REL = function() {
 
 // SVG Transforms : http://www.w3.org/TR/SVGTiny12/coords.html#TransformList
 // Matrix : http://apike.ca/prog_svg_transform.html
-SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
+SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
   var prevX, prevY;
   if('number' !== typeof a, 'number' !== typeof b,
     'number' !== typeof c, 'number' !== typeof d,
@@ -152,7 +152,7 @@ SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
     throw new Error('A matrix transformation requires parameters [a,b,c,d,e,f]'
       +' to be set and to be numbers.');
   }
-  return function(command) {
+  return function matrix(command) {
     var origX = command.x, origX1 = command.x1, origX2 = command.x2;
     if('undefined' !== typeof command.x) {
       command.x =  command.x * a +
@@ -195,14 +195,14 @@ SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
 };
 
 // Rotation
-SVGPathDataTransformer.ROTATE = function(a, x, y) {
+SVGPathDataTransformer.ROTATE = function rotateGenerator(a, x, y) {
   if('number' !== typeof a) {
     throw new Error('A rotate transformation requires the parameter a'
       +' to be set and to be a number.');
   }
-  return (function(toOrigin, rotate, fromOrigin) {
-    return function(command) {
-      return fromOrigin(rotate(toOrigin(command)));
+  return (function(toOrigin, doRotate, fromOrigin) {
+    return function rotate(command) {
+      return fromOrigin(doRotate(toOrigin(command)));
     };
   })(SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0))
    , SVGPathDataTransformer.MATRIX(Math.cos(a), Math.sin(a),
@@ -212,7 +212,7 @@ SVGPathDataTransformer.ROTATE = function(a, x, y) {
 };
 
 // Translation
-SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
+SVGPathDataTransformer.TRANSLATE = function translateGenerator(dX, dY) {
   if('number' !== typeof dX) {
     throw new Error('A translate transformation requires the parameter dX'
       +' to be set and to be a number.');
@@ -221,7 +221,7 @@ SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
 };
 
 // Scaling
-SVGPathDataTransformer.SCALE = function(dX, dY) {
+SVGPathDataTransformer.SCALE = function scaleGenerator(dX, dY) {
   if('number' !== typeof dX) {
     throw new Error('A scale transformation requires the parameter dX'
       +' to be set and to be a number.');
@@ -230,14 +230,14 @@ SVGPathDataTransformer.SCALE = function(dX, dY) {
 };
 
 // Skew
-SVGPathDataTransformer.SKEW_X = function(a) {
+SVGPathDataTransformer.SKEW_X = function skewXGenerator(a) {
   if('number' !== typeof a) {
     throw new Error('A skewX transformation requires the parameter x'
       +' to be set and to be a number.');
   }
   return SVGPathDataTransformer.MATRIX(1, 0, Math.atan(a), 1, 0, 0);
 }
-SVGPathDataTransformer.SKEW_Y = function(a) {
+SVGPathDataTransformer.SKEW_Y = function skewYGenerator(a) {
   if('number' !== typeof a) {
     throw new Error('A skewY transformation requires the parameter y'
       +' to be set and to be a number.');
@@ -246,9 +246,9 @@ SVGPathDataTransformer.SKEW_Y = function(a) {
 }
 
 // Symetry througth the X axis
-SVGPathDataTransformer.X_AXIS_SIMETRY = function(xDecal) {
+SVGPathDataTransformer.X_AXIS_SIMETRY = function xSymetryGenerator(xDecal) {
   return (function(toAbs, scale, translate) {
-    return function(command) {
+    return function xSymetry(command) {
       return translate(scale(toAbs(command)));
     };
   })(SVGPathDataTransformer.TO_ABS(),
@@ -258,9 +258,9 @@ SVGPathDataTransformer.X_AXIS_SIMETRY = function(xDecal) {
 };
 
 // Symetry througth the Y axis
-SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
+SVGPathDataTransformer.Y_AXIS_SIMETRY = function ySymetryGenerator(yDecal) {
   return (function(toAbs, scale, translate) {
-    return function(command) {
+    return function ySymetry(command) {
       return translate(scale(toAbs(command)));
     };
   })(SVGPathDataTransformer.TO_ABS(),
@@ -270,10 +270,10 @@ SVGPathDataTransformer.Y_AXIS_SIMETRY = function(yDecal) {
 };
 
 // Convert arc commands to curve commands
-SVGPathDataTransformer.A_TO_C = function() {
+SVGPathDataTransformer.A_TO_C = function a2CGenerator() {
   var prevX = 0, prevY = 0, args;
   return (function(toAbs) {
-    return function(command) {
+    return function a2C(command) {
       var commands = [];
       command = toAbs(command);
       if(command.type === SVGPathData.ARC) {

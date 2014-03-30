@@ -3,14 +3,9 @@
 
 [![NPM version](https://badge.fury.io/js/svg-pathdata.png)](https://npmjs.org/package/svg-pathdata) [![Build status](https://secure.travis-ci.org/nfroidure/SVGPathData.png)](https://travis-ci.org/nfroidure/SVGPathData) [![Dependency Status](https://david-dm.org/nfroidure/SVGPathData.png)](https://david-dm.org/nfroidure/SVGPathData) [![devDependency Status](https://david-dm.org/nfroidure/SVGPathData/dev-status.png)](https://david-dm.org/nfroidure/SVGPathData#info=devDependencies) [![Coverage Status](https://coveralls.io/repos/nfroidure/SVGPathData/badge.png?branch=master)](https://coveralls.io/r/nfroidure/SVGPathData?branch=master)
 
-## Stats
-
-[![NPM](https://nodei.co/npm/svg-pathdata.png?downloads=true&stars=true)](https://nodei.co/npm/svg-pathdata/)
-[![NPM](https://nodei.co/npm-dl/svg-pathdata.png)](https://nodei.co/npm/svg-pathdata/)
-
 ## Including the library
 This library is fully node based (based on current stream implementation) but
- you can also use it in modern browser with the
+ you can also use it in modern browsers with the
  [browserified build](https://github.com/nfroidure/SVGPathData/blob/master/dist/SVGPathData.js)
  or in your own build using Browserify.
 
@@ -163,7 +158,7 @@ encode.end();
 
 ## Transforming PathDatas
 This library was made to live decoding/transform/encoding SVG PathDatas. Here is
- [an example of that kind of use](https://github.com/nfroidure/grunt-fontfactory/commit/f7b7046cf08bd56d03ab4822056aae5548de9333#diff-3281a466fce36eeb82c74e380ba1b145R156).
+ [an example of that kind of use](https://github.com/nfroidure/svgicons2svgfont/blob/aa6df0211419e9d61c417c63bcc353f0cb2ea0c8/src/index.js#L192).
 
 ### The synchronous way
 ```js
@@ -193,6 +188,36 @@ process.stdin.pipe(new SVGPathData.Parser())
 // encoder to stdout
   .pipe(process.stdout);
 ```
+
+## Supported transformations
+You can find every supported transformations in
+ [this file](https://github.com/nfroidure/SVGPathData/blob/master/src/SVGPathDataTransformer.js#L47)
+ of course, you can create yours by using this format:
+```js
+function SET_X_TO(xValue) {
+  xValue = xValue || 10; // Provide default values or throw errors for options
+  function(command) {
+    command.x = xValue; // transform command objects and return them
+    return command;
+  };
+};
+
+// Synchronous usage
+new SVGPathData('...')
+  .transform(SET_X_TO, 25)
+  .encode();
+
+// Streaming usage
+process.stdin.pipe(new SVGPathData.Parser())
+  .pipe(new SVGPathData.Transformer(SET_X_TO, 25))
+  .pipe(new SVGPathData.Encoder())
+  .pipe(process.stdout);
+```
+
+## Stats
+
+[![NPM](https://nodei.co/npm/svg-pathdata.png?downloads=true&stars=true)](https://nodei.co/npm/svg-pathdata/)
+[![NPM](https://nodei.co/npm-dl/svg-pathdata.png)](https://nodei.co/npm/svg-pathdata/)
 
 ## Contributing
 Clone this project, run:
