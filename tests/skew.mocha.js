@@ -11,6 +11,14 @@ var assert = (
 ;
 
 describe("X axis skew", function() {
+  it("should fail with bad args", function() {
+    assert.throws(function() {
+      new SVGPathData(
+        'm20,30l10,10z'
+      ).skewX().encode();
+    }, 'A skewX transformation requires the parameter x'
+      +' to be set and to be a number.');
+  });
 
   it("should work with relative path", function() {
     assert.equal(new SVGPathData(
@@ -29,6 +37,14 @@ describe("X axis skew", function() {
 });
 
 describe("Y axis skew", function() {
+  it("should fail with bad args", function() {
+    assert.throws(function() {
+      new SVGPathData(
+        'm20,30l10,10z'
+      ).skewY().encode();
+    }, 'A skewY transformation requires the parameter y'
+      +' to be set and to be a number.');
+  });
 
   it("should work with relative path", function() {
     assert.equal(new SVGPathData(

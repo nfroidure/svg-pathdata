@@ -12,6 +12,15 @@ var assert = (
 
 describe("Positive scale", function() {
 
+  it("should fail with no args", function() {
+    assert.throws(function() {
+      new SVGPathData(
+        'm20,30l10,10z'
+      ).scale().encode();
+    }, 'A scale transformation requires the parameter dX'
+      +' to be set and to be a number.');
+  });
+
   it("should work with relative path", function() {
     assert.equal(new SVGPathData(
       'm20 30c0 0 10 20 15 30z'

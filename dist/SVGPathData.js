@@ -1,347 +1,4 @@
-!function(e){"object"==typeof exports?module.exports=e():"function"==typeof define&&define.amd?define(e):"undefined"!=typeof window?window.SVGPathData=e():"undefined"!=typeof global?global.SVGPathData=e():"undefined"!=typeof self&&(self.SVGPathData=e())}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// http://wiki.commonjs.org/wiki/Unit_Testing/1.0
-//
-// THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
-//
-// Originally from narwhal.js (http://narwhaljs.org)
-// Copyright (c) 2009 Thomas Robinson <280north.com>
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the 'Software'), to
-// deal in the Software without restriction, including without limitation the
-// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-// sell copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// when used in node, this will actually load the util module we depend on
-// versus loading the builtin util module as happens otherwise
-// this is a bug in node module loading as far as I am concerned
-var util = require('util/');
-
-var pSlice = Array.prototype.slice;
-var hasOwn = Object.prototype.hasOwnProperty;
-
-// 1. The assert module provides functions that throw
-// AssertionError's when particular conditions are not met. The
-// assert module must conform to the following interface.
-
-var assert = module.exports = ok;
-
-// 2. The AssertionError is defined in assert.
-// new assert.AssertionError({ message: message,
-//                             actual: actual,
-//                             expected: expected })
-
-assert.AssertionError = function AssertionError(options) {
-  this.name = 'AssertionError';
-  this.actual = options.actual;
-  this.expected = options.expected;
-  this.operator = options.operator;
-  if (options.message) {
-    this.message = options.message;
-    this.generatedMessage = false;
-  } else {
-    this.message = getMessage(this);
-    this.generatedMessage = true;
-  }
-  var stackStartFunction = options.stackStartFunction || fail;
-
-  if (Error.captureStackTrace) {
-    Error.captureStackTrace(this, stackStartFunction);
-  }
-};
-
-// assert.AssertionError instanceof Error
-util.inherits(assert.AssertionError, Error);
-
-function replacer(key, value) {
-  if (util.isUndefined(value)) {
-    return '' + value;
-  }
-  if (util.isNumber(value) && (isNaN(value) || !isFinite(value))) {
-    return value.toString();
-  }
-  if (util.isFunction(value) || util.isRegExp(value)) {
-    return value.toString();
-  }
-  return value;
-}
-
-function truncate(s, n) {
-  if (util.isString(s)) {
-    return s.length < n ? s : s.slice(0, n);
-  } else {
-    return s;
-  }
-}
-
-function getMessage(self) {
-  return truncate(JSON.stringify(self.actual, replacer), 128) + ' ' +
-         self.operator + ' ' +
-         truncate(JSON.stringify(self.expected, replacer), 128);
-}
-
-// At present only the three keys mentioned above are used and
-// understood by the spec. Implementations or sub modules can pass
-// other keys to the AssertionError's constructor - they will be
-// ignored.
-
-// 3. All of the following functions must throw an AssertionError
-// when a corresponding condition is not met, with a message that
-// may be undefined if not provided.  All assertion methods provide
-// both the actual and expected values to the assertion error for
-// display purposes.
-
-function fail(actual, expected, message, operator, stackStartFunction) {
-  throw new assert.AssertionError({
-    message: message,
-    actual: actual,
-    expected: expected,
-    operator: operator,
-    stackStartFunction: stackStartFunction
-  });
-}
-
-// EXTENSION! allows for well behaved errors defined elsewhere.
-assert.fail = fail;
-
-// 4. Pure assertion tests whether a value is truthy, as determined
-// by !!guard.
-// assert.ok(guard, message_opt);
-// This statement is equivalent to assert.equal(true, !!guard,
-// message_opt);. To test strictly for the value true, use
-// assert.strictEqual(true, guard, message_opt);.
-
-function ok(value, message) {
-  if (!value) fail(value, true, message, '==', assert.ok);
-}
-assert.ok = ok;
-
-// 5. The equality assertion tests shallow, coercive equality with
-// ==.
-// assert.equal(actual, expected, message_opt);
-
-assert.equal = function equal(actual, expected, message) {
-  if (actual != expected) fail(actual, expected, message, '==', assert.equal);
-};
-
-// 6. The non-equality assertion tests for whether two objects are not equal
-// with != assert.notEqual(actual, expected, message_opt);
-
-assert.notEqual = function notEqual(actual, expected, message) {
-  if (actual == expected) {
-    fail(actual, expected, message, '!=', assert.notEqual);
-  }
-};
-
-// 7. The equivalence assertion tests a deep equality relation.
-// assert.deepEqual(actual, expected, message_opt);
-
-assert.deepEqual = function deepEqual(actual, expected, message) {
-  if (!_deepEqual(actual, expected)) {
-    fail(actual, expected, message, 'deepEqual', assert.deepEqual);
-  }
-};
-
-function _deepEqual(actual, expected) {
-  // 7.1. All identical values are equivalent, as determined by ===.
-  if (actual === expected) {
-    return true;
-
-  } else if (util.isBuffer(actual) && util.isBuffer(expected)) {
-    if (actual.length != expected.length) return false;
-
-    for (var i = 0; i < actual.length; i++) {
-      if (actual[i] !== expected[i]) return false;
-    }
-
-    return true;
-
-  // 7.2. If the expected value is a Date object, the actual value is
-  // equivalent if it is also a Date object that refers to the same time.
-  } else if (util.isDate(actual) && util.isDate(expected)) {
-    return actual.getTime() === expected.getTime();
-
-  // 7.3 If the expected value is a RegExp object, the actual value is
-  // equivalent if it is also a RegExp object with the same source and
-  // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
-  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
-    return actual.source === expected.source &&
-           actual.global === expected.global &&
-           actual.multiline === expected.multiline &&
-           actual.lastIndex === expected.lastIndex &&
-           actual.ignoreCase === expected.ignoreCase;
-
-  // 7.4. Other pairs that do not both pass typeof value == 'object',
-  // equivalence is determined by ==.
-  } else if (!util.isObject(actual) && !util.isObject(expected)) {
-    return actual == expected;
-
-  // 7.5 For all other Object pairs, including Array objects, equivalence is
-  // determined by having the same number of owned properties (as verified
-  // with Object.prototype.hasOwnProperty.call), the same set of keys
-  // (although not necessarily the same order), equivalent values for every
-  // corresponding key, and an identical 'prototype' property. Note: this
-  // accounts for both named and indexed properties on Arrays.
-  } else {
-    return objEquiv(actual, expected);
-  }
-}
-
-function isArguments(object) {
-  return Object.prototype.toString.call(object) == '[object Arguments]';
-}
-
-function objEquiv(a, b) {
-  if (util.isNullOrUndefined(a) || util.isNullOrUndefined(b))
-    return false;
-  // an identical 'prototype' property.
-  if (a.prototype !== b.prototype) return false;
-  //~~~I've managed to break Object.keys through screwy arguments passing.
-  //   Converting to array solves the problem.
-  if (isArguments(a)) {
-    if (!isArguments(b)) {
-      return false;
-    }
-    a = pSlice.call(a);
-    b = pSlice.call(b);
-    return _deepEqual(a, b);
-  }
-  try {
-    var ka = objectKeys(a),
-        kb = objectKeys(b),
-        key, i;
-  } catch (e) {//happens when one is a string literal and the other isn't
-    return false;
-  }
-  // having the same number of owned properties (keys incorporates
-  // hasOwnProperty)
-  if (ka.length != kb.length)
-    return false;
-  //the same set of keys (although not necessarily the same order),
-  ka.sort();
-  kb.sort();
-  //~~~cheap key test
-  for (i = ka.length - 1; i >= 0; i--) {
-    if (ka[i] != kb[i])
-      return false;
-  }
-  //equivalent values for every corresponding key, and
-  //~~~possibly expensive deep test
-  for (i = ka.length - 1; i >= 0; i--) {
-    key = ka[i];
-    if (!_deepEqual(a[key], b[key])) return false;
-  }
-  return true;
-}
-
-// 8. The non-equivalence assertion tests for any deep inequality.
-// assert.notDeepEqual(actual, expected, message_opt);
-
-assert.notDeepEqual = function notDeepEqual(actual, expected, message) {
-  if (_deepEqual(actual, expected)) {
-    fail(actual, expected, message, 'notDeepEqual', assert.notDeepEqual);
-  }
-};
-
-// 9. The strict equality assertion tests strict equality, as determined by ===.
-// assert.strictEqual(actual, expected, message_opt);
-
-assert.strictEqual = function strictEqual(actual, expected, message) {
-  if (actual !== expected) {
-    fail(actual, expected, message, '===', assert.strictEqual);
-  }
-};
-
-// 10. The strict non-equality assertion tests for strict inequality, as
-// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
-
-assert.notStrictEqual = function notStrictEqual(actual, expected, message) {
-  if (actual === expected) {
-    fail(actual, expected, message, '!==', assert.notStrictEqual);
-  }
-};
-
-function expectedException(actual, expected) {
-  if (!actual || !expected) {
-    return false;
-  }
-
-  if (Object.prototype.toString.call(expected) == '[object RegExp]') {
-    return expected.test(actual);
-  } else if (actual instanceof expected) {
-    return true;
-  } else if (expected.call({}, actual) === true) {
-    return true;
-  }
-
-  return false;
-}
-
-function _throws(shouldThrow, block, expected, message) {
-  var actual;
-
-  if (util.isString(expected)) {
-    message = expected;
-    expected = null;
-  }
-
-  try {
-    block();
-  } catch (e) {
-    actual = e;
-  }
-
-  message = (expected && expected.name ? ' (' + expected.name + ').' : '.') +
-            (message ? ' ' + message : '.');
-
-  if (shouldThrow && !actual) {
-    fail(actual, expected, 'Missing expected exception' + message);
-  }
-
-  if (!shouldThrow && expectedException(actual, expected)) {
-    fail(actual, expected, 'Got unwanted exception' + message);
-  }
-
-  if ((shouldThrow && actual && expected &&
-      !expectedException(actual, expected)) || (!shouldThrow && actual)) {
-    throw actual;
-  }
-}
-
-// 11. Expected to throw an error:
-// assert.throws(block, Error_opt, message_opt);
-
-assert.throws = function(block, /*optional*/error, /*optional*/message) {
-  _throws.apply(this, [true].concat(pSlice.call(arguments)));
-};
-
-// EXTENSION! This is annoying to write outside this module.
-assert.doesNotThrow = function(block, /*optional*/message) {
-  _throws.apply(this, [false].concat(pSlice.call(arguments)));
-};
-
-assert.ifError = function(err) { if (err) {throw err;}};
-
-var objectKeys = Object.keys || function (obj) {
-  var keys = [];
-  for (var key in obj) {
-    if (hasOwn.call(obj, key)) keys.push(key);
-  }
-  return keys;
-};
-
-},{"util/":18}],2:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -643,7 +300,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -668,7 +325,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"PcZj9L":[function(require,module,exports){
 var TA = require('typedarray')
 var xDataView = typeof DataView === 'undefined'
@@ -2513,7 +2170,7 @@ function packF32(v) { return packIEEE754(v, 8, 23); }
 },{}]},{},[])
 ;;module.exports=require("native-buffer-browserify").Buffer
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -2567,7 +2224,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var base64 = require('base64-js')
 var TA = require('typedarray')
 
@@ -3721,7 +3378,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":7,"typedarray":8}],7:[function(require,module,exports){
+},{"base64-js":6,"typedarray":7}],6:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -3807,7 +3464,7 @@ function assert (test, message) {
 	module.exports.fromByteArray = uint8ToBase64;
 }());
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var undefined = (void 0); // Paranoia
 
 // Beyond this value, index getters/setters (i.e. array[0], array[1]) are so slow to
@@ -4439,7 +4096,7 @@ function packF32(v) { return packIEEE754(v, 8, 23); }
 
 }());
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4513,7 +4170,7 @@ function onend() {
   });
 }
 
-},{"./readable.js":13,"./writable.js":15,"inherits":3,"process/browser.js":11}],10:[function(require,module,exports){
+},{"./readable.js":12,"./writable.js":14,"inherits":2,"process/browser.js":10}],9:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4642,9 +4299,9 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"./duplex.js":9,"./passthrough.js":12,"./readable.js":13,"./transform.js":14,"./writable.js":15,"events":2,"inherits":3}],11:[function(require,module,exports){
-module.exports=require(5)
-},{}],12:[function(require,module,exports){
+},{"./duplex.js":8,"./passthrough.js":11,"./readable.js":12,"./transform.js":13,"./writable.js":14,"events":1,"inherits":2}],10:[function(require,module,exports){
+module.exports=require(4)
+},{}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4687,7 +4344,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./transform.js":14,"inherits":3}],13:[function(require,module,exports){
+},{"./transform.js":13,"inherits":2}],12:[function(require,module,exports){
 var process=require("__browserify_process");// Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5622,7 +5279,7 @@ function indexOf (xs, x) {
   return -1;
 }
 
-},{"./index.js":10,"__browserify_process":5,"buffer":6,"events":2,"inherits":3,"process/browser.js":11,"string_decoder":16}],14:[function(require,module,exports){
+},{"./index.js":9,"__browserify_process":4,"buffer":5,"events":1,"inherits":2,"process/browser.js":10,"string_decoder":15}],13:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5828,7 +5485,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./duplex.js":9,"inherits":3}],15:[function(require,module,exports){
+},{"./duplex.js":8,"inherits":2}],14:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -6216,7 +5873,7 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./index.js":10,"buffer":6,"inherits":3,"process/browser.js":11}],16:[function(require,module,exports){
+},{"./index.js":9,"buffer":5,"inherits":2,"process/browser.js":10}],15:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -6409,14 +6066,14 @@ function base64DetectIncompleteChar(buffer) {
   return incomplete;
 }
 
-},{"buffer":6}],17:[function(require,module,exports){
+},{"buffer":5}],16:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 var process=require("__browserify_process"),global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};// Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7004,7 +6661,7 @@ function hasOwnProperty(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 }
 
-},{"./support/isBuffer":17,"__browserify_process":5,"inherits":3}],19:[function(require,module,exports){
+},{"./support/isBuffer":16,"__browserify_process":4,"inherits":2}],18:[function(require,module,exports){
 var process=require("__browserify_process");// Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7032,13 +6689,27 @@ var process=require("__browserify_process");// Copyright Joyent, Inc. and other 
 // Writable.
 
 module.exports = Duplex;
-var util = require('util');
+
+/*<replacement>*/
+var objectKeys = Object.keys || function (obj) {
+  var keys = [];
+  for (var key in obj) keys.push(key);
+  return keys;
+}
+/*</replacement>*/
+
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
 var Readable = require('./_stream_readable');
 var Writable = require('./_stream_writable');
 
 util.inherits(Duplex, Readable);
 
-Object.keys(Writable.prototype).forEach(function(method) {
+forEach(objectKeys(Writable.prototype), function(method) {
   if (!Duplex.prototype[method])
     Duplex.prototype[method] = Writable.prototype[method];
 });
@@ -7075,7 +6746,13 @@ function onend() {
   process.nextTick(this.end.bind(this));
 }
 
-},{"./_stream_readable":21,"./_stream_writable":23,"__browserify_process":5,"util":18}],20:[function(require,module,exports){
+function forEach (xs, f) {
+  for (var i = 0, l = xs.length; i < l; i++) {
+    f(xs[i], i);
+  }
+}
+
+},{"./_stream_readable":20,"./_stream_writable":22,"__browserify_process":4,"core-util-is":23,"inherits":24}],19:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7104,7 +6781,12 @@ function onend() {
 module.exports = PassThrough;
 
 var Transform = require('./_stream_transform');
-var util = require('util');
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
 util.inherits(PassThrough, Transform);
 
 function PassThrough(options) {
@@ -7118,7 +6800,7 @@ PassThrough.prototype._transform = function(chunk, encoding, cb) {
   cb(null, chunk);
 };
 
-},{"./_stream_transform":22,"util":18}],21:[function(require,module,exports){
+},{"./_stream_transform":21,"core-util-is":23,"inherits":24}],20:[function(require,module,exports){
 var process=require("__browserify_process");// Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7141,15 +6823,33 @@ var process=require("__browserify_process");// Copyright Joyent, Inc. and other 
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 module.exports = Readable;
+
+/*<replacement>*/
+var isArray = require('isarray');
+/*</replacement>*/
+
+
+/*<replacement>*/
+var Buffer = require('buffer').Buffer;
+/*</replacement>*/
+
 Readable.ReadableState = ReadableState;
 
 var EE = require('events').EventEmitter;
+
+/*<replacement>*/
 if (!EE.listenerCount) EE.listenerCount = function(emitter, type) {
   return emitter.listeners(type).length;
 };
+/*</replacement>*/
+
 var Stream = require('stream');
-var util = require('util');
-var Buffer = require('buffer').Buffer;
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
 var StringDecoder;
 
 util.inherits(Readable, Stream);
@@ -7646,7 +7346,7 @@ Readable.prototype.pipe = function(dest, pipeOpts) {
   // is attached before any userland ones.  NEVER DO THIS.
   if (!dest._events || !dest._events.error)
     dest.on('error', onerror);
-  else if (Array.isArray(dest._events.error))
+  else if (isArray(dest._events.error))
     dest._events.error.unshift(onerror);
   else
     dest._events.error = [onerror, dest._events.error];
@@ -7716,7 +7416,7 @@ function flow(src) {
     if (state.pipesCount === 1)
       write(state.pipes, 0, null);
     else
-      state.pipes.forEach(write);
+      forEach(state.pipes, write);
 
     src.emit('data', chunk);
 
@@ -7794,7 +7494,7 @@ Readable.prototype.unpipe = function(dest) {
   }
 
   // try to find the right one.
-  var i = state.pipes.indexOf(dest);
+  var i = indexOf(state.pipes, dest);
   if (i === -1)
     return this;
 
@@ -7940,7 +7640,7 @@ Readable.prototype.wrap = function(stream) {
 
   // proxy certain important events.
   var events = ['error', 'close', 'destroy', 'pause', 'resume'];
-  events.forEach(function(ev) {
+  forEach(events, function(ev) {
     stream.on(ev, self.emit.bind(self, ev));
   });
 
@@ -8048,7 +7748,20 @@ function endReadable(stream) {
   }
 }
 
-},{"__browserify_process":5,"buffer":6,"events":2,"stream":10,"string_decoder/":24,"util":18}],22:[function(require,module,exports){
+function forEach (xs, f) {
+  for (var i = 0, l = xs.length; i < l; i++) {
+    f(xs[i], i);
+  }
+}
+
+function indexOf (xs, x) {
+  for (var i = 0, l = xs.length; i < l; i++) {
+    if (xs[i] === x) return i;
+  }
+  return -1;
+}
+
+},{"__browserify_process":4,"buffer":5,"core-util-is":23,"events":1,"inherits":24,"isarray":25,"stream":9,"string_decoder/":26}],21:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8116,7 +7829,12 @@ function endReadable(stream) {
 module.exports = Transform;
 
 var Duplex = require('./_stream_duplex');
-var util = require('util');
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
 util.inherits(Transform, Duplex);
 
 
@@ -8255,7 +7973,7 @@ function done(stream, er) {
   return stream.push(null);
 }
 
-},{"./_stream_duplex":19,"util":18}],23:[function(require,module,exports){
+},{"./_stream_duplex":18,"core-util-is":23,"inherits":24}],22:[function(require,module,exports){
 var process=require("__browserify_process");// Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8282,11 +8000,20 @@ var process=require("__browserify_process");// Copyright Joyent, Inc. and other 
 // the drain event emission and buffering.
 
 module.exports = Writable;
+
+/*<replacement>*/
+var Buffer = require('buffer').Buffer;
+/*</replacement>*/
+
 Writable.WritableState = WritableState;
 
-var util = require('util');
-var Buffer = require('buffer').Buffer;
-var assert = require('assert');
+
+/*<replacement>*/
+var util = require('core-util-is');
+util.inherits = require('inherits');
+/*</replacement>*/
+
+
 var Stream = require('stream');
 
 util.inherits(Writable, Stream);
@@ -8635,7 +8362,122 @@ function endWritable(stream, state, cb) {
   state.ended = true;
 }
 
-},{"./_stream_duplex":19,"__browserify_process":5,"assert":1,"buffer":6,"stream":10,"util":18}],24:[function(require,module,exports){
+},{"./_stream_duplex":18,"__browserify_process":4,"buffer":5,"core-util-is":23,"inherits":24,"stream":9}],23:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer");// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+// NOTE: These type checking functions intentionally don't use `instanceof`
+// because it is fragile and can be easily faked with `Object.create()`.
+function isArray(ar) {
+  return Array.isArray(ar);
+}
+exports.isArray = isArray;
+
+function isBoolean(arg) {
+  return typeof arg === 'boolean';
+}
+exports.isBoolean = isBoolean;
+
+function isNull(arg) {
+  return arg === null;
+}
+exports.isNull = isNull;
+
+function isNullOrUndefined(arg) {
+  return arg == null;
+}
+exports.isNullOrUndefined = isNullOrUndefined;
+
+function isNumber(arg) {
+  return typeof arg === 'number';
+}
+exports.isNumber = isNumber;
+
+function isString(arg) {
+  return typeof arg === 'string';
+}
+exports.isString = isString;
+
+function isSymbol(arg) {
+  return typeof arg === 'symbol';
+}
+exports.isSymbol = isSymbol;
+
+function isUndefined(arg) {
+  return arg === void 0;
+}
+exports.isUndefined = isUndefined;
+
+function isRegExp(re) {
+  return isObject(re) && objectToString(re) === '[object RegExp]';
+}
+exports.isRegExp = isRegExp;
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+exports.isObject = isObject;
+
+function isDate(d) {
+  return isObject(d) && objectToString(d) === '[object Date]';
+}
+exports.isDate = isDate;
+
+function isError(e) {
+  return isObject(e) &&
+      (objectToString(e) === '[object Error]' || e instanceof Error);
+}
+exports.isError = isError;
+
+function isFunction(arg) {
+  return typeof arg === 'function';
+}
+exports.isFunction = isFunction;
+
+function isPrimitive(arg) {
+  return arg === null ||
+         typeof arg === 'boolean' ||
+         typeof arg === 'number' ||
+         typeof arg === 'string' ||
+         typeof arg === 'symbol' ||  // ES6 symbol
+         typeof arg === 'undefined';
+}
+exports.isPrimitive = isPrimitive;
+
+function isBuffer(arg) {
+  return Buffer.isBuffer(arg);
+}
+exports.isBuffer = isBuffer;
+
+function objectToString(o) {
+  return Object.prototype.toString.call(o);
+}
+},{"__browserify_Buffer":3}],24:[function(require,module,exports){
+module.exports=require(2)
+},{}],25:[function(require,module,exports){
+module.exports = Array.isArray || function (arr) {
+  return Object.prototype.toString.call(arr) == '[object Array]';
+};
+
+},{}],26:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -8837,7 +8679,7 @@ function base64DetectIncompleteChar(buffer) {
   return incomplete;
 }
 
-},{"buffer":6}],25:[function(require,module,exports){
+},{"buffer":5}],27:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Readable = exports;
 exports.Writable = require('./lib/_stream_writable.js');
@@ -8845,7 +8687,7 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":19,"./lib/_stream_passthrough.js":20,"./lib/_stream_readable.js":21,"./lib/_stream_transform.js":22,"./lib/_stream_writable.js":23}],26:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":18,"./lib/_stream_passthrough.js":19,"./lib/_stream_readable.js":20,"./lib/_stream_transform.js":21,"./lib/_stream_writable.js":22}],28:[function(require,module,exports){
 function SVGPathData(content) {
   this.commands = SVGPathData.parse(content);
 }
@@ -8983,7 +8825,7 @@ SVGPathData.Encoder = require('./SVGPathDataEncoder.js');
 SVGPathData.Transformer = require('./SVGPathDataTransformer.js');
 
 
-},{"./SVGPathDataEncoder.js":27,"./SVGPathDataParser.js":28,"./SVGPathDataTransformer.js":29}],27:[function(require,module,exports){
+},{"./SVGPathDataEncoder.js":29,"./SVGPathDataParser.js":30,"./SVGPathDataTransformer.js":31}],29:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer");// Encode SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
@@ -9088,7 +8930,7 @@ SVGPathDataEncoder.prototype._transform = function(commands, encoding, done) {
 module.exports = SVGPathDataEncoder;
 
 
-},{"./SVGPathData.js":26,"__browserify_Buffer":4,"readable-stream":25,"util":18}],28:[function(require,module,exports){
+},{"./SVGPathData.js":28,"__browserify_Buffer":3,"readable-stream":27,"util":17}],30:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer");// Parse SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
@@ -9611,7 +9453,7 @@ SVGPathDataParser.STATE_COMMANDS_MASK =
 module.exports = SVGPathDataParser;
 
 
-},{"./SVGPathData.js":26,"__browserify_Buffer":4,"readable-stream":25,"util":18}],29:[function(require,module,exports){
+},{"./SVGPathData.js":28,"__browserify_Buffer":3,"readable-stream":27,"util":17}],31:[function(require,module,exports){
 // Transform SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
@@ -10012,6 +9854,4 @@ function a2c (x1, y1, rx, ry, angle, large_arc_flag, sweep_flag, x2, y2, recursi
 module.exports = SVGPathDataTransformer;
 
 
-},{"./SVGPathData.js":26,"readable-stream":25,"util":18}]},{},[26])
-(26)
-});
+},{"./SVGPathData.js":28,"readable-stream":27,"util":17}]},{},[28]);

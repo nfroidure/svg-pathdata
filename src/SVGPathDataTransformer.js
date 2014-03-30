@@ -15,15 +15,15 @@ util.inherits(SVGPathDataTransformer, TransformStream);
 function SVGPathDataTransformer(transformFunction) {
   // Ensure new were used
   if(!(this instanceof SVGPathDataTransformer)) {
-    throw Error('Please use the "new" operator to instanciate an \
-      SVGPathDataTransformer.');
+    return new (SVGPathDataTransformer.bind.apply(SVGPathDataTransformer,
+      [SVGPathDataTransformer].concat([].slice.call(arguments, 0))));
   }
 
   // Transform function needed
   if('function' !== typeof transformFunction) {
     throw Error('Please provide a transform callback to receive commands.')
   }
-  this._transformer = transformFunction.apply(null, Array.prototype.slice(arguments,1));
+  this._transformer = transformFunction.apply(null, [].slice.call(arguments, 1));
   if('function' !== typeof this._transformer) {
     throw Error('Please provide a valid transform (returning a function).')
   }
@@ -196,6 +196,10 @@ SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
 
 // Rotation
 SVGPathDataTransformer.ROTATE = function(a, x, y) {
+  if('number' !== typeof a) {
+    throw Error('A rotate transformation requires the parameter a'
+      +' to be set and to be a number.');
+  }
   return (function(toOrigin, rotate, fromOrigin) {
     return function(command) {
       return fromOrigin(rotate(toOrigin(command)));
@@ -228,14 +232,14 @@ SVGPathDataTransformer.SCALE = function(dX, dY) {
 // Skew
 SVGPathDataTransformer.SKEW_X = function(a) {
   if('number' !== typeof a) {
-    throw Error('A skewX transformation requires the parameter a'
+    throw Error('A skewX transformation requires the parameter x'
       +' to be set and to be a number.');
   }
   return SVGPathDataTransformer.MATRIX(1, 0, Math.atan(a), 1, 0, 0);
 }
 SVGPathDataTransformer.SKEW_Y = function(a) {
   if('number' !== typeof a) {
-    throw Error('A skewY transformation requires the parameter a'
+    throw Error('A skewY transformation requires the parameter y'
       +' to be set and to be a number.');
   }
   return SVGPathDataTransformer.MATRIX(1, Math.atan(a), 0, 1, 0, 0);

@@ -29,8 +29,7 @@ function SVGPathDataParser(options) {
 
   // Ensure new were used
   if(!(this instanceof SVGPathDataParser)) {
-    throw Error('Please use the "new" operator to instanciate an \
-      SVGPathDataParser.');
+    return new SVGPathDataParser(options);
   }
 
   // Parent constructor

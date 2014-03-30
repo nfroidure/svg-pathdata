@@ -19,8 +19,7 @@ function SVGPathDataEncoder(options) {
 
   // Ensure new were used
   if(!(this instanceof SVGPathDataEncoder)) {
-    throw Error('Please use the "new" operator to instanciate an \
-      SVGPathDataEncoder.');
+    return new SVGPathDataEncoder(options);
   }
 
   // Parent constructor

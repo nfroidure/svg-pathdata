@@ -12,6 +12,15 @@ var assert = (
 
 describe("Positive rotate from the origin", function() {
 
+  it("should fail with no args", function() {
+    assert.throws(function() {
+      new SVGPathData(
+        'm20,30l10,10z'
+      ).rotate().encode();
+    }, 'A rotate transformation requires the parameter a'
+      +' to be set and to be a number.');
+  });
+
   it("should work with relative horinzontal path", function() {
     assert.equal(new SVGPathData(
       'm10 0l60 0z'
