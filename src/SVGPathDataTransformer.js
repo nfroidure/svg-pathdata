@@ -145,7 +145,7 @@ SVGPathDataTransformer.TO_REL = function() {
 // SVG Transforms : http://www.w3.org/TR/SVGTiny12/coords.html#TransformList
 // Matrix : http://apike.ca/prog_svg_transform.html
 SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
-  var prevX = 0, prevY = 0;
+  var prevX, prevY;
   if('number' !== typeof a, 'number' !== typeof b,
     'number' !== typeof c, 'number' !== typeof d,
     'number' !== typeof e, 'number' !== typeof f) {
@@ -153,52 +153,57 @@ SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
       +' to be set and to be numbers.');
   }
   return function(command) {
+    var origX = command.x, origX1 = command.x1, origX2 = command.x2;
     if('undefined' !== typeof command.x) {
       command.x =  command.x * a +
         ('undefined' !== typeof command.y ?
-          command.y : (command.relative ? 0 : prevY)
+          command.y : (command.relative ? 0 : prevY || 0)
         ) * c
-        + e;
+        + (command.relative && 'undefined' !== typeof prevX ? 0 : e);
     }
     if('undefined' !== typeof command.y) {
-      command.y = ('undefined' !== typeof command.x ?
-          command.x : (command.relative ? 0 : prevX)
+      command.y = ('undefined' !== typeof origX ?
+          origX : (command.relative ? 0 : prevX || 0)
         ) * b
         + command.y * d
-        + f;
+        + (command.relative && 'undefined' !== typeof prevY ? 0 : f);
     }
     if('undefined' !== typeof command.x1) {
-      command.x1 = command.x1 * a + command.y1 * c + e;
+      command.x1 = command.x1 * a + command.y1 * c
+        + (command.relative && 'undefined' !== typeof prevX ? 0 : e);
     }
     if('undefined' !== typeof command.y1) {
-      command.y1 = command.x1 * b + command.y1 * d + f;
+      command.y1 = origX1 * b + command.y1 * d
+        + (command.relative && 'undefined' !== typeof prevY ? 0 : f);
     }
     if('undefined' !== typeof command.x2) {
-      command.x2 = command.x2 * a + command.y2 * c + e;
+      command.x2 = command.x2 * a + command.y2 * c
+        + (command.relative && 'undefined' !== typeof prevX ? 0 : e);
     }
     if('undefined' !== typeof command.y2) {
-      command.y2 = command.x2 * b + command.y2 * d + f;
+      command.y2 = origX2 * b + command.y2 * d
+        + (command.relative && 'undefined' !== typeof prevY ? 0 : f);
     }
     prevX = ('undefined' !== typeof command.x ?
-      (command.relative ? prevX + command.x : command.x) :
-      prevX);
+      (command.relative ? (prevX || 0) + command.x : command.x) :
+      prevX || 0);
     prevY = ('undefined' !== typeof command.y ?
-      (command.relative ? prevY + command.y : command.y) :
-      prevY);
+      (command.relative ? (prevY || 0) + command.y : command.y) :
+      prevY || 0);
     return command;
   };
 };
 
 // Rotation
 SVGPathDataTransformer.ROTATE = function(a, x, y) {
-  return (function(toOrigin, fromOrigin, rotate) {
+  return (function(toOrigin, rotate, fromOrigin) {
     return function(command) {
       return fromOrigin(rotate(toOrigin(command)));
     };
-  })(SVGPathDataTransformer.TRANSLATE(x || 0, y || 0)
-   , SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0))
+  })(SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0))
    , SVGPathDataTransformer.MATRIX(Math.cos(a), Math.sin(a),
       -Math.sin(a), Math.cos(a), 0, 0)
+   , SVGPathDataTransformer.TRANSLATE(x || 0, y || 0)
   );
 };
 
