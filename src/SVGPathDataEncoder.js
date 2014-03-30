@@ -90,7 +90,7 @@ SVGPathDataEncoder.prototype._transform = function(commands, encoding, done) {
         + WSP + commands[i].x + WSP + commands[i].y;
     // Unkown command
     } else {
-      this.emit('error', SyntaxError('Unexpected command type "'
+      this.emit('error', new Error('Unexpected command type "'
         + commands[i].type + '" at index ' + i + '.'));
     }
   }

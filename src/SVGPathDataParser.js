@@ -193,7 +193,7 @@ function SVGPathDataParser(options) {
           if(null === this.curCommand) {
             if(this.state&SVGPathDataParser.STATE_MOVE_TO) {
               this.emit('error',
-                Error('You are not supposed to see this error!'));
+                new Error('You are not supposed to see this error!'));
             }
             this.curCommand = {
               type: (this.state&SVGPathDataParser.STATE_MOVE_TO ?
@@ -244,7 +244,7 @@ function SVGPathDataParser(options) {
             this.push(this.curCommand);
             this.curCommand = null;
           } else {
-            this.emit('error', Error('Unexpected behavior at index ' + i + '.'));
+            this.emit('error', new Error('Unexpected behavior at index ' + i + '.'));
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Smooth curve to commands (x1, y1, x, y)
@@ -268,7 +268,7 @@ function SVGPathDataParser(options) {
             this.push(this.curCommand);
             this.curCommand = null;
           } else {
-            this.emit('error', Error('Unexpected behavior at index ' + i + '.'));
+            this.emit('error', new Error('Unexpected behavior at index ' + i + '.'));
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Quadratic bezier curve to commands (x1, y1, x, y)
@@ -292,7 +292,7 @@ function SVGPathDataParser(options) {
             this.push(this.curCommand);
             this.curCommand = null;
           } else {
-            this.emit('error', Error('Unexpected behavior at index ' + i + '.'));
+            this.emit('error', new Error('Unexpected behavior at index ' + i + '.'));
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
@@ -306,13 +306,13 @@ function SVGPathDataParser(options) {
             };
           } else if('undefined' === typeof this.curCommand.rX) {
             if(Number(this.curNumber) < 0) {
-              this.emit('error', SyntaxError('Expected positive number, got "'
+              this.emit('error', new SyntaxError('Expected positive number, got "'
                 + this.curNumber + '" at index "' + i + '"'));
             }
             this.curCommand.rX = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.rY) {
             if(Number(this.curNumber) < 0) {
-              this.emit('error', SyntaxError('Expected positive number, got "'
+              this.emit('error', new SyntaxError('Expected positive number, got "'
                 + this.curNumber + '" at index "' + i + '"'));
             }
             this.curCommand.rY = Number(this.curNumber);
@@ -320,13 +320,13 @@ function SVGPathDataParser(options) {
             this.curCommand.xRot = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.lArcFlag) {
             if('0' !== this.curNumber && '1' !== this.curNumber) {
-              this.emit('error', SyntaxError('Expected a flag, got "' +
+              this.emit('error', new SyntaxError('Expected a flag, got "' +
                 this.curNumber + '" at index "' + i + '"'));
             }
             this.curCommand.lArcFlag = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.sweepFlag) {
             if('0' !== this.curNumber && '1' !== this.curNumber) {
-              this.emit('error', SyntaxError('Expected a flag, got "'
+              this.emit('error', new SyntaxError('Expected a flag, got "'
                 + this.curNumber +'" at index "' + i + '"'));
             }
             this.curCommand.sweepFlag = Number(this.curNumber);
@@ -338,7 +338,7 @@ function SVGPathDataParser(options) {
             this.push(this.curCommand);
             this.curCommand = null;
           } else {
-            this.emit('error', Error('Unexpected behavior at index ' + i + '.'));
+            this.emit('error', new Error('Unexpected behavior at index ' + i + '.'));
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         }
@@ -368,7 +368,7 @@ function SVGPathDataParser(options) {
         if(null !== this.curCommand) {
           if(this.curCommand.invalid) {
             this.emit('error',
-              SyntaxError('Unterminated command at index ' + i + '.'));
+              new SyntaxError('Unterminated command at index ' + i + '.'));
           }
           this.push(this.curCommand);
           this.curCommand = null;
@@ -464,7 +464,7 @@ function SVGPathDataParser(options) {
         };
       // Unkown command
       } else {
-        this.emit('error', SyntaxError('Unexpected character "' + str[i]
+        this.emit('error', new SyntaxError('Unexpected character "' + str[i]
           + '" at index ' + i + '.'));
       }
       // White spaces can follow a command

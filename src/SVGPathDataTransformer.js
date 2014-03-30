@@ -21,11 +21,11 @@ function SVGPathDataTransformer(transformFunction) {
 
   // Transform function needed
   if('function' !== typeof transformFunction) {
-    throw Error('Please provide a transform callback to receive commands.')
+    throw new Error('Please provide a transform callback to receive commands.')
   }
   this._transformer = transformFunction.apply(null, [].slice.call(arguments, 1));
   if('function' !== typeof this._transformer) {
-    throw Error('Please provide a valid transform (returning a function).')
+    throw new Error('Please provide a valid transform (returning a function).')
   }
 
   // Parent constructor
@@ -149,7 +149,7 @@ SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
   if('number' !== typeof a, 'number' !== typeof b,
     'number' !== typeof c, 'number' !== typeof d,
     'number' !== typeof e, 'number' !== typeof f) {
-    throw Error('A matrix transformation requires parameters [a,b,c,d,e,f]'
+    throw new Error('A matrix transformation requires parameters [a,b,c,d,e,f]'
       +' to be set and to be numbers.');
   }
   return function(command) {
@@ -197,7 +197,7 @@ SVGPathDataTransformer.MATRIX = function(a, b, c, d, e, f) {
 // Rotation
 SVGPathDataTransformer.ROTATE = function(a, x, y) {
   if('number' !== typeof a) {
-    throw Error('A rotate transformation requires the parameter a'
+    throw new Error('A rotate transformation requires the parameter a'
       +' to be set and to be a number.');
   }
   return (function(toOrigin, rotate, fromOrigin) {
@@ -214,7 +214,7 @@ SVGPathDataTransformer.ROTATE = function(a, x, y) {
 // Translation
 SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
   if('number' !== typeof dX) {
-    throw Error('A translate transformation requires the parameter dX'
+    throw new Error('A translate transformation requires the parameter dX'
       +' to be set and to be a number.');
   }
   return SVGPathDataTransformer.MATRIX(1, 0, 0, 1, dX, dY || 0);
@@ -223,7 +223,7 @@ SVGPathDataTransformer.TRANSLATE = function(dX, dY) {
 // Scaling
 SVGPathDataTransformer.SCALE = function(dX, dY) {
   if('number' !== typeof dX) {
-    throw Error('A scale transformation requires the parameter dX'
+    throw new Error('A scale transformation requires the parameter dX'
       +' to be set and to be a number.');
   }
   return SVGPathDataTransformer.MATRIX(dX, 0, 0, dY || dX, 0, 0);
@@ -232,14 +232,14 @@ SVGPathDataTransformer.SCALE = function(dX, dY) {
 // Skew
 SVGPathDataTransformer.SKEW_X = function(a) {
   if('number' !== typeof a) {
-    throw Error('A skewX transformation requires the parameter x'
+    throw new Error('A skewX transformation requires the parameter x'
       +' to be set and to be a number.');
   }
   return SVGPathDataTransformer.MATRIX(1, 0, Math.atan(a), 1, 0, 0);
 }
 SVGPathDataTransformer.SKEW_Y = function(a) {
   if('number' !== typeof a) {
-    throw Error('A skewY transformation requires the parameter y'
+    throw new Error('A skewY transformation requires the parameter y'
       +' to be set and to be a number.');
   }
   return SVGPathDataTransformer.MATRIX(1, Math.atan(a), 0, 1, 0, 0);
