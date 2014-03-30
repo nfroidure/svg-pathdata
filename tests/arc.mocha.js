@@ -21,25 +21,25 @@ describe("Parsing eliptical arc commands", function() {
   it("should not work when badly declarated", function() {
     assert.throw(function() {
       new SVGPathData('A');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('A 30');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('A 30 50');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('A 30 50 0');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('A 30 50 0 0');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('A 30 50 0 0 1');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('A 30 50 0 0 1 162.55');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('A 30 50 0 0 1 A 30 50 0 0 1 162.55 162.45');
     }, SyntaxError, 'Unterminated command at index 14.');

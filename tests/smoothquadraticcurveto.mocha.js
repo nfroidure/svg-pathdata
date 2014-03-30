@@ -18,16 +18,16 @@ describe("Parsing smooth quadratic curve to commands", function() {
   afterEach(function() {
   });
 
-  it("should work with single coordinate", function() {
+  it("should fail with a with single coordinate", function() {
     assert.throw(function() {
       new SVGPathData('T100');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
   });
 
-  it("should work with single complexer coordinate", function() {
+  it("should fail with a single complexer coordinate", function() {
     assert.throw(function() {
       new SVGPathData('t-10e-5');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
   });
 
   it("should work with comma separated coordinates", function() {

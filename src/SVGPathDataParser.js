@@ -16,7 +16,6 @@ var SVGPathData = require('./SVGPathData.js')
   , DECPOINT = ['.']
   , FLAGS = ['0', '1']
   , COMMA = [',']
-  , EOT = [String.fromCharCode(0x4)]
   , COMMANDS = ['m', 'M', 'z', 'Z', 'l', 'L', 'h', 'H', 'v', 'V', 'c', 'C',
     's', 'S', 'q', 'Q', 't', 'T', 'a', 'A']
 ;
@@ -46,15 +45,21 @@ function SVGPathDataParser(options) {
   this.curNumber = '';
   this.curCommand = null;
   this._flush = function(callback) {
-    this._transform(new Buffer(EOT[0], 'utf8'), 'utf8', callback);
+    this._transform(new Buffer(' '), 'utf-8', function() {});
+    // Adding residual command
+    if(null !== this.curCommand) {
+      if(this.curCommand.invalid) {
+        this.emit('error',
+          new SyntaxError('Unterminated command at the path end.'));
+      }
+      this.push(this.curCommand);
+      this.curCommand = null;
+      this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
+    }
     callback();
   };
   this._transform = function(chunk, encoding, callback) {
     var str = chunk.toString(encoding !== 'buffer' ? encoding : 'utf8');
-    if(this.state === SVGPathDataParser.STATE_ENDED) {
-      this.emit('error',
-        Error('Cannot parse more datas since the stream ended.'));
-    }
     for(var i=0, j=str.length; i<j; i++) {
       // White spaces parsing
       if(this.state&SVGPathDataParser.STATE_WSP
@@ -358,7 +363,7 @@ function SVGPathDataParser(options) {
         }
       }
       // End of a command
-      if(-1 !== COMMANDS.indexOf(str[i]) || -1 !== EOT.indexOf(str[i])) {
+      if(-1 !== COMMANDS.indexOf(str[i])) {
         // Adding residual command
         if(null !== this.curCommand) {
           if(this.curCommand.invalid) {
@@ -368,15 +373,6 @@ function SVGPathDataParser(options) {
           this.push(this.curCommand);
           this.curCommand = null;
           this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
-        }
-        // Ending the stream
-        if(-1 !== EOT.indexOf(str[i])) {
-          this.state = SVGPathDataParser.STATE_ENDED;
-          if(i<j-1) {
-            this.emit('error',
-              Error('Chars after the end of the stream at index ' + i + '.'));
-          }
-          break;
         }
       }
       // Detecting the next command
@@ -481,7 +477,6 @@ function SVGPathDataParser(options) {
 
 // Static consts
 // Parsing states
-SVGPathDataParser.STATE_ENDED = 0;
 SVGPathDataParser.STATE_WSP = 1;
 SVGPathDataParser.STATE_WSPS = 2;
 SVGPathDataParser.STATE_COMMA = 4;

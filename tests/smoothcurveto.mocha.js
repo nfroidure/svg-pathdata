@@ -21,19 +21,19 @@ describe("Parsing smooth curve to commands", function() {
   it("should not work when badly declarated", function() {
     assert.throw(function() {
       new SVGPathData('S');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('S10');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('S10 10');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('S10 10 10');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('S10 10 10 10 10 10');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('S10 10 10S10 10 10 10');
     }, SyntaxError, 'Unterminated command at index 9.');

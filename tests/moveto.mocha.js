@@ -21,13 +21,19 @@ describe("Parsing move to commands", function() {
   it("should not work with single coordinate", function() {
     assert.throw(function() {
       new SVGPathData('M100');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
   });
 
   it("should work with single complexer coordinate", function() {
     assert.throw(function() {
       new SVGPathData('m-10e-5');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
+  });
+
+  it("should work with single coordinate followed by another", function() {
+    assert.throw(function() {
+      new SVGPathData('m-10m10 10');
+    }, SyntaxError, 'Unterminated command at index 4.');
   });
 
   it("should work with comma separated coordinates", function() {
