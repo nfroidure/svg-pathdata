@@ -7,75 +7,51 @@ SVGPathData.prototype.encode = function() {
 };
 
 SVGPathData.prototype.round = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.ROUND, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.ROUND, arguments);
 };
 
 SVGPathData.prototype.toAbs = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.TO_ABS);
-  return this;
+  return this.transform(SVGPathData.Transformer.TO_ABS);
 };
 
 SVGPathData.prototype.toRel = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.TO_REL);
-  return this;
+  return this.transform(SVGPathData.Transformer.TO_REL);
 };
 
 SVGPathData.prototype.translate = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.TRANSLATE, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.TRANSLATE, arguments);
 };
 
 SVGPathData.prototype.scale = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.SCALE, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.SCALE, arguments);
 };
 
 SVGPathData.prototype.rotate = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.ROTATE, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.ROTATE, arguments);
 };
 
 SVGPathData.prototype.matrix = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.MATRIX, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.MATRIX, arguments);
 };
 
 SVGPathData.prototype.skewX = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.SKEW_X, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.SKEW_X, arguments);
 };
 
 SVGPathData.prototype.skewY = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.SKEW_Y, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.SKEW_Y, arguments);
 };
 
 SVGPathData.prototype.xSymetry = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.X_AXIS_SIMETRY, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.X_AXIS_SIMETRY, arguments);
 };
 
 SVGPathData.prototype.ySymetry = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.Y_AXIS_SIMETRY, arguments);
 };
 
 SVGPathData.prototype.aToC = function() {
-  this.commands = SVGPathData.transform(this.commands,
-    SVGPathData.Transformer.A_TO_C, arguments);
-  return this;
+  return this.transform(SVGPathData.Transformer.A_TO_C, arguments);
 };
 
 // Static methods
@@ -99,10 +75,11 @@ SVGPathData.parse = function(content) {
   return commands;
 };
 
-SVGPathData.transform = function(commands, transformFunction, args) {
+SVGPathData.prototype.transform = function(transformFunction, args) {
   var newCommands = []
     , transformFunction = transformFunction.apply(null, args)
-    , curCommands;
+    , curCommands = []
+    , commands = this.commands;
   for(var i=0, ii=commands.length; i<ii; i++) {
     curCommands = transformFunction(commands[i]);
     if(curCommands instanceof Array) {
@@ -111,7 +88,8 @@ SVGPathData.transform = function(commands, transformFunction, args) {
       newCommands.push(curCommands);
     }
   }
-  return newCommands;
+  this.commands = newCommands;
+  return this;
 };
 
 // Commands static vars
