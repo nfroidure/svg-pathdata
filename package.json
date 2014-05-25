@@ -33,8 +33,7 @@
     "node": "0.10.*"
   },
   "dependencies": {
-    "readable-stream": "~1.0.26-3",
-    "karma-chai": "^0.1.0"
+    "readable-stream": "~1.0.26-3"
   },
   "devDependencies": {
     "mocha": "~1.18.2",
