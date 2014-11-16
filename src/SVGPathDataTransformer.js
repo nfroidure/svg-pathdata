@@ -11,7 +11,7 @@ var SVGPathData = require('./SVGPathData.js')
 
 // Inherit of transform stream
 util.inherits(SVGPathDataTransformer, TransformStream);
-  
+
 function SVGPathDataTransformer(transformFunction) {
   // Ensure new were used
   if(!(this instanceof SVGPathDataTransformer)) {
@@ -76,8 +76,18 @@ SVGPathDataTransformer.ROUND = function roundGenerator(roundVal) {
 
 // Relative to absolute commands
 SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
-  var prevX = 0, prevY = 0;
+  var prevX = 0, prevY = 0, pathStartX = NaN, pathStartY = NaN;
   return function toAbs(command) {
+    if(isNaN(pathStartX) && (command.type&SVGPathData.DRAWING_COMMANDS)) {
+      pathStartX = prevX;
+      pathStartY = prevY;
+    }
+    if((command.type&SVGPathData.CLOSE_PATH) && !isNaN(pathStartX)) {
+      prevX = isNaN(pathStartX) ? 0 : pathStartX;
+      prevY = isNaN(pathStartY) ? 0 : pathStartY;
+      pathStartX = NaN;
+      pathStartY = NaN;
+    }
     if(command.relative) {
       // x1/y1 values
       if('undefined' !== typeof command.x1) {

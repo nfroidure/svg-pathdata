@@ -117,14 +117,18 @@ SVGPathData.parse = function(content) {
 // Commands static vars
 SVGPathData.CLOSE_PATH = 1;
 SVGPathData.MOVE_TO = 2;
-SVGPathData.HORIZ_LINE_TO = 3;
-SVGPathData.VERT_LINE_TO = 4;
-SVGPathData.LINE_TO = 5;
-SVGPathData.CURVE_TO = 6;
-SVGPathData.SMOOTH_CURVE_TO = 7;
-SVGPathData.QUAD_TO = 8;
-SVGPathData.SMOOTH_QUAD_TO = 9;
-SVGPathData.ARC = 10;
+SVGPathData.HORIZ_LINE_TO = 4;
+SVGPathData.VERT_LINE_TO = 8;
+SVGPathData.LINE_TO = 16;
+SVGPathData.CURVE_TO = 32;
+SVGPathData.SMOOTH_CURVE_TO = 64;
+SVGPathData.QUAD_TO = 128;
+SVGPathData.SMOOTH_QUAD_TO = 256;
+SVGPathData.ARC = 512;
+SVGPathData.DRAWING_COMMANDS =
+  SVGPathData.HORIZ_LINE_TO | SVGPathData.VERT_LINE_TO | SVGPathData.LINE_TO |
+  SVGPathData.CURVE_TO | SVGPathData.SMOOTH_CURVE_TO | SVGPathData.QUAD_TO |
+  SVGPathData.SMOOTH_QUAD_TO | SVGPathData.ARC;
 
 // Export the main contructor first (tests are failing otherwise)
 module.exports = SVGPathData;
