@@ -2,23 +2,24 @@
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
 // Access to SVGPathData constructor
-var SVGPathData = require('./SVGPathData.js')
+var SVGPathData = require('./SVGPathData.js');
 
 // TransformStream inherance required modules
-  , TransformStream = require('readable-stream').Transform
-  , util = require('util')
+var TransformStream = require('readable-stream').Transform;
+var util = require('util');
 
 // Private consts : Char groups
-  , WSP = [' ', '\t', '\r', '\n']
-  , DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-  , SIGNS = ['-', '+']
-  , EXPONENTS = ['e', 'E']
-  , DECPOINT = ['.']
-  , FLAGS = ['0', '1']
-  , COMMA = [',']
-  , COMMANDS = ['m', 'M', 'z', 'Z', 'l', 'L', 'h', 'H', 'v', 'V', 'c', 'C',
-    's', 'S', 'q', 'Q', 't', 'T', 'a', 'A']
-;
+var WSP = [' ', '\t', '\r', '\n'];
+var DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+var SIGNS = ['-', '+'];
+var EXPONENTS = ['e', 'E'];
+var DECPOINT = ['.'];
+var FLAGS = ['0', '1'];
+var COMMA = [','];
+var COMMANDS = [
+  'm', 'M', 'z', 'Z', 'l', 'L', 'h', 'H', 'v', 'V', 'c', 'C',
+  's', 'S', 'q', 'Q', 't', 'T', 'a', 'A'
+];
 
 // Inherit of transform stream
 util.inherits(SVGPathDataParser, TransformStream);
@@ -62,8 +63,8 @@ function SVGPathDataParser(options) {
     var str = chunk.toString(encoding !== 'buffer' ? encoding : 'utf8');
     for(var i=0, j=str.length; i<j; i++) {
       // White spaces parsing
-      if(this.state&SVGPathDataParser.STATE_WSP
-        || this.state&SVGPathDataParser.STATE_WSPS) {
+      if(this.state&SVGPathDataParser.STATE_WSP ||
+        this.state&SVGPathDataParser.STATE_WSPS) {
           if(-1 !== WSP.indexOf(str[i])) {
             this.state ^= this.state&SVGPathDataParser.STATE_WSP;
             // any space stops current number parsing
@@ -75,8 +76,8 @@ function SVGPathDataParser(options) {
           }
       }
       // Commas parsing
-      if(this.state&SVGPathDataParser.STATE_COMMA
-        || this.state&SVGPathDataParser.STATE_COMMAS) {
+      if(this.state&SVGPathDataParser.STATE_COMMA ||
+        this.state&SVGPathDataParser.STATE_COMMAS) {
           if(-1 !== COMMA.indexOf(str[i])) {
             this.state ^= this.state&SVGPathDataParser.STATE_COMMA;
             // any comma stops current number parsing
@@ -187,9 +188,9 @@ function SVGPathDataParser(options) {
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Move to / line to / smooth quadratic curve to commands (x, y)
-        } else if(this.state&SVGPathDataParser.STATE_MOVE_TO
-          || this.state&SVGPathDataParser.STATE_LINE_TO
-          || this.state&SVGPathDataParser.STATE_SMOOTH_QUAD_TO) {
+        } else if(this.state&SVGPathDataParser.STATE_MOVE_TO ||
+          this.state&SVGPathDataParser.STATE_LINE_TO ||
+          this.state&SVGPathDataParser.STATE_SMOOTH_QUAD_TO) {
           if(null === this.curCommand) {
             this.curCommand = {
               type: (this.state&SVGPathDataParser.STATE_MOVE_TO ?
@@ -296,14 +297,14 @@ function SVGPathDataParser(options) {
             };
           } else if('undefined' === typeof this.curCommand.rX) {
             if(Number(this.curNumber) < 0) {
-              this.emit('error', new SyntaxError('Expected positive number, got "'
-                + this.curNumber + '" at index "' + i + '"'));
+              this.emit('error', new SyntaxError('Expected positive number,' +
+                ' got "' + this.curNumber + '" at index "' + i + '"'));
             }
             this.curCommand.rX = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.rY) {
             if(Number(this.curNumber) < 0) {
-              this.emit('error', new SyntaxError('Expected positive number, got "'
-                + this.curNumber + '" at index "' + i + '"'));
+              this.emit('error', new SyntaxError('Expected positive number,' +
+                ' got "' + this.curNumber + '" at index "' + i + '"'));
             }
             this.curCommand.rY = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.xRot) {
@@ -316,8 +317,8 @@ function SVGPathDataParser(options) {
             this.curCommand.lArcFlag = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.sweepFlag) {
             if('0' !== this.curNumber && '1' !== this.curNumber) {
-              this.emit('error', new SyntaxError('Expected a flag, got "'
-                + this.curNumber +'" at index "' + i + '"'));
+              this.emit('error', new SyntaxError('Expected a flag, got "' +
+                this.curNumber +'" at index "' + i + '"'));
             }
             this.curCommand.sweepFlag = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.x) {
@@ -452,8 +453,8 @@ function SVGPathDataParser(options) {
         };
       // Unkown command
       } else {
-        this.emit('error', new SyntaxError('Unexpected character "' + str[i]
-          + '" at index ' + i + '.'));
+        this.emit('error', new SyntaxError('Unexpected character "' + str[i] +
+          '" at index ' + i + '.'));
       }
       // White spaces can follow a command
       this.state |= SVGPathDataParser.STATE_COMMAS_WSPS |
