@@ -1,7 +1,7 @@
 {
   "name": "svg-pathdata",
   "version": "1.0.0",
-  "description": "SVG Path Datas parsing",
+  "description": "Parse, transform and encode SVG Path Data.",
   "main": "src/SVGPathData.js",
   "scripts": {
     "test": "mocha tests/*.mocha.js",
@@ -21,8 +21,7 @@
     "transformer",
     "reader",
     "writer",
-    "stream",
-    "browserify"
+    "stream"
   ],
   "author": "Nicolas Froidure",
   "license": "MIT",
