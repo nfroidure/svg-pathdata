@@ -9,7 +9,7 @@ This library is fully node based (based on current stream implementation) but
  [browserified build](https://github.com/nfroidure/SVGPathData/blob/master/dist/SVGPathData.js)
  or in your own build using Browserify.
 
-## Reading PathDatas
+## Reading PathData
 ```js
 var pathData = new SVGPathData ('\
   M 10 10 \
@@ -44,7 +44,7 @@ console.log(pathData.commands);
 // ]}
 ```
 
-## Reading streamed PathDatas
+## Reading streamed PathData
 ```js
 var parser = new SVGPathData.Parser();
 parser.on('data', function(cmd) {
@@ -98,7 +98,7 @@ parser.write('L 10 60 \
 parser.end();
 ```
 
-## Outputting PathDatas
+## Outputting PathData
 ```js
 var pathData = new SVGPathData ('\
   M 10 10 \
@@ -112,7 +112,7 @@ console.log(pathData.encode());
 // "M10 10H60V60L10 60Z"
 ```
 
-## Streaming PathDatas out
+## Streaming PathData out
 ```js
 var encoder = new SVGPathData.Encoder();
 encoder.setEncoding('utf8');
@@ -156,8 +156,8 @@ encoder.write({"type": SVGPathData.CLOSE_PATH});
 encode.end();
 ```
 
-## Transforming PathDatas
-This library was made to live decoding/transform/encoding SVG PathDatas. Here is
+## Transforming PathData
+This library was made to live decoding/transform/encoding SVG PathData. Here is
  [an example of that kind of use](https://github.com/nfroidure/svgicons2svgfont/blob/aa6df0211419e9d61c417c63bcc353f0cb2ea0c8/src/index.js#L192).
 
 ### The synchronous way
@@ -177,7 +177,7 @@ console.log(
 ```
 
 ### The streaming/asynchronous way
-Here, we take SVGPathDatas from stdin and output it transformed to stdout.
+Here, we take SVGPathData from stdin and output it transformed to stdout.
 ```js
 // stdin to parser
 process.stdin.pipe(new SVGPathData.Parser())
@@ -222,5 +222,10 @@ process.stdin.pipe(new SVGPathData.Parser())
 ## Contributing
 Clone this project, run:
 ```sh
-npm install; grunt test&
+npm install; npm test
+```
+
+Build:
+```sh
+npm build
 ```

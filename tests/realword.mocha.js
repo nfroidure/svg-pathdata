@@ -29,4 +29,8 @@ describe("Dealing with real world commands", function() {
     assert.equal(new SVGPathData('m 0,100 0,10 5,0 0,-5 15,0 0,15 -20,0 0,30 25,0 0,-50 z m 5,25 15,0 0,20 -15,0 z').toAbs().encode(), 'M0 100L0 110L5 110L5 105L20 105L20 120L0 120L0 150L25 150L25 100zM5 125L20 125L20 145L5 145z');
   });
 
+  it("of tremby bug report", function() {
+    assert.equal(new SVGPathData('M0,250 l20,0 a40,20 0 0,0 40,20 l80,-20 a40,20 0 0,1 40,20 l80,-20 a40,20 0 1,0 40,20 l80,-20 a40,20 0 1,1 40,20 l80,-20 l0,-120 H0 Z').scale(1, -1).encode(), 'M0 -250l20 0a40 20 0 0 1 40 -20l80 20a40 20 0 0 0 40 -20l80 20a40 20 0 1 1 40 -20l80 20a40 20 0 1 0 40 -20l80 20l0 120H0z');
+  });
+
 });

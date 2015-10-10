@@ -5,8 +5,10 @@
   "main": "src/SVGPathData.js",
   "scripts": {
     "test": "mocha tests/*.mocha.js",
-    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- tests/*.mocha.js -R spec -t 5000 && coveralls < ./coverage/lcov.info && rimraf ./coverage",
-    "cover": "istanbul cover --report html ./node_modules/mocha/bin/_mocha -- tests/*.mocha.js -R spec -t 5000"
+    "coveralls": "istanbul cover _mocha --report lcovonly -- tests/*.mocha.js -R spec -t 5000 && coveralls < ./coverage/lcov.info && rimraf ./coverage",
+    "cover": "istanbul cover --report html _mocha -- tests/*.mocha.js -R spec -t 5000",
+    "build": "browserify src/SVGPathData.js -o dist/SVGPathData.js -s SVGPathData",
+    "cli": "env NPM_RUN_CLI=1"
   },
   "repository": {
     "type": "git",
@@ -32,29 +34,17 @@
     "node": ">= 0.10.0"
   },
   "dependencies": {
-    "readable-stream": "~2.0.1"
+    "readable-stream": "~2.0.2"
   },
   "devDependencies": {
-    "mocha": "^2.2.5",
-    "mocha-lcov-reporter": "^0.0.2",
-    "coveralls": "^2.11.2",
-    "istanbul": "^0.3.16",
-    "karma": "^0.12.37",
-    "karma-chrome-launcher": "^0.2.0",
-    "karma-firefox-launcher": "^0.1.6",
-    "karma-opera-launcher": "^0.1.0",
-    "grunt": "^0.4.5",
-    "grunt-contrib-clean": "^0.6.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-contrib-jshint": "^0.11.2",
-    "grunt-browserify": "^3.8.0",
-    "grunt-parallel": "^0.4.1",
-    "grunt-karma": "^0.11.1",
-    "karma-mocha": "^0.2.0",
-    "karma-chai": "^0.1.0",
-    "karma-sinon": "^1.0.4",
-    "matchdep": "^0.3.0",
-    "chai": "^3.0.0",
-    "rimraf": "^2.4.0"
+    "browserify": "^11.2.0",
+    "chai": "^3.3.0",
+    "coveralls": "^2.11.4",
+    "eslint": "^1.6.0",
+    "eslint-config-simplifield": "^1.1.0",
+    "istanbul": "^0.3.22",
+    "mocha": "^2.3.3",
+    "mocha-lcov-reporter": "^1.0.0",
+    "rimraf": "^2.4.3"
   }
 }
