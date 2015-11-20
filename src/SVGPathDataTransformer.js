@@ -1,3 +1,5 @@
+'use strict';
+
 // Transform SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
@@ -32,15 +34,18 @@ function SVGPathDataTransformer(transformFunction) {
 
   // Parent constructor
   TransformStream.call(this, {
-    objectMode: true
+    objectMode: true,
   });
 }
 
 SVGPathDataTransformer.prototype._transform = function(commands, encoding, done) {
+  var i;
+  var j;
+
   if(!(commands instanceof Array)) {
     commands = [commands];
   }
-  for(var i=0, j=commands.length; i<j; i++) {
+  for(i = 0, j = commands.length; i < j; i++) {
     this.push(this._transformer(commands[i]));
   }
   done();
@@ -53,24 +58,24 @@ SVGPathDataTransformer.ROUND = function roundGenerator(roundVal) {
   return function round(command) {
     // x1/y1 values
     if('undefined' !== typeof command.x1) {
-      command.x1 = Math.round(command.x1*roundVal)/roundVal;
+      command.x1 = Math.round(command.x1 * roundVal) / roundVal;
     }
     if('undefined' !== typeof command.y1) {
-      command.y1 = Math.round(command.y1*roundVal)/roundVal;
+      command.y1 = Math.round(command.y1 * roundVal) / roundVal;
     }
     // x2/y2 values
     if('undefined' !== typeof command.x2) {
-      command.x2 = Math.round(command.x2*roundVal)/roundVal;
+      command.x2 = Math.round(command.x2 * roundVal) / roundVal;
     }
     if('undefined' !== typeof command.y2) {
-      command.y2 = Math.round(command.y2*roundVal)/roundVal;
+      command.y2 = Math.round(command.y2 * roundVal) / roundVal;
     }
     // Finally x/y values
     if('undefined' !== typeof command.x) {
-      command.x = Math.round(command.x*roundVal,12)/roundVal;
+      command.x = Math.round(command.x * roundVal, 12) / roundVal;
     }
     if('undefined' !== typeof command.y) {
-      command.y = Math.round(command.y*roundVal,12)/roundVal;
+      command.y = Math.round(command.y * roundVal, 12) / roundVal;
     }
     return command;
   };
@@ -78,13 +83,17 @@ SVGPathDataTransformer.ROUND = function roundGenerator(roundVal) {
 
 // Relative to absolute commands
 SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
-  var prevX = 0, prevY = 0, pathStartX = NaN, pathStartY = NaN;
+  var prevX = 0;
+  var prevY = 0;
+  var pathStartX = NaN;
+  var pathStartY = NaN;
+
   return function toAbs(command) {
-    if(isNaN(pathStartX) && (command.type&SVGPathData.DRAWING_COMMANDS)) {
+    if(isNaN(pathStartX) && (command.type & SVGPathData.DRAWING_COMMANDS)) {
       pathStartX = prevX;
       pathStartY = prevY;
     }
-    if((command.type&SVGPathData.CLOSE_PATH) && !isNaN(pathStartX)) {
+    if((command.type & SVGPathData.CLOSE_PATH) && !isNaN(pathStartX)) {
       prevX = isNaN(pathStartX) ? 0 : pathStartX;
       prevY = isNaN(pathStartY) ? 0 : pathStartY;
       pathStartX = NaN;
@@ -122,31 +131,33 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
 
 // Absolute to relative commands
 SVGPathDataTransformer.TO_REL = function toRelGenerator() {
-  var prevX = 0, prevY = 0;
+  var prevX = 0;
+  var prevY = 0;
+
   return function toRel(command) {
     if(!command.relative) {
       // x1/y1 values
       if('undefined' !== typeof command.x1) {
-        command.x1 = command.x1 - prevX;
+        command.x1 -= prevX;
       }
       if('undefined' !== typeof command.y1) {
-        command.y1 = command.y1 - prevY;
+        command.y1 -= prevY;
       }
       // x2/y2 values
       if('undefined' !== typeof command.x2) {
-        command.x2 = command.x2 - prevX;
+        command.x2 -= prevX;
       }
       if('undefined' !== typeof command.y2) {
-        command.y2 = command.y2 - prevY;
+        command.y2 -= prevY;
       }
       // Finally x/y values
       if('undefined' !== typeof command.x) {
-        command.x = command.x - prevX;
+        command.x -= prevX;
       }
       if('undefined' !== typeof command.y) {
-        command.y = command.y - prevY;
+        command.y -= prevY;
       }
-    command.relative = true;
+      command.relative = true;
     }
     prevX = ('undefined' !== typeof command.x ? prevX + command.x : prevX);
     prevY = ('undefined' !== typeof command.y ? prevY + command.y : prevY);
@@ -157,10 +168,12 @@ SVGPathDataTransformer.TO_REL = function toRelGenerator() {
 // SVG Transforms : http://www.w3.org/TR/SVGTiny12/coords.html#TransformList
 // Matrix : http://apike.ca/prog_svg_transform.html
 SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
-  var prevX, prevY;
-  if('number' !== typeof a, 'number' !== typeof b,
-    'number' !== typeof c, 'number' !== typeof d,
-    'number' !== typeof e, 'number' !== typeof f) {
+  var prevX;
+  var prevY;
+
+  if('number' !== typeof a || 'number' !== typeof b ||
+    'number' !== typeof c || 'number' !== typeof d ||
+    'number' !== typeof e || 'number' !== typeof f) {
     throw new Error('A matrix transformation requires parameters' +
       ' [a,b,c,d,e,f] to be set and to be numbers.');
   }
@@ -168,10 +181,9 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
     var origX = command.x;
     var origX1 = command.x1;
     var origX2 = command.x2;
-    var origRX = command.rX;
 
     if('undefined' !== typeof command.x) {
-      command.x =  command.x * a +
+      command.x = (command.x * a) +
         ('undefined' !== typeof command.y ?
           command.y : (command.relative ? 0 : prevY || 0)
         ) * c +
@@ -205,7 +217,7 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
     // m 65,10 a 50,25 0 1 0 50,25
     // M 65,60 A 50,25 0 1 1 115,35
     if('undefined' !== typeof command.sweepFlag) {
-      command.sweepFlag = (command.sweepFlag + (d >= 0 ? 0 : 1)) % 2 ;
+      command.sweepFlag = (command.sweepFlag + (0 <= d ? 0 : 1)) % 2;
     }
 
     prevX = ('undefined' !== typeof command.x ?
@@ -295,32 +307,38 @@ SVGPathDataTransformer.Y_AXIS_SIMETRY = function ySymetryGenerator(yDecal) {
 
 // Convert arc commands to curve commands
 SVGPathDataTransformer.A_TO_C = function a2CGenerator() {
-  var prevX = 0, prevY = 0, args;
+  var prevX = 0;
+  var prevY = 0;
+  var args;
+
   return (function(toAbs) {
     return function a2C(command) {
       var commands = [];
+      var i;
+      var ii;
+
       command = toAbs(command);
       if(command.type === SVGPathData.ARC) {
         args = a2c(prevX, prevY, command.rX, command.rX, command.xRot,
           command.lArcFlag, command.sweepFlag, command.x, command.y);
         prevX = command.x; prevY = command.y;
-        for(var i=0, ii=args.length; i<ii; i+=6) {
+        for(i = 0, ii = args.length; i < ii; i += 6) {
           commands.push({
             type: SVGPathData.CURVE_TO,
             relative: false,
             x2: args[i],
-            y2: args[i+1],
-            x1: args[i+2],
-            y1: args[i+3],
-            x: args[i+4],
-            y: args[i+5]
+            y2: args[i + 1],
+            x1: args[i + 2],
+            y1: args[i + 3],
+            x: args[i + 4],
+            y: args[i + 5],
           });
         }
         return commands;
-      } else {
-        prevX = command.x; prevY = command.y;
-        return command;
       }
+      prevX = command.x; prevY = command.y;
+      return command;
+
     };
   })(SVGPathDataTransformer.TO_ABS());
 };

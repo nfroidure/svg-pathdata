@@ -1,3 +1,5 @@
+'use strict';
+
 // Parse SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
@@ -18,7 +20,7 @@ var FLAGS = ['0', '1'];
 var COMMA = [','];
 var COMMANDS = [
   'm', 'M', 'z', 'Z', 'l', 'L', 'h', 'H', 'v', 'V', 'c', 'C',
-  's', 'S', 'q', 'Q', 't', 'T', 'a', 'A'
+  's', 'S', 'q', 'Q', 't', 'T', 'a', 'A',
 ];
 
 // Inherit of transform stream
@@ -34,7 +36,7 @@ function SVGPathDataParser(options) {
 
   // Parent constructor
   TransformStream.call(this, {
-    objectMode: true
+    objectMode: true,
   });
 
   // Setting objectMode separately
@@ -55,43 +57,46 @@ function SVGPathDataParser(options) {
       }
       this.push(this.curCommand);
       this.curCommand = null;
-      this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
+      this.state ^= this.state & SVGPathDataParser.STATE_COMMANDS_MASK;
     }
     callback();
   };
   this._transform = function(chunk, encoding, callback) {
-    var str = chunk.toString(encoding !== 'buffer' ? encoding : 'utf8');
-    for(var i=0, j=str.length; i<j; i++) {
+    var str = chunk.toString('buffer' !== encoding ? encoding : 'utf8');
+    var i;
+    var j;
+
+    for(i = 0, j = str.length; i < j; i++) {
       // White spaces parsing
-      if(this.state&SVGPathDataParser.STATE_WSP ||
-        this.state&SVGPathDataParser.STATE_WSPS) {
-          if(-1 !== WSP.indexOf(str[i])) {
-            this.state ^= this.state&SVGPathDataParser.STATE_WSP;
-            // any space stops current number parsing
-            if('' !== this.curNumber) {
-              this.state ^= this.state&SVGPathDataParser.STATE_NUMBER_MASK;
-            } else {
-              continue;
-            }
+      if(this.state & SVGPathDataParser.STATE_WSP ||
+        this.state & SVGPathDataParser.STATE_WSPS) {
+        if(-1 !== WSP.indexOf(str[i])) {
+          this.state ^= this.state & SVGPathDataParser.STATE_WSP;
+          // any space stops current number parsing
+          if('' !== this.curNumber) {
+            this.state ^= this.state & SVGPathDataParser.STATE_NUMBER_MASK;
+          } else {
+            continue;
           }
+        }
       }
       // Commas parsing
-      if(this.state&SVGPathDataParser.STATE_COMMA ||
-        this.state&SVGPathDataParser.STATE_COMMAS) {
-          if(-1 !== COMMA.indexOf(str[i])) {
-            this.state ^= this.state&SVGPathDataParser.STATE_COMMA;
-            // any comma stops current number parsing
-            if('' !== this.curNumber) {
-              this.state ^= this.state&SVGPathDataParser.STATE_NUMBER_MASK;
-            } else {
-              continue;
-            }
+      if(this.state & SVGPathDataParser.STATE_COMMA ||
+        this.state & SVGPathDataParser.STATE_COMMAS) {
+        if(-1 !== COMMA.indexOf(str[i])) {
+          this.state ^= this.state & SVGPathDataParser.STATE_COMMA;
+          // any comma stops current number parsing
+          if('' !== this.curNumber) {
+            this.state ^= this.state & SVGPathDataParser.STATE_NUMBER_MASK;
+          } else {
+            continue;
           }
+        }
       }
       // Numbers parsing : -125.25e-125
-      if(this.state&SVGPathDataParser.STATE_NUMBER) {
+      if(this.state & SVGPathDataParser.STATE_NUMBER) {
         // Reading the sign
-        if((this.state&SVGPathDataParser.STATE_NUMBER_MASK) ===
+        if((this.state & SVGPathDataParser.STATE_NUMBER_MASK) ===
           SVGPathDataParser.STATE_NUMBER) {
           this.state |= SVGPathDataParser.STATE_NUMBER_INT |
             SVGPathDataParser.STATE_NUMBER_DIGITS;
@@ -101,7 +106,7 @@ function SVGPathDataParser(options) {
           }
         }
         // Reading the exponent sign
-        if(this.state&SVGPathDataParser.STATE_NUMBER_EXPSIGN) {
+        if(this.state & SVGPathDataParser.STATE_NUMBER_EXPSIGN) {
           this.state ^= SVGPathDataParser.STATE_NUMBER_EXPSIGN;
           this.state |= SVGPathDataParser.STATE_NUMBER_DIGITS;
           if(-1 !== SIGNS.indexOf(str[i])) {
@@ -110,7 +115,7 @@ function SVGPathDataParser(options) {
           }
         }
         // Reading digits
-        if(this.state&SVGPathDataParser.STATE_NUMBER_DIGITS) {
+        if(this.state & SVGPathDataParser.STATE_NUMBER_DIGITS) {
           if(-1 !== DIGITS.indexOf(str[i])) {
             this.curNumber += str[i];
             continue;
@@ -118,7 +123,7 @@ function SVGPathDataParser(options) {
           this.state ^= SVGPathDataParser.STATE_NUMBER_DIGITS;
         }
         // Ended reading left side digits
-        if(this.state&SVGPathDataParser.STATE_NUMBER_INT) {
+        if(this.state & SVGPathDataParser.STATE_NUMBER_INT) {
           this.state ^= SVGPathDataParser.STATE_NUMBER_INT;
           // if got a point, reading right side digits
           if(-1 !== DECPOINT.indexOf(str[i])) {
@@ -134,10 +139,10 @@ function SVGPathDataParser(options) {
             continue;
           }
           // else we're done with that number
-          this.state ^= this.state&SVGPathDataParser.STATE_NUMBER_MASK;
+          this.state ^= this.state & SVGPathDataParser.STATE_NUMBER_MASK;
         }
         // Ended reading decimal digits
-        if(this.state&SVGPathDataParser.STATE_NUMBER_FLOAT) {
+        if(this.state & SVGPathDataParser.STATE_NUMBER_FLOAT) {
           this.state ^= SVGPathDataParser.STATE_NUMBER_FLOAT;
           // if got e/E, reading the exponent
           if(-1 !== EXPONENTS.indexOf(str[i])) {
@@ -147,23 +152,23 @@ function SVGPathDataParser(options) {
             continue;
           }
           // else we're done with that number
-          this.state ^= this.state&SVGPathDataParser.STATE_NUMBER_MASK;
+          this.state ^= this.state & SVGPathDataParser.STATE_NUMBER_MASK;
         }
         // Ended reading exponent digits
-        if(this.state&SVGPathDataParser.STATE_NUMBER_EXP) {
+        if(this.state & SVGPathDataParser.STATE_NUMBER_EXP) {
           // we're done with that number
-          this.state ^= this.state&SVGPathDataParser.STATE_NUMBER_MASK;
+          this.state ^= this.state & SVGPathDataParser.STATE_NUMBER_MASK;
         }
       }
       // New number
       if(this.curNumber) {
         // Horizontal move to command (x)
-        if(this.state&SVGPathDataParser.STATE_HORIZ_LINE_TO) {
+        if(this.state & SVGPathDataParser.STATE_HORIZ_LINE_TO) {
           if(null === this.curCommand) {
             this.push({
               type: SVGPathData.HORIZ_LINE_TO,
-              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-              x: Number(this.curNumber)
+              relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+              x: Number(this.curNumber),
             });
           } else {
             this.curCommand.x = Number(this.curNumber);
@@ -173,12 +178,12 @@ function SVGPathDataParser(options) {
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Vertical move to command (y)
-        } else if(this.state&SVGPathDataParser.STATE_VERT_LINE_TO) {
+        } else if(this.state & SVGPathDataParser.STATE_VERT_LINE_TO) {
           if(null === this.curCommand) {
             this.push({
               type: SVGPathData.VERT_LINE_TO,
-              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-              y: Number(this.curNumber)
+              relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+              y: Number(this.curNumber),
             });
           } else {
             this.curCommand.y = Number(this.curNumber);
@@ -188,19 +193,19 @@ function SVGPathDataParser(options) {
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Move to / line to / smooth quadratic curve to commands (x, y)
-        } else if(this.state&SVGPathDataParser.STATE_MOVE_TO ||
-          this.state&SVGPathDataParser.STATE_LINE_TO ||
-          this.state&SVGPathDataParser.STATE_SMOOTH_QUAD_TO) {
+        } else if(this.state & SVGPathDataParser.STATE_MOVE_TO ||
+          this.state & SVGPathDataParser.STATE_LINE_TO ||
+          this.state & SVGPathDataParser.STATE_SMOOTH_QUAD_TO) {
           if(null === this.curCommand) {
             this.curCommand = {
-              type: (this.state&SVGPathDataParser.STATE_MOVE_TO ?
+              type: (this.state & SVGPathDataParser.STATE_MOVE_TO ?
                 SVGPathData.MOVE_TO :
-                  (this.state&SVGPathDataParser.STATE_LINE_TO ?
+                  (this.state & SVGPathDataParser.STATE_LINE_TO ?
                     SVGPathData.LINE_TO : SVGPathData.SMOOTH_QUAD_TO
                   )
                 ),
-              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-              x: Number(this.curNumber)
+              relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+              x: Number(this.curNumber),
             };
           } else if('undefined' === typeof this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
@@ -210,20 +215,20 @@ function SVGPathDataParser(options) {
             this.push(this.curCommand);
             this.curCommand = null;
             // Switch to line to state
-            if(this.state&SVGPathDataParser.STATE_MOVE_TO) {
+            if(this.state & SVGPathDataParser.STATE_MOVE_TO) {
               this.state ^= SVGPathDataParser.STATE_MOVE_TO;
               this.state |= SVGPathDataParser.STATE_LINE_TO;
             }
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Curve to commands (x1, y1, x2, y2, x, y)
-        } else if(this.state&SVGPathDataParser.STATE_CURVE_TO) {
+        } else if(this.state & SVGPathDataParser.STATE_CURVE_TO) {
           if(null === this.curCommand) {
             this.curCommand = {
               type: SVGPathData.CURVE_TO,
-              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
-              x2:  Number(this.curNumber)
+              x2: Number(this.curNumber),
             };
           } else if('undefined' === typeof this.curCommand.x2) {
             this.curCommand.x2 = Number(this.curNumber);
@@ -243,13 +248,13 @@ function SVGPathDataParser(options) {
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Smooth curve to commands (x1, y1, x, y)
-        } else if(this.state&SVGPathDataParser.STATE_SMOOTH_CURVE_TO) {
+        } else if(this.state & SVGPathDataParser.STATE_SMOOTH_CURVE_TO) {
           if(null === this.curCommand) {
             this.curCommand = {
               type: SVGPathData.SMOOTH_CURVE_TO,
-              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
-              x2:  Number(this.curNumber)
+              x2: Number(this.curNumber),
             };
           } else if('undefined' === typeof this.curCommand.x2) {
             this.curCommand.x2 = Number(this.curNumber);
@@ -265,13 +270,13 @@ function SVGPathDataParser(options) {
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Quadratic bezier curve to commands (x1, y1, x, y)
-        } else if(this.state&SVGPathDataParser.STATE_QUAD_TO) {
+        } else if(this.state & SVGPathDataParser.STATE_QUAD_TO) {
           if(null === this.curCommand) {
             this.curCommand = {
               type: SVGPathData.QUAD_TO,
-              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
-              x1:  Number(this.curNumber)
+              x1: Number(this.curNumber),
             };
           } else if('undefined' === typeof this.curCommand.x1) {
             this.curCommand.x1 = Number(this.curNumber);
@@ -287,22 +292,22 @@ function SVGPathDataParser(options) {
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
-        } else if(this.state&SVGPathDataParser.STATE_ARC) {
+        } else if(this.state & SVGPathDataParser.STATE_ARC) {
           if(null === this.curCommand) {
             this.curCommand = {
               type: SVGPathData.ARC,
-              relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
+              relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
-              rX:  Number(this.curNumber)
+              rX: Number(this.curNumber),
             };
           } else if('undefined' === typeof this.curCommand.rX) {
-            if(Number(this.curNumber) < 0) {
+            if(0 > Number(this.curNumber)) {
               this.emit('error', new SyntaxError('Expected positive number,' +
                 ' got "' + this.curNumber + '" at index "' + i + '"'));
             }
             this.curCommand.rX = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.rY) {
-            if(Number(this.curNumber) < 0) {
+            if(0 > Number(this.curNumber)) {
               this.emit('error', new SyntaxError('Expected positive number,' +
                 ' got "' + this.curNumber + '" at index "' + i + '"'));
             }
@@ -310,7 +315,7 @@ function SVGPathDataParser(options) {
           } else if('undefined' === typeof this.curCommand.xRot) {
             this.curCommand.xRot = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.lArcFlag) {
-            if('0' !== this.curNumber && '1' !== this.curNumber) {
+            if(-1 === FLAGS.indexOf(this.curNumber)) {
               this.emit('error', new SyntaxError('Expected a flag, got "' +
                 this.curNumber + '" at index "' + i + '"'));
             }
@@ -318,7 +323,7 @@ function SVGPathDataParser(options) {
           } else if('undefined' === typeof this.curCommand.sweepFlag) {
             if('0' !== this.curNumber && '1' !== this.curNumber) {
               this.emit('error', new SyntaxError('Expected a flag, got "' +
-                this.curNumber +'" at index "' + i + '"'));
+                this.curNumber + '" at index "' + i + '"'));
             }
             this.curCommand.sweepFlag = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.x) {
@@ -361,21 +366,21 @@ function SVGPathDataParser(options) {
           }
           this.push(this.curCommand);
           this.curCommand = null;
-          this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
+          this.state ^= this.state & SVGPathDataParser.STATE_COMMANDS_MASK;
         }
       }
       // Detecting the next command
-      this.state ^= this.state&SVGPathDataParser.STATE_COMMANDS_MASK;
+      this.state ^= this.state & SVGPathDataParser.STATE_COMMANDS_MASK;
       // Is the command relative
-      if(str[i]===str[i].toLowerCase()) {
+      if(str[i] === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_RELATIVE;
       } else {
-        this.state ^= this.state&SVGPathDataParser.STATE_RELATIVE;
+        this.state ^= this.state & SVGPathDataParser.STATE_RELATIVE;
       }
       // Horizontal move to command
       if('z' === str[i].toLowerCase()) {
         this.push({
-          type: SVGPathData.CLOSE_PATH
+          type: SVGPathData.CLOSE_PATH,
         });
         this.state = SVGPathDataParser.STATE_COMMAS_WSPS;
         continue;
@@ -384,72 +389,72 @@ function SVGPathDataParser(options) {
         this.state |= SVGPathDataParser.STATE_HORIZ_LINE_TO;
         this.curCommand = {
           type: SVGPathData.HORIZ_LINE_TO,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Vertical move to command
       } else if('v' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_VERT_LINE_TO;
         this.curCommand = {
           type: SVGPathData.VERT_LINE_TO,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Move to command
       } else if('m' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_MOVE_TO;
         this.curCommand = {
           type: SVGPathData.MOVE_TO,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Line to command
       } else if('l' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_LINE_TO;
         this.curCommand = {
           type: SVGPathData.LINE_TO,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Curve to command
       } else if('c' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_CURVE_TO;
         this.curCommand = {
           type: SVGPathData.CURVE_TO,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Smooth curve to command
       } else if('s' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_SMOOTH_CURVE_TO;
         this.curCommand = {
           type: SVGPathData.SMOOTH_CURVE_TO,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Quadratic bezier curve to command
       } else if('q' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_QUAD_TO;
         this.curCommand = {
           type: SVGPathData.QUAD_TO,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Smooth quadratic bezier curve to command
       } else if('t' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_SMOOTH_QUAD_TO;
         this.curCommand = {
           type: SVGPathData.SMOOTH_QUAD_TO,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Elliptic arc command
       } else if('a' === str[i].toLowerCase()) {
         this.state |= SVGPathDataParser.STATE_ARC;
         this.curCommand = {
           type: SVGPathData.ARC,
-          relative: !!(this.state&SVGPathDataParser.STATE_RELATIVE),
-          invalid: true
+          relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
+          invalid: true,
         };
       // Unkown command
       } else {
@@ -501,4 +506,3 @@ SVGPathDataParser.STATE_COMMANDS_MASK =
   SVGPathDataParser.STATE_SMOOTH_QUAD_TO | SVGPathDataParser.STATE_ARC;
 
 module.exports = SVGPathDataParser;
-

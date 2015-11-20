@@ -1,3 +1,5 @@
+'use strict';
+
 function SVGPathData(content) {
   this.commands = SVGPathData.parse(content);
 }
@@ -65,11 +67,15 @@ SVGPathData.prototype.aToC = function() {
 };
 
 SVGPathData.prototype.transform = function(transformFunction) {
-  var newCommands = []
-    , transformFunction = transformFunction.apply(null, [].slice.call(arguments, 1))
-    , curCommands = []
-    , commands = this.commands;
-  for(var i=0, ii=commands.length; i<ii; i++) {
+  var newCommands = [];
+  var curCommands = [];
+  var commands = this.commands;
+  var i;
+  var ii;
+
+  transformFunction = transformFunction.apply(null, [].slice.call(arguments, 1));
+
+  for(i = 0, ii = commands.length; i < ii; i++) {
     curCommands = transformFunction(commands[i]);
     if(curCommands instanceof Array) {
       newCommands = newCommands.concat(curCommands);
@@ -83,15 +89,18 @@ SVGPathData.prototype.transform = function(transformFunction) {
 
 // Static methods
 SVGPathData.encode = function(commands) {
-  var content = '', encoder = new SVGPathData.Encoder();
-  encoder.on('readable', function () {
+  var content = '';
+  var encoder = new SVGPathData.Encoder();
+
+  encoder.on('readable', function() {
     var str;
+
     do {
       str = encoder.read();
-      if(str !== null) {
+      if(null !== str) {
         content += str;
       }
-    } while(str !== null);
+    } while(null !== str);
   });
   encoder.write(commands);
   encoder.end();
@@ -99,15 +108,18 @@ SVGPathData.encode = function(commands) {
 };
 
 SVGPathData.parse = function(content) {
-  var commands = [], parser = new SVGPathData.Parser();
-  parser.on('readable', function () {
+  var commands = [];
+  var parser = new SVGPathData.Parser();
+
+  parser.on('readable', function() {
     var command;
+
     do {
       command = parser.read();
-      if(command !== null) {
+      if(null !== command) {
         commands.push(command);
       }
-    } while(command !== null);
+    } while(null !== command);
   });
   parser.write(content);
   parser.end();
@@ -137,4 +149,3 @@ module.exports = SVGPathData;
 SVGPathData.Parser = require('./SVGPathDataParser.js');
 SVGPathData.Encoder = require('./SVGPathDataEncoder.js');
 SVGPathData.Transformer = require('./SVGPathDataTransformer.js');
-
