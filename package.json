@@ -9,7 +9,7 @@
     "cover": "istanbul cover --report html _mocha -- tests/*.mocha.js -R spec -t 5000",
     "build": "browserify src/SVGPathData.js -o dist/SVGPathData.js -s SVGPathData",
     "lint": "eslint src/*.js tests/*.js",
-    "preversion": "npm run lint && npm test",
+    "preversion": "npm test",
     "cli": "env NPM_RUN_CLI=1"
   },
   "repository": {
