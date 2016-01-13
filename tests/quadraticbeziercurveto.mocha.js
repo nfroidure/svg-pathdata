@@ -21,19 +21,19 @@ describe("Parsing quadratic bezier curve to commands", function() {
   it("should not work when badly declarated", function() {
     assert.throw(function() {
       new SVGPathData('Q');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('Q10');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('Q10 10');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('Q10 10 10');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('Q10 10 10 10 10 10');
-    }, SyntaxError, 'Unterminated command at index 0.');
+    }, SyntaxError, 'Unterminated command at the path end.');
     assert.throw(function() {
       new SVGPathData('Q10 10 10Q10 10 10 10');
     }, SyntaxError, 'Unterminated command at index 9.');
