@@ -125,6 +125,10 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
     }
     prevX = ('undefined' !== typeof command.x ? command.x : prevX);
     prevY = ('undefined' !== typeof command.y ? command.y : prevY);
+    if(command.type & SVGPathData.MOVE_TO) {
+      pathStartX = prevX;
+      pathStartY = prevY;
+    }
     return command;
   };
 };
