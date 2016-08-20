@@ -89,13 +89,19 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
   var pathStartY = NaN;
 
   return function toAbs(command) {
+    console.log('prev', prevX, prevY, command);
+    // Starting to draw, let's remember the path origin
     if(isNaN(pathStartX) && (command.type & SVGPathData.DRAWING_COMMANDS)) {
       pathStartX = prevX;
       pathStartY = prevY;
+      console.log('setting start', prevX, prevY);
     }
-    if((command.type & SVGPathData.CLOSE_PATH) && !isNaN(pathStartX)) {
+    // Closing the path: http://www.w3.org/TR/SVG/paths.html#PathDataClosePathCommand
+    if(command.type & SVGPathData.CLOSE_PATH) {
+      console.log('setting start', prevX, prevY, pathStartX, pathStartY);
       prevX = isNaN(pathStartX) ? 0 : pathStartX;
       prevY = isNaN(pathStartY) ? 0 : pathStartY;
+      console.log('set start', prevX, prevY);
       pathStartX = NaN;
       pathStartY = NaN;
     }
@@ -125,6 +131,7 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
     }
     prevX = ('undefined' !== typeof command.x ? command.x : prevX);
     prevY = ('undefined' !== typeof command.y ? command.y : prevY);
+    console.log('after', prevX, prevY, command);
     return command;
   };
 };
