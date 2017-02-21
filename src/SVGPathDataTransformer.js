@@ -169,6 +169,213 @@ SVGPathDataTransformer.TO_REL = function toRelGenerator() {
   };
 };
 
+// Convert H, V, Z and A with rX = 0 to L
+SVGPathDataTransformer.NORMALIZE_HVZ = function normalizeHVZGenerator() {
+  var prevX = 0;
+  var prevY = 0;
+  var pathStartX = NaN;
+  var pathStartY = NaN;
+
+  return function normalizeHVZ(command) {
+    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+      throw new Error('path must start with moveto');
+    }
+    if (command.type & SVGPathData.HORIZ_LINE_TO) {
+      command.type = SVGPathData.LINE_TO;
+      command.y = command.relative ? 0 : prevY;
+    }
+    if (command.type & SVGPathData.VERT_LINE_TO) {
+      command.type = SVGPathData.LINE_TO;
+      command.x = command.relative ? 0 : prevX;
+    }
+    if (command.type & SVGPathData.CLOSE_PATH) {
+      command.type = SVGPathData.LINE_TO;
+      command.x = command.relative ? pathStartX - prevX : pathStartX;
+      command.y = command.relative ? pathStartY - prevY : pathStartY;
+    }
+    if (command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY)) {
+      command.type = SVGPathData.LINE_TO;
+      delete command.rX;
+      delete command.rY;
+      delete command.xRot;
+      delete command.lArcFlag;
+      delete command.sweepFlag;
+    }
+    // all commands have x and y now
+    prevX = (command.relative ? prevX + command.x : command.x);
+    prevY = (command.relative ? prevY + command.y : command.y);
+
+    if (command.type & SVGPathData.MOVE_TO) {
+      pathStartX = prevX;
+      pathStartY = prevY;
+    }
+
+    return command;
+  };
+};
+SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
+  var prevX = 0;
+  var prevY = 0;
+  var pathStartX = NaN;
+  var pathStartY = NaN;
+  var prevCurveC2X = NaN;
+  var prevCurveC2Y = NaN;
+  var prevQuadCX = NaN;
+  var prevQuadCY = NaN;
+
+  return function normalizeCurves(command) {
+    if (!command) {
+      throw new Error(command);
+    }
+    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+      throw new Error('path must start with moveto');
+    }
+    if (command.type & SVGPathData.SMOOTH_CURVE_TO) {
+      command.type = SVGPathData.CURVE_TO;
+      prevCurveC2X = isNaN(prevCurveC2X) ? prevX : prevCurveC2X;
+      prevCurveC2Y = isNaN(prevCurveC2Y) ? prevY : prevCurveC2Y;
+      command.x1 = command.x2;
+      command.y1 = command.y2;
+      command.x2 = command.relative ? prevX - prevCurveC2X : 2 * prevX - prevCurveC2X;
+      command.y2 = command.relative ? prevY - prevCurveC2Y : 2 * prevY - prevCurveC2Y;
+    }
+    if (command.type & SVGPathData.CURVE_TO) {
+      prevCurveC2X = command.relative ? prevX + command.x1 : command.x1;
+      prevCurveC2Y = command.relative ? prevY + command.y1 : command.y1;
+    } else {
+      prevCurveC2X = NaN;
+      prevCurveC2Y = NaN;
+    }
+    if (command.type & SVGPathData.SMOOTH_QUAD_TO) {
+      command.type = SVGPathData.QUAD_TO;
+      prevQuadCX = isNaN(prevQuadCX) ? prevX : prevQuadCX;
+      prevQuadCY = isNaN(prevQuadCY) ? prevY : prevQuadCY;
+      command.x1 = command.relative ? prevX - prevQuadCX : 2 * prevX - prevQuadCX;
+      command.y1 = command.relative ? prevY - prevQuadCY : 2 * prevY - prevQuadCY;
+    }
+    if (command.type & SVGPathData.QUAD_TO) {
+      prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
+      prevQuadCY = command.relative ? prevY + command.y1 : command.y1;
+    } else {
+      prevQuadCX = NaN;
+      prevQuadCY = NaN;
+    }
+
+
+    if (command.type & SVGPathData.CLOSE_PATH) {
+      prevX = pathStartX;
+      prevY = pathStartY;
+    }
+    prevX = 'undefined' === typeof command.x ? prevX :
+      (command.relative ? prevX + command.x : command.x);
+    prevY = 'undefined' === typeof command.y ? prevY :
+      (command.relative ? prevY + command.y : command.y);
+
+    if (command.type & SVGPathData.MOVE_TO) {
+      pathStartX = prevX;
+      pathStartY = prevY;
+    }
+
+    return command;
+  };
+};
+
+/**
+ * remove 0-length segments
+ */
+SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
+  var prevX = 0;
+  var prevY = 0;
+  var pathStartX = NaN;
+  var pathStartY = NaN;
+  var prevCurveC2X = NaN;
+  var prevCurveC2Y = NaN;
+  var prevQuadCX = NaN;
+  var prevQuadCY = NaN;
+
+  return function sanitize(command) {
+    var skip = false;
+    var actualX2;
+    var actualY2;
+    var x1Rel = 0;
+    var y1Rel = 0;
+    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+      throw new Error('path must start with moveto');
+    }
+
+    if (command.type & SVGPathData.SMOOTH_CURVE_TO) {
+      x1Rel = isNaN(prevCurveC2X) ? 0 : prevX - prevCurveC2X;
+      y1Rel = isNaN(prevCurveC2Y) ? 0 : prevY - prevCurveC2Y;
+    }
+    if (command.type & (SVGPathData.CURVE_TO | SVGPathData.SMOOTH_CURVE_TO)) {
+      actualX2 = command.type & SVGPathData.SMOOTH_CURVE_TO ? command.x2 : command.x1;
+      actualY2 = command.type & SVGPathData.SMOOTH_CURVE_TO ? command.y2 : command.y1;
+      prevCurveC2X = command.relative ? prevX + actualX2 : actualX2;
+      prevCurveC2Y = command.relative ? prevY + actualY2 : actualY2;
+    } else {
+      prevCurveC2X = NaN;
+      prevCurveC2Y = NaN;
+    }
+    if (command.type & SVGPathData.SMOOTH_QUAD_TO) {
+      prevQuadCX = isNaN(prevQuadCX) ? prevX : 2 * prevX - prevQuadCX;
+      prevQuadCY = isNaN(prevQuadCY) ? prevY : 2 * prevY - prevQuadCY;
+    } else if (command.type & SVGPathData.QUAD_TO) {
+      prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
+      prevQuadCY = command.relative ? prevY + command.y1 : command.y2;
+    } else {
+      prevQuadCX = NaN;
+      prevQuadCY = NaN;
+    }
+
+    if (command.type & SVGPathData.LINE_COMMANDS ||
+      command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY) ||
+      command.type & SVGPathData.CURVE_TO || command.type & SVGPathData.SMOOTH_CURVE_TO ||
+      command.type & SVGPathData.QUAD_TO || command.type & SVGPathData.SMOOTH_QUAD_TO) {
+      var xRel = 'undefined' === typeof command.x ? 0 :
+        (command.relative ? command.x : command.x - prevX);
+      var yRel = 'undefined' === typeof command.y ? 0 :
+        (command.relative ? command.y : command.y - prevY);
+
+      x1Rel = !isNaN(prevQuadCX) ? prevQuadCX - prevX :
+        'undefined' === typeof command.x1 ? x1Rel :
+          command.relative ? command.x :
+            command.x1 - prevX;
+      y1Rel = !isNaN(prevQuadCY) ? prevQuadCY - prevY :
+        'undefined' === typeof command.y1 ? y1Rel :
+          command.relative ? command.y :
+            command.y1 - prevY;
+
+      var x2Rel = 'undefined' === typeof command.x2 ? 0 :
+        (command.relative ? command.x : command.x2 - prevX);
+      var y2Rel = 'undefined' === typeof command.y2 ? 0 :
+        (command.relative ? command.y : command.y2 - prevY);
+      if (0 === xRel && 0 === yRel && 0 === x1Rel && 0 === y1Rel && 0 === x2Rel && 0 === y2Rel) {
+        skip = true;
+      }
+    }
+
+    if (command.type & SVGPathData.CLOSE_PATH) {
+      if (prevX === pathStartX && prevY === pathStartY) {
+        skip = true;
+      } else {
+        prevX = pathStartX;
+        prevY = pathStartY;
+      }
+    }
+    prevX = 'undefined' === typeof command.x ? prevX :
+      (command.relative ? prevX + command.x : command.x);
+    prevY = 'undefined' === typeof command.y ? prevY :
+      (command.relative ? prevY + command.y : command.y);
+
+    if (command.type & SVGPathData.MOVE_TO) {
+      pathStartX = prevX;
+      pathStartY = prevY;
+    }
+
+    return skip ? [] : command;
+  };
+};
+
 // SVG Transforms : http://www.w3.org/TR/SVGTiny12/coords.html#TransformList
 // Matrix : http://apike.ca/prog_svg_transform.html
 SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {

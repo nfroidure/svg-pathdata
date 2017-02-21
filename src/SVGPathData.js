@@ -21,6 +21,18 @@ SVGPathData.prototype.toRel = function() {
   return this.transform(SVGPathData.Transformer.TO_REL);
 };
 
+SVGPathData.prototype.normalizeHVZ = function() {
+  return this.transform(SVGPathData.Transformer.NORMALIZE_HVZ);
+};
+
+SVGPathData.prototype.normalizeST = function() {
+  return this.transform(SVGPathData.Transformer.NORMALIZE_ST);
+};
+
+SVGPathData.prototype.sanitize = function() {
+  return this.transform(SVGPathData.Transformer.SANITIZE);
+};
+
 SVGPathData.prototype.translate = function() {
   return this.transform.apply(this, [SVGPathData.Transformer.TRANSLATE].concat(
     [].slice.call(arguments, 0)));
@@ -137,6 +149,7 @@ SVGPathData.SMOOTH_CURVE_TO = 64;
 SVGPathData.QUAD_TO = 128;
 SVGPathData.SMOOTH_QUAD_TO = 256;
 SVGPathData.ARC = 512;
+SVGPathData.LINE_COMMANDS = SVGPathData.LINE_TO | SVGPathData.HORIZ_LINE_TO | SVGPathData.VERT_LINE_TO
 SVGPathData.DRAWING_COMMANDS =
   SVGPathData.HORIZ_LINE_TO | SVGPathData.VERT_LINE_TO | SVGPathData.LINE_TO |
   SVGPathData.CURVE_TO | SVGPathData.SMOOTH_CURVE_TO | SVGPathData.QUAD_TO |
