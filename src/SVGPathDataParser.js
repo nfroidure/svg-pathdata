@@ -228,16 +228,16 @@ function SVGPathDataParser(options) {
               type: SVGPathData.CURVE_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
-              x2: Number(this.curNumber),
+              x1: Number(this.curNumber),
             };
-          } else if('undefined' === typeof this.curCommand.x2) {
-            this.curCommand.x2 = Number(this.curNumber);
-          } else if('undefined' === typeof this.curCommand.y2) {
-            this.curCommand.y2 = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.x1) {
             this.curCommand.x1 = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.y1) {
             this.curCommand.y1 = Number(this.curNumber);
+          } else if('undefined' === typeof this.curCommand.x2) {
+            this.curCommand.x2 = Number(this.curNumber);
+          } else if('undefined' === typeof this.curCommand.y2) {
+            this.curCommand.y2 = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.y) {
