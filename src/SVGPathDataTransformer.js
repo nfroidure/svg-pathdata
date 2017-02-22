@@ -234,14 +234,12 @@ SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
       command.type = SVGPathData.CURVE_TO;
       prevCurveC2X = isNaN(prevCurveC2X) ? prevX : prevCurveC2X;
       prevCurveC2Y = isNaN(prevCurveC2Y) ? prevY : prevCurveC2Y;
-      command.x1 = command.x2;
-      command.y1 = command.y2;
-      command.x2 = command.relative ? prevX - prevCurveC2X : 2 * prevX - prevCurveC2X;
-      command.y2 = command.relative ? prevY - prevCurveC2Y : 2 * prevY - prevCurveC2Y;
+      command.x1 = command.relative ? prevX - prevCurveC2X : 2 * prevX - prevCurveC2X;
+      command.y1 = command.relative ? prevY - prevCurveC2Y : 2 * prevY - prevCurveC2Y;
     }
     if (command.type & SVGPathData.CURVE_TO) {
-      prevCurveC2X = command.relative ? prevX + command.x1 : command.x1;
-      prevCurveC2Y = command.relative ? prevY + command.y1 : command.y1;
+      prevCurveC2X = command.relative ? prevX + command.x2 : command.x2;
+      prevCurveC2Y = command.relative ? prevY + command.y2 : command.y2;
     } else {
       prevCurveC2X = NaN;
       prevCurveC2Y = NaN;
@@ -295,8 +293,6 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
 
   return function sanitize(command) {
     var skip = false;
-    var actualX2;
-    var actualY2;
     var x1Rel = 0;
     var y1Rel = 0;
     if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
@@ -308,10 +304,8 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
       y1Rel = isNaN(prevCurveC2Y) ? 0 : prevY - prevCurveC2Y;
     }
     if (command.type & (SVGPathData.CURVE_TO | SVGPathData.SMOOTH_CURVE_TO)) {
-      actualX2 = command.type & SVGPathData.SMOOTH_CURVE_TO ? command.x2 : command.x1;
-      actualY2 = command.type & SVGPathData.SMOOTH_CURVE_TO ? command.y2 : command.y1;
-      prevCurveC2X = command.relative ? prevX + actualX2 : actualX2;
-      prevCurveC2Y = command.relative ? prevY + actualY2 : actualY2;
+      prevCurveC2X = command.relative ? prevX + command.x2 : command.x2;
+      prevCurveC2Y = command.relative ? prevY + command.y2 : command.y2;
     } else {
       prevCurveC2X = NaN;
       prevCurveC2Y = NaN;
@@ -603,10 +597,10 @@ SVGPathDataTransformer.A_TO_C = function a2CGenerator() {
           commands.push({
             type: SVGPathData.CURVE_TO,
             relative: false,
-            x2: args[i],
-            y2: args[i + 1],
-            x1: args[i + 2],
-            y1: args[i + 3],
+            x1: args[i],
+            y1: args[i + 1],
+            x2: args[i + 2],
+            y2: args[i + 3],
             x: args[i + 4],
             y: args[i + 5],
           });

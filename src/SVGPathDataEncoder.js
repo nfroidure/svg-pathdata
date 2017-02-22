@@ -69,8 +69,8 @@ SVGPathDataEncoder.prototype._transform = function(commands, encoding, done) {
     // Curve to command
     } else if(commands[i].type === SVGPathData.CURVE_TO) {
       str += (commands[i].relative ? 'c' : 'C') +
-        commands[i].x2 + WSP + commands[i].y2 +
-        WSP + commands[i].x1 + WSP + commands[i].y1 +
+        commands[i].x1 + WSP + commands[i].y1 +
+        WSP + commands[i].x2 + WSP + commands[i].y2 +
         WSP + commands[i].x + WSP + commands[i].y;
     // Smooth curve to command
     } else if(commands[i].type === SVGPathData.SMOOTH_CURVE_TO) {

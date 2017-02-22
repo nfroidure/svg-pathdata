@@ -269,10 +269,10 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[4].relative, false);
     assert.equal(commands[4].x, 20);
     assert.equal(commands[4].y, 220);
-    assert.equal(commands[4].x1, -60);
-    assert.equal(commands[4].y1, 140);
-    assert.equal(commands[4].x2, -70);
-    assert.equal(commands[4].y2, 130);
+    assert.equal(commands[4].x2, -60);
+    assert.equal(commands[4].y2, 140);
+    assert.equal(commands[4].x1, -70);
+    assert.equal(commands[4].y1, 130);
   });
 
 });
@@ -556,10 +556,10 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[4].relative, true);
     assert.equal(commands[4].x, 0);
     assert.equal(commands[4].y, 0);
-    assert.equal(commands[4].x1, 0);
-    assert.equal(commands[4].y1, -200);
-    assert.equal(commands[4].x2, -10);
-    assert.equal(commands[4].y2, -210);
+    assert.equal(commands[4].x2, 0);
+    assert.equal(commands[4].y2, -200);
+    assert.equal(commands[4].x1, -10);
+    assert.equal(commands[4].y1, -210);
   });
 
 });
