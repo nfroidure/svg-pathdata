@@ -29,6 +29,10 @@ SVGPathData.prototype.normalizeST = function() {
   return this.transform(SVGPathData.Transformer.NORMALIZE_ST);
 };
 
+SVGPathData.prototype.qtToC = function() {
+  return this.transform(SVGPathData.Transformer.QT_TO_C);
+};
+
 SVGPathData.prototype.sanitize = function() {
   return this.transform(SVGPathData.Transformer.SANITIZE);
 };

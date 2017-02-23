@@ -213,6 +213,10 @@ SVGPathDataTransformer.NORMALIZE_HVZ = function normalizeHVZGenerator() {
     return command;
   };
 };
+
+/**
+ * Transforms smooth curves and quads to normal curves and quads (SsTt to CcQq)
+ */
 SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
   var prevX = 0;
   var prevY = 0;
@@ -251,6 +255,65 @@ SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
     if (command.type & SVGPathData.QUAD_TO) {
       prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
       prevQuadCY = command.relative ? prevY + command.y1 : command.y1;
+    } else {
+      prevQuadCX = NaN;
+      prevQuadCY = NaN;
+    }
+
+
+    if (command.type & SVGPathData.CLOSE_PATH) {
+      prevX = pathStartX;
+      prevY = pathStartY;
+    }
+    prevX = 'undefined' === typeof command.x ? prevX :
+      (command.relative ? prevX + command.x : command.x);
+    prevY = 'undefined' === typeof command.y ? prevY :
+      (command.relative ? prevY + command.y : command.y);
+
+    if (command.type & SVGPathData.MOVE_TO) {
+      pathStartX = prevX;
+      pathStartY = prevY;
+    }
+
+    return command;
+  };
+};
+
+/**
+ * A quadratic bézier curve can be represented by a cubic bézier curve which has
+ * the same end points as the quadratic and both control points in place of the
+ * quadratic's one.
+ *
+ * This transformer replaces QqTt commands with Cc commands respectively.
+ * This is useful for reading path data into a system which only has a
+ * representation for cubic curves.
+ */
+SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
+  var prevX = 0;
+  var prevY = 0;
+  var pathStartX = NaN;
+  var pathStartY = NaN;
+  var prevQuadCX = NaN;
+  var prevQuadCY = NaN;
+
+  return function qtToC(command) {
+    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+      throw new Error('path must start with moveto');
+    }
+    if (command.type & SVGPathData.SMOOTH_QUAD_TO) {
+      command.type = SVGPathData.QUAD_TO;
+      prevQuadCX = isNaN(prevQuadCX) ? prevX : prevQuadCX;
+      prevQuadCY = isNaN(prevQuadCY) ? prevY : prevQuadCY;
+      command.x1 = command.relative ? prevX - prevQuadCX : 2 * prevX - prevQuadCX;
+      command.y1 = command.relative ? prevY - prevQuadCY : 2 * prevY - prevQuadCY;
+    }
+    if (command.type & SVGPathData.QUAD_TO) {
+      prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
+      prevQuadCY = command.relative ? prevY + command.y1 : command.y1;
+
+      command.type = SVGPathData.CURVE_TO;
+      command.x2 = command.x1;
+      command.y2 = command.y1;
     } else {
       prevQuadCX = NaN;
       prevQuadCY = NaN;
