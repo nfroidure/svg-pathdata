@@ -40,6 +40,19 @@ describe("normalization of curves", function() {
       new SVGPathData('M 10 10').encode());
   });
 
+  it("should clear zero length arc curves", function() {
+    assert.equal(new SVGPathData('M 10 10 \
+      A 20,30 0 1 0 10,10\
+      A 20,30 0 0 0 10,10\
+      a 20,30 0 0 0 0,0\
+      a 20,30 0 0 0 10,10'
+      ).sanitize().encode(),
+      new SVGPathData('M 10 10 \
+      A 20,30 0 1 0 10,10\
+      a 20,30 0 0 0 10,10'
+      ).encode());
+  });
+
   it("should correctly handle first control point from smooth curve", function() {
     assert.equal(new SVGPathData(
       'M 10 10 s 10 10 20 10 s 0 0 0 0'

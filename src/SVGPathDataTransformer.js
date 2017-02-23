@@ -224,9 +224,6 @@ SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
   var prevQuadCY = NaN;
 
   return function normalizeCurves(command) {
-    if (!command) {
-      throw new Error(command);
-    }
     if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
       throw new Error('path must start with moveto');
     }
@@ -322,7 +319,7 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
     }
 
     if (command.type & SVGPathData.LINE_COMMANDS ||
-      command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY) ||
+      command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY || !command.lArcFlag) ||
       command.type & SVGPathData.CURVE_TO || command.type & SVGPathData.SMOOTH_CURVE_TO ||
       command.type & SVGPathData.QUAD_TO || command.type & SVGPathData.SMOOTH_QUAD_TO) {
       var xRel = 'undefined' === typeof command.x ? 0 :
