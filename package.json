@@ -1,6 +1,6 @@
 {
   "name": "svg-pathdata",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Parse, transform and encode SVG Path Data.",
   "main": "src/SVGPathData.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "build": "browserify src/SVGPathData.js -o dist/SVGPathData.js -s SVGPathData",
     "lint": "eslint src/*.js tests/*.js",
     "preversion": "npm test",
-	"prepublish": "npm run build",
+    "prepublish": "npm run build",
     "cli": "env NPM_RUN_CLI=1"
   },
   "repository": {
