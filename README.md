@@ -225,7 +225,7 @@ Clone this project, run:
 npm install; npm test
 ```
 
-Build:
+Run browserify :
 ```sh
-npm build
+npm run build
 ```

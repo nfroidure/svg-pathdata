@@ -5,3 +5,4 @@ test/results
 .git
 .coveralls.yml
 coverage/
+.idea
