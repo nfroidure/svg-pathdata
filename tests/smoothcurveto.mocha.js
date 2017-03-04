@@ -1,25 +1,10 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-    global && global.chai ?
-    global.chai.assert :
-    require('chai').assert
-  ),
-  SVGPathData = (
-    global && global.SVGPathData ?
-    global.SVGPathData :
-    require(`${__dirname}/../src/SVGPathData.js`)
-  )
-
-  ;
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('Parsing smooth curve to commands', () => {
-
-  beforeEach(() => {
-  });
-
-  afterEach(() => {
-  });
 
   it('should not work when badly declarated', () => {
     assert.throw(() => {

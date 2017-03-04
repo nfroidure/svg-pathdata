@@ -1,25 +1,10 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-    global && global.chai ?
-    global.chai.assert :
-    require('chai').assert
-  ),
-  SVGPathData = (
-    global && global.SVGPathData ?
-    global.SVGPathData :
-    require(`${__dirname}/../src/SVGPathData.js`)
-  )
-
-  ;
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('Parsing move to commands', () => {
-
-  beforeEach(() => {
-  });
-
-  afterEach(() => {
-  });
 
   it('should not work with single coordinate', () => {
     assert.throw(() => {
@@ -115,8 +100,10 @@ describe('Parsing move to commands', () => {
   });
 
   it('should work with multiple command declarations', () => {
-    const commands = new SVGPathData('M123 ,  456  \t,\n7890 \r\n 9876m123 \
-    ,  456  \t,\n7890 \r\n 9876').commands;
+    const commands = new SVGPathData(`
+      M123 ,  456  \t,\n7890 \r\n 9876m123
+      ,  456  \t,\n7890 \r\n 9876
+    `).commands;
 
     assert.equal(commands[0].type, SVGPathData.MOVE_TO);
     assert.equal(commands[0].relative, false);

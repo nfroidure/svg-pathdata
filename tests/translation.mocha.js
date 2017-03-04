@@ -1,15 +1,8 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-  global && global.chai ?
-  global.chai.assert :
-  require('chai').assert
-);
-let SVGPathData = (
-  global && global.SVGPathData ?
-  global.SVGPathData :
-  require(`${__dirname}/../src/SVGPathData.js`)
-);
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('Possitive translation', () => {
 

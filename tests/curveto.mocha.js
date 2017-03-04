@@ -1,25 +1,10 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-    global && global.chai ?
-    global.chai.assert :
-    require('chai').assert
-  ),
-  SVGPathData = (
-    global && global.SVGPathData ?
-    global.SVGPathData :
-    require(`${__dirname}/../src/SVGPathData.js`)
-  )
-
-  ;
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('Parsing curve to commands', () => {
-
-  beforeEach(() => {
-  });
-
-  afterEach(() => {
-  });
 
   it('should not work when badly declarated', () => {
     assert.throw(() => {
@@ -90,11 +75,11 @@ describe('Parsing curve to commands', () => {
   });
 
   it('should work with multiple pairs of coordinates', () => {
-    const commands = new SVGPathData('\
-      C-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5\
-      -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5\
-      -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5'
-    ).commands;
+    const commands = new SVGPathData(`
+      C-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5
+      -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5
+      -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5
+    `).commands;
 
     assert.equal(commands[0].type, SVGPathData.CURVE_TO);
     assert.equal(commands[0].relative, false);
@@ -123,11 +108,11 @@ describe('Parsing curve to commands', () => {
   });
 
   it('should work with multiple declarated pairs of coordinates', () => {
-    const commands = new SVGPathData('\
-      C-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5\
-      c-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5\
-      C-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5'
-    ).commands;
+    const commands = new SVGPathData(`
+      C-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5
+      c-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5
+      C-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -50.0032e-5,-60.0032e-5
+    `).commands;
 
     assert.equal(commands[0].type, SVGPathData.CURVE_TO);
     assert.equal(commands[0].relative, false);

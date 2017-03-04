@@ -1,25 +1,10 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-    global && global.chai ?
-    global.chai.assert :
-    require('chai').assert
-  ),
-  SVGPathData = (
-    global && global.SVGPathData ?
-    global.SVGPathData :
-    require(`${__dirname}/../src/SVGPathData.js`)
-  )
-
-  ;
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('Parsing horizontal commands', () => {
-
-  beforeEach(() => {
-  });
-
-  afterEach(() => {
-  });
 
   it('should work with single coordinate', () => {
     const commands = new SVGPathData('H100').commands;
@@ -93,8 +78,10 @@ describe('Parsing horizontal commands', () => {
   });
 
   it('should work with multiple command declarations', () => {
-    const commands = new SVGPathData('H123 ,  456  \t,\n7890 \r\n 9876H123 , \
-       456  \t,\n7890 \r\n 9876').commands;
+    const commands = new SVGPathData(`
+      H123 ,  456  \t,\n7890 \r\n 9876H123 ,
+       456  \t,\n7890 \r\n 9876
+     `).commands;
 
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].x, '123');
@@ -196,8 +183,10 @@ describe('Parsing vertical commands', () => {
   });
 
   it('should work with multiple command declarations', () => {
-    const commands = new SVGPathData('V123 ,  456  \t,\n7890 \r\n\
-     9876V123 ,  456  \t,\n7890 \r\n 9876').commands;
+    const commands = new SVGPathData(`
+      V123 ,  456  \t,\n7890 \r\n
+      9876V123 ,  456  \t,\n7890 \r\n 9876
+    `).commands;
 
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].y, '123');

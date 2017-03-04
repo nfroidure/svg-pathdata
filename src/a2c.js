@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use strict';
 
 // Borrowed from https://github.com/PPvG/svg-path/blob/master/lib/Path.js#L208

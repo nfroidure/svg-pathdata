@@ -1,3 +1,4 @@
+/* eslint new-cap: 0, no-mixed-operators: 0, max-len:0 */
 'use strict';
 
 // Transform SVG PathData
@@ -213,7 +214,7 @@ SVGPathDataTransformer.NORMALIZE_HVZ = function normalizeHVZGenerator() {
   };
 };
 
-/**
+/*
  * Transforms smooth curves and quads to normal curves and quads (SsTt to CcQq)
  */
 SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
@@ -278,7 +279,7 @@ SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
   };
 };
 
-/**
+/*
  * A quadratic bézier curve can be represented by a cubic bézier curve which has
  * the same end points as the quadratic and both control points in place of the
  * quadratic's one.
@@ -337,7 +338,7 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
   };
 };
 
-/**
+/*
  * remove 0-length segments
  */
 SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
@@ -433,6 +434,7 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
 
 // SVG Transforms : http://www.w3.org/TR/SVGTiny12/coords.html#TransformList
 // Matrix : http://apike.ca/prog_svg_transform.html
+// eslint-disable-next-line
 SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
   let prevX;
   let prevY;
@@ -504,20 +506,22 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
           // x0 = x*cos(xRot) + y*sin(xRot)
           // y0 = -x*sin(xRot) + y*cos(xRot)
           // --> A*x^2 + B*x*y + C*y^2 - 1 = 0, where
-          let sinRot = Math.sin(xRot), cosRot = Math.cos(xRot),
-            xCurve = 1 / sq(command.rX), yCurve = 1 / sq(command.rY);
-          let A = sq(cosRot) * xCurve + sq(sinRot) * yCurve,
-            B = 2 * sinRot * cosRot * (xCurve - yCurve),
-            C = sq(sinRot) * xCurve + sq(cosRot) * yCurve;
+          let sinRot = Math.sin(xRot);
+          let cosRot = Math.cos(xRot);
+          let xCurve = 1 / sq(command.rX);
+          let yCurve = 1 / sq(command.rY);
+          let A = sq(cosRot) * xCurve + sq(sinRot) * yCurve;
+          let B = 2 * sinRot * cosRot * (xCurve - yCurve);
+          let C = sq(sinRot) * xCurve + sq(cosRot) * yCurve;
 
           // Apply matrix to A*x^2 + B*x*y + C*y^2 - 1 = 0
           // x1 = a*x + c*y
           // y1 = b*x + d*y
           //      (we can ignore e and f, since pure translations don't affect the shape of the ellipse)
           // --> A1*x1^2 + B1*x1*y1 + C1*y1^2 - det^2 = 0, where
-          let A1 = A * d * d - B * b * d + C * b * b,
-            B1 = B * (a * d + b * c) - 2 * (A * c * d + C * a * b),
-            C1 = A * c * c - B * a * c + C * a * a;
+          let A1 = A * d * d - B * b * d + C * b * b;
+          let B1 = B * (a * d + b * c) - 2 * (A * c * d + C * a * b);
+          let C1 = A * c * c - B * a * c + C * a * a;
 
           // Unapply newXRot to get back to axis-aligned ellipse equation
           // x1 = x2*cos(newXRot) - y2*sin(newXRot)
@@ -538,7 +542,8 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
           // between 0 and pi/2 eliminates the ambiguity and leads to more predictable output.
 
           // Finally, we get newRX and newRY from the same-zeroes relationship that gave us newXRot
-          let newSinRot = Math.sin(newXRot), newCosRot = Math.cos(newXRot);
+          let newSinRot = Math.sin(newXRot);
+          let newCosRot = Math.cos(newXRot);
 
           command.rX = Math.abs(det) / Math.sqrt(A1 * sq(newCosRot) + B1 * newSinRot * newCosRot + C1 * sq(newSinRot));
           command.rY = Math.abs(det) / Math.sqrt(A1 * sq(newSinRot) - B1 * newSinRot * newCosRot + C1 * sq(newCosRot));

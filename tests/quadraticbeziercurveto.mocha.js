@@ -1,25 +1,10 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-    global && global.chai ?
-    global.chai.assert :
-    require('chai').assert
-  ),
-  SVGPathData = (
-    global && global.SVGPathData ?
-    global.SVGPathData :
-    require(`${__dirname}/../src/SVGPathData.js`)
-  )
-
-  ;
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('Parsing quadratic bezier curve to commands', () => {
-
-  beforeEach(() => {
-  });
-
-  afterEach(() => {
-  });
 
   it('should not work when badly declarated', () => {
     assert.throw(() => {
@@ -76,9 +61,11 @@ describe('Parsing quadratic bezier curve to commands', () => {
   });
 
   it('should work with multiple pairs of coordinates', () => {
-    const commands = new SVGPathData('Q-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5\
-    -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5\
-    -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
+    const commands = new SVGPathData(`
+      Q-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5
+        -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5
+        -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5
+    `).commands;
 
     assert.equal(commands[0].type, SVGPathData.QUAD_TO);
     assert.equal(commands[0].relative, false);
@@ -101,9 +88,11 @@ describe('Parsing quadratic bezier curve to commands', () => {
   });
 
   it('should work with multiple declarated pairs of coordinates', () => {
-    const commands = new SVGPathData('Q-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5\
-    q-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5\
-    Q-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
+    const commands = new SVGPathData(`
+      Q-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5
+        q-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5
+      Q-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5
+    `).commands;
 
     assert.equal(commands[0].type, SVGPathData.QUAD_TO);
     assert.equal(commands[0].relative, false);

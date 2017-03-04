@@ -1,8 +1,15 @@
-## Including the library
-This library is fully node based (based on current stream implementation) but
- you can also use it in modern browsers with the
- [browserified build](https://github.com/nfroidure/SVGPathData/blob/master/dist/SVGPathData.js)
- or in your own build using Browserify.
+## Usage
+
+Install the module:
+
+```sh
+npm install --save svg-pathdata
+```
+
+Then in your JavaScript files:
+```js
+const SVGPathData = require('svg-pathdata');
+```
 
 ## Reading PathData
 ```js
@@ -218,9 +225,4 @@ process.stdin.pipe(new SVGPathData.Parser())
 Clone this project, run:
 ```sh
 npm install; npm test
-```
-
-Run browserify :
-```sh
-npm run build
 ```

@@ -1,17 +1,8 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-    global && global.chai ?
-    global.chai.assert :
-    require('chai').assert
-  ),
-  SVGPathData = (
-    global && global.SVGPathData ?
-    global.SVGPathData :
-    require(`${__dirname}/../src/SVGPathData.js`)
-  )
-
-  ;
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('normalization of curves', () => {
 
@@ -44,16 +35,19 @@ describe('normalization of curves', () => {
   });
 
   it('should clear zero length arc curves', () => {
-    assert.equal(new SVGPathData('M 10 10 \
-      A 20,30 0 1 0 10,10\
-      A 20,30 0 0 0 10,10\
-      a 20,30 0 0 0 0,0\
-      a 20,30 0 0 0 10,10'
-      ).sanitize().encode(),
-      new SVGPathData('M 10 10 \
-      A 20,30 0 1 0 10,10\
-      a 20,30 0 0 0 10,10'
-      ).encode());
+    assert.equal(
+      new SVGPathData(`
+        M 10 10
+        A 20,30 0 1 0 10,10
+        A 20,30 0 0 0 10,10
+        a 20,30 0 0 0 0,0
+        a 20,30 0 0 0 10,10
+      `).sanitize().encode(),
+      new SVGPathData(`
+        M 10 10
+      A 20,30 0 1 0 10,10
+      a 20,30 0 0 0 10,10
+      `).encode());
   });
 
   it('should correctly handle first control point from smooth curve', () => {

@@ -1,23 +1,10 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-  global && global.chai ?
-  global.chai.assert :
-  require('chai').assert
-);
-let SVGPathData = (
-  global && global.SVGPathData ?
-  global.SVGPathData :
-  require(`${__dirname}/../src/SVGPathData.js`)
-);
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('Parsing eliptical arc commands', () => {
-
-  beforeEach(() => {
-  });
-
-  afterEach(() => {
-  });
 
   it('should not work when badly declarated', () => {
     assert.throw(() => {
@@ -113,10 +100,11 @@ describe('Parsing eliptical arc commands', () => {
   });
 
   it('should work with multiple pairs of coordinates', () => {
-    const commands = new SVGPathData(
-      'A 10.0032e-5,20.0032e-5 0 0 1 -30.0032e-5,-40.0032e-5\
-      50.0032e-5,60.0032e-5 0 1 0 -70.0032e-5,-80.0032e-5\
-      90.0032e-5,90.0032e-5 0 0 1 -80.0032e-5,-70.0032e-5').commands;
+    const commands = new SVGPathData(`
+      A 10.0032e-5,20.0032e-5 0 0 1 -30.0032e-5,-40.0032e-5
+      50.0032e-5,60.0032e-5 0 1 0 -70.0032e-5,-80.0032e-5
+      90.0032e-5,90.0032e-5 0 0 1 -80.0032e-5,-70.0032e-5
+    `).commands;
 
     assert.equal(commands[0].type, SVGPathData.ARC);
     assert.equal(commands[0].relative, false);
@@ -148,10 +136,11 @@ describe('Parsing eliptical arc commands', () => {
   });
 
   it('should work with multiple declarated pairs of coordinates', () => {
-    const commands = new SVGPathData(
-      'A 10.0032e-5,20.0032e-5 0 0 1 -30.0032e-5,-40.0032e-5\
-      a50.0032e-5,60.0032e-5 0 1 0 -70.0032e-5,-80.0032e-5\
-      A90.0032e-5,90.0032e-5 0 0 1 -80.0032e-5,-70.0032e-5').commands;
+    const commands = new SVGPathData(`
+      A 10.0032e-5,20.0032e-5 0 0 1 -30.0032e-5,-40.0032e-5
+      a50.0032e-5,60.0032e-5 0 1 0 -70.0032e-5,-80.0032e-5
+      A90.0032e-5,90.0032e-5 0 0 1 -80.0032e-5,-70.0032e-5
+    `).commands;
 
     assert.equal(commands[0].type, SVGPathData.ARC);
     assert.equal(commands[0].relative, false);
@@ -211,12 +200,12 @@ describe('Transforming elliptical arc commands', () => {
       const keys = Object.getOwnPropertyNames(x);
 
       assert.sameMembers(keys, Object.getOwnPropertyNames(y));
-      for(var i = 0; i < keys.length; i++) {
+      for(let i = 0; i < keys.length; i++) {
         assertDeepCloseTo(x[keys[i]], y[keys[i]], delta);
       }
-    } else if('array' === typeof x && 'array' === typeof y) {
+    } else if(x instanceof Array && y instanceof Array) {
       assert.equal(x.length, y.length, 'arrays have different lengths');
-      for(var i = 0; i < x.length; i++) {
+      for(let i = 0; i < x.length; i++) {
         assertDeepCloseTo(x[i], y[i], delta);
       }
     } else {

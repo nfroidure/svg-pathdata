@@ -1,23 +1,14 @@
+/* eslint max-len:0 */
 'use strict';
 
-let assert = (
-    global && global.chai ?
-    global.chai.assert :
-    require('chai').assert
-  ),
-  SVGPathData = (
-    global && global.SVGPathData ?
-    global.SVGPathData :
-    require(`${__dirname}/../src/SVGPathData.js`)
-  )
-
-  ;
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
 describe('SVGPathDataParser', () => {
 
   it('should still work when the new operator is forgotten', () => {
     assert.doesNotThrow(() => {
-      SVGPathData.Parser();
+      new SVGPathData.Parser();
     });
   });
 
