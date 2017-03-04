@@ -83,13 +83,13 @@ SVGPathData.prototype.aToC = function() {
 };
 
 SVGPathData.prototype.transform = function(transformFunction) {
-  var newCommands = [];
-  var curCommands = [];
-  var commands = this.commands;
-  var i;
-  var ii;
+  let newCommands = [];
+  let curCommands = [];
+  const commands = this.commands;
+  let i;
+  let ii;
 
-  transformFunction = transformFunction.apply(null, [].slice.call(arguments, 1));
+  transformFunction = transformFunction(...[].slice.call(arguments, 1));
 
   for(i = 0, ii = commands.length; i < ii; i++) {
     curCommands = transformFunction(commands[i]);
@@ -105,11 +105,11 @@ SVGPathData.prototype.transform = function(transformFunction) {
 
 // Static methods
 SVGPathData.encode = function(commands) {
-  var content = '';
-  var encoder = new SVGPathData.Encoder();
+  let content = '';
+  const encoder = new SVGPathData.Encoder();
 
-  encoder.on('readable', function() {
-    var str;
+  encoder.on('readable', () => {
+    let str;
 
     do {
       str = encoder.read();
@@ -124,11 +124,11 @@ SVGPathData.encode = function(commands) {
 };
 
 SVGPathData.parse = function(content) {
-  var commands = [];
-  var parser = new SVGPathData.Parser();
+  const commands = [];
+  const parser = new SVGPathData.Parser();
 
-  parser.on('readable', function() {
-    var command;
+  parser.on('readable', () => {
+    let command;
 
     do {
       command = parser.read();
@@ -153,7 +153,8 @@ SVGPathData.SMOOTH_CURVE_TO = 64;
 SVGPathData.QUAD_TO = 128;
 SVGPathData.SMOOTH_QUAD_TO = 256;
 SVGPathData.ARC = 512;
-SVGPathData.LINE_COMMANDS = SVGPathData.LINE_TO | SVGPathData.HORIZ_LINE_TO | SVGPathData.VERT_LINE_TO
+SVGPathData.LINE_COMMANDS =
+  SVGPathData.LINE_TO | SVGPathData.HORIZ_LINE_TO | SVGPathData.VERT_LINE_TO;
 SVGPathData.DRAWING_COMMANDS =
   SVGPathData.HORIZ_LINE_TO | SVGPathData.VERT_LINE_TO | SVGPathData.LINE_TO |
   SVGPathData.CURVE_TO | SVGPathData.SMOOTH_CURVE_TO | SVGPathData.QUAD_TO |

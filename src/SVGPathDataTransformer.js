@@ -4,14 +4,14 @@
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
 // a2c utility
-var a2c = require('./a2c.js');
+const a2c = require('./a2c.js');
 
 // Access to SVGPathData constructor
-var SVGPathData = require('./SVGPathData.js');
+const SVGPathData = require('./SVGPathData.js');
 
 // TransformStream inherance required modules
-var TransformStream = require('readable-stream').Transform;
-var util = require('util');
+const TransformStream = require('readable-stream').Transform;
+const util = require('util');
 
 // Inherit of transform stream
 util.inherits(SVGPathDataTransformer, TransformStream);
@@ -19,15 +19,14 @@ util.inherits(SVGPathDataTransformer, TransformStream);
 function SVGPathDataTransformer(transformFunction) {
   // Ensure new were used
   if(!(this instanceof SVGPathDataTransformer)) {
-    return new (SVGPathDataTransformer.bind.apply(SVGPathDataTransformer,
-      [SVGPathDataTransformer].concat([].slice.call(arguments, 0))));
+    return new (SVGPathDataTransformer.bind(...[SVGPathDataTransformer].concat([].slice.call(arguments, 0))))();
   }
 
   // Transform function needed
   if('function' !== typeof transformFunction) {
     throw new Error('Please provide a transform callback to receive commands.');
   }
-  this._transformer = transformFunction.apply(null, [].slice.call(arguments, 1));
+  this._transformer = transformFunction(...[].slice.call(arguments, 1));
   if('function' !== typeof this._transformer) {
     throw new Error('Please provide a valid transform (returning a function).');
   }
@@ -39,8 +38,8 @@ function SVGPathDataTransformer(transformFunction) {
 }
 
 SVGPathDataTransformer.prototype._transform = function(commands, encoding, done) {
-  var i;
-  var j;
+  let i;
+  let j;
 
   if(!(commands instanceof Array)) {
     commands = [commands];
@@ -83,10 +82,10 @@ SVGPathDataTransformer.ROUND = function roundGenerator(roundVal) {
 
 // Relative to absolute commands
 SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
-  var prevX = 0;
-  var prevY = 0;
-  var pathStartX = NaN;
-  var pathStartY = NaN;
+  let prevX = 0;
+  let prevY = 0;
+  let pathStartX = NaN;
+  let pathStartY = NaN;
 
   return function toAbs(command) {
     if(isNaN(pathStartX) && (command.type & SVGPathData.DRAWING_COMMANDS)) {
@@ -135,8 +134,8 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
 
 // Absolute to relative commands
 SVGPathDataTransformer.TO_REL = function toRelGenerator() {
-  var prevX = 0;
-  var prevY = 0;
+  let prevX = 0;
+  let prevY = 0;
 
   return function toRel(command) {
     if(!command.relative) {
@@ -171,29 +170,29 @@ SVGPathDataTransformer.TO_REL = function toRelGenerator() {
 
 // Convert H, V, Z and A with rX = 0 to L
 SVGPathDataTransformer.NORMALIZE_HVZ = function normalizeHVZGenerator() {
-  var prevX = 0;
-  var prevY = 0;
-  var pathStartX = NaN;
-  var pathStartY = NaN;
+  let prevX = 0;
+  let prevY = 0;
+  let pathStartX = NaN;
+  let pathStartY = NaN;
 
   return function normalizeHVZ(command) {
-    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+    if(isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
       throw new Error('path must start with moveto');
     }
-    if (command.type & SVGPathData.HORIZ_LINE_TO) {
+    if(command.type & SVGPathData.HORIZ_LINE_TO) {
       command.type = SVGPathData.LINE_TO;
       command.y = command.relative ? 0 : prevY;
     }
-    if (command.type & SVGPathData.VERT_LINE_TO) {
+    if(command.type & SVGPathData.VERT_LINE_TO) {
       command.type = SVGPathData.LINE_TO;
       command.x = command.relative ? 0 : prevX;
     }
-    if (command.type & SVGPathData.CLOSE_PATH) {
+    if(command.type & SVGPathData.CLOSE_PATH) {
       command.type = SVGPathData.LINE_TO;
       command.x = command.relative ? pathStartX - prevX : pathStartX;
       command.y = command.relative ? pathStartY - prevY : pathStartY;
     }
-    if (command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY)) {
+    if(command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY)) {
       command.type = SVGPathData.LINE_TO;
       delete command.rX;
       delete command.rY;
@@ -205,7 +204,7 @@ SVGPathDataTransformer.NORMALIZE_HVZ = function normalizeHVZGenerator() {
     prevX = (command.relative ? prevX + command.x : command.x);
     prevY = (command.relative ? prevY + command.y : command.y);
 
-    if (command.type & SVGPathData.MOVE_TO) {
+    if(command.type & SVGPathData.MOVE_TO) {
       pathStartX = prevX;
       pathStartY = prevY;
     }
@@ -218,41 +217,41 @@ SVGPathDataTransformer.NORMALIZE_HVZ = function normalizeHVZGenerator() {
  * Transforms smooth curves and quads to normal curves and quads (SsTt to CcQq)
  */
 SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
-  var prevX = 0;
-  var prevY = 0;
-  var pathStartX = NaN;
-  var pathStartY = NaN;
-  var prevCurveC2X = NaN;
-  var prevCurveC2Y = NaN;
-  var prevQuadCX = NaN;
-  var prevQuadCY = NaN;
+  let prevX = 0;
+  let prevY = 0;
+  let pathStartX = NaN;
+  let pathStartY = NaN;
+  let prevCurveC2X = NaN;
+  let prevCurveC2Y = NaN;
+  let prevQuadCX = NaN;
+  let prevQuadCY = NaN;
 
   return function normalizeCurves(command) {
-    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+    if(isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
       throw new Error('path must start with moveto');
     }
-    if (command.type & SVGPathData.SMOOTH_CURVE_TO) {
+    if(command.type & SVGPathData.SMOOTH_CURVE_TO) {
       command.type = SVGPathData.CURVE_TO;
       prevCurveC2X = isNaN(prevCurveC2X) ? prevX : prevCurveC2X;
       prevCurveC2Y = isNaN(prevCurveC2Y) ? prevY : prevCurveC2Y;
       command.x1 = command.relative ? prevX - prevCurveC2X : 2 * prevX - prevCurveC2X;
       command.y1 = command.relative ? prevY - prevCurveC2Y : 2 * prevY - prevCurveC2Y;
     }
-    if (command.type & SVGPathData.CURVE_TO) {
+    if(command.type & SVGPathData.CURVE_TO) {
       prevCurveC2X = command.relative ? prevX + command.x2 : command.x2;
       prevCurveC2Y = command.relative ? prevY + command.y2 : command.y2;
     } else {
       prevCurveC2X = NaN;
       prevCurveC2Y = NaN;
     }
-    if (command.type & SVGPathData.SMOOTH_QUAD_TO) {
+    if(command.type & SVGPathData.SMOOTH_QUAD_TO) {
       command.type = SVGPathData.QUAD_TO;
       prevQuadCX = isNaN(prevQuadCX) ? prevX : prevQuadCX;
       prevQuadCY = isNaN(prevQuadCY) ? prevY : prevQuadCY;
       command.x1 = command.relative ? prevX - prevQuadCX : 2 * prevX - prevQuadCX;
       command.y1 = command.relative ? prevY - prevQuadCY : 2 * prevY - prevQuadCY;
     }
-    if (command.type & SVGPathData.QUAD_TO) {
+    if(command.type & SVGPathData.QUAD_TO) {
       prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
       prevQuadCY = command.relative ? prevY + command.y1 : command.y1;
     } else {
@@ -261,7 +260,7 @@ SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
     }
 
 
-    if (command.type & SVGPathData.CLOSE_PATH) {
+    if(command.type & SVGPathData.CLOSE_PATH) {
       prevX = pathStartX;
       prevY = pathStartY;
     }
@@ -270,7 +269,7 @@ SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
     prevY = 'undefined' === typeof command.y ? prevY :
       (command.relative ? prevY + command.y : command.y);
 
-    if (command.type & SVGPathData.MOVE_TO) {
+    if(command.type & SVGPathData.MOVE_TO) {
       pathStartX = prevX;
       pathStartY = prevY;
     }
@@ -289,25 +288,25 @@ SVGPathDataTransformer.NORMALIZE_ST = function normalizeCurvesGenerator() {
  * representation for cubic curves.
  */
 SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
-  var prevX = 0;
-  var prevY = 0;
-  var pathStartX = NaN;
-  var pathStartY = NaN;
-  var prevQuadCX = NaN;
-  var prevQuadCY = NaN;
+  let prevX = 0;
+  let prevY = 0;
+  let pathStartX = NaN;
+  let pathStartY = NaN;
+  let prevQuadCX = NaN;
+  let prevQuadCY = NaN;
 
   return function qtToC(command) {
-    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+    if(isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
       throw new Error('path must start with moveto');
     }
-    if (command.type & SVGPathData.SMOOTH_QUAD_TO) {
+    if(command.type & SVGPathData.SMOOTH_QUAD_TO) {
       command.type = SVGPathData.QUAD_TO;
       prevQuadCX = isNaN(prevQuadCX) ? prevX : prevQuadCX;
       prevQuadCY = isNaN(prevQuadCY) ? prevY : prevQuadCY;
       command.x1 = command.relative ? prevX - prevQuadCX : 2 * prevX - prevQuadCX;
       command.y1 = command.relative ? prevY - prevQuadCY : 2 * prevY - prevQuadCY;
     }
-    if (command.type & SVGPathData.QUAD_TO) {
+    if(command.type & SVGPathData.QUAD_TO) {
       prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
       prevQuadCY = command.relative ? prevY + command.y1 : command.y1;
 
@@ -320,7 +319,7 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
     }
 
 
-    if (command.type & SVGPathData.CLOSE_PATH) {
+    if(command.type & SVGPathData.CLOSE_PATH) {
       prevX = pathStartX;
       prevY = pathStartY;
     }
@@ -329,7 +328,7 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
     prevY = 'undefined' === typeof command.y ? prevY :
       (command.relative ? prevY + command.y : command.y);
 
-    if (command.type & SVGPathData.MOVE_TO) {
+    if(command.type & SVGPathData.MOVE_TO) {
       pathStartX = prevX;
       pathStartY = prevY;
     }
@@ -342,38 +341,39 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
  * remove 0-length segments
  */
 SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
-  var prevX = 0;
-  var prevY = 0;
-  var pathStartX = NaN;
-  var pathStartY = NaN;
-  var prevCurveC2X = NaN;
-  var prevCurveC2Y = NaN;
-  var prevQuadCX = NaN;
-  var prevQuadCY = NaN;
+  let prevX = 0;
+  let prevY = 0;
+  let pathStartX = NaN;
+  let pathStartY = NaN;
+  let prevCurveC2X = NaN;
+  let prevCurveC2Y = NaN;
+  let prevQuadCX = NaN;
+  let prevQuadCY = NaN;
 
   return function sanitize(command) {
-    var skip = false;
-    var x1Rel = 0;
-    var y1Rel = 0;
-    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+    let skip = false;
+    let x1Rel = 0;
+    let y1Rel = 0;
+
+    if(isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
       throw new Error('path must start with moveto');
     }
 
-    if (command.type & SVGPathData.SMOOTH_CURVE_TO) {
+    if(command.type & SVGPathData.SMOOTH_CURVE_TO) {
       x1Rel = isNaN(prevCurveC2X) ? 0 : prevX - prevCurveC2X;
       y1Rel = isNaN(prevCurveC2Y) ? 0 : prevY - prevCurveC2Y;
     }
-    if (command.type & (SVGPathData.CURVE_TO | SVGPathData.SMOOTH_CURVE_TO)) {
+    if(command.type & (SVGPathData.CURVE_TO | SVGPathData.SMOOTH_CURVE_TO)) {
       prevCurveC2X = command.relative ? prevX + command.x2 : command.x2;
       prevCurveC2Y = command.relative ? prevY + command.y2 : command.y2;
     } else {
       prevCurveC2X = NaN;
       prevCurveC2Y = NaN;
     }
-    if (command.type & SVGPathData.SMOOTH_QUAD_TO) {
+    if(command.type & SVGPathData.SMOOTH_QUAD_TO) {
       prevQuadCX = isNaN(prevQuadCX) ? prevX : 2 * prevX - prevQuadCX;
       prevQuadCY = isNaN(prevQuadCY) ? prevY : 2 * prevY - prevQuadCY;
-    } else if (command.type & SVGPathData.QUAD_TO) {
+    } else if(command.type & SVGPathData.QUAD_TO) {
       prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
       prevQuadCY = command.relative ? prevY + command.y1 : command.y2;
     } else {
@@ -381,13 +381,13 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
       prevQuadCY = NaN;
     }
 
-    if (command.type & SVGPathData.LINE_COMMANDS ||
+    if(command.type & SVGPathData.LINE_COMMANDS ||
       command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY || !command.lArcFlag) ||
       command.type & SVGPathData.CURVE_TO || command.type & SVGPathData.SMOOTH_CURVE_TO ||
       command.type & SVGPathData.QUAD_TO || command.type & SVGPathData.SMOOTH_QUAD_TO) {
-      var xRel = 'undefined' === typeof command.x ? 0 :
+      const xRel = 'undefined' === typeof command.x ? 0 :
         (command.relative ? command.x : command.x - prevX);
-      var yRel = 'undefined' === typeof command.y ? 0 :
+      const yRel = 'undefined' === typeof command.y ? 0 :
         (command.relative ? command.y : command.y - prevY);
 
       x1Rel = !isNaN(prevQuadCX) ? prevQuadCX - prevX :
@@ -399,17 +399,18 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
           command.relative ? command.y :
             command.y1 - prevY;
 
-      var x2Rel = 'undefined' === typeof command.x2 ? 0 :
+      const x2Rel = 'undefined' === typeof command.x2 ? 0 :
         (command.relative ? command.x : command.x2 - prevX);
-      var y2Rel = 'undefined' === typeof command.y2 ? 0 :
+      const y2Rel = 'undefined' === typeof command.y2 ? 0 :
         (command.relative ? command.y : command.y2 - prevY);
-      if (0 === xRel && 0 === yRel && 0 === x1Rel && 0 === y1Rel && 0 === x2Rel && 0 === y2Rel) {
+
+      if(0 === xRel && 0 === yRel && 0 === x1Rel && 0 === y1Rel && 0 === x2Rel && 0 === y2Rel) {
         skip = true;
       }
     }
 
-    if (command.type & SVGPathData.CLOSE_PATH) {
-      if (prevX === pathStartX && prevY === pathStartY) {
+    if(command.type & SVGPathData.CLOSE_PATH) {
+      if(prevX === pathStartX && prevY === pathStartY) {
         skip = true;
       } else {
         prevX = pathStartX;
@@ -421,7 +422,7 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
     prevY = 'undefined' === typeof command.y ? prevY :
       (command.relative ? prevY + command.y : command.y);
 
-    if (command.type & SVGPathData.MOVE_TO) {
+    if(command.type & SVGPathData.MOVE_TO) {
       pathStartX = prevX;
       pathStartY = prevY;
     }
@@ -433,8 +434,8 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
 // SVG Transforms : http://www.w3.org/TR/SVGTiny12/coords.html#TransformList
 // Matrix : http://apike.ca/prog_svg_transform.html
 SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
-  var prevX;
-  var prevY;
+  let prevX;
+  let prevY;
 
   if('number' !== typeof a || 'number' !== typeof b ||
     'number' !== typeof c || 'number' !== typeof d ||
@@ -443,9 +444,9 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
       ' [a,b,c,d,e,f] to be set and to be numbers.');
   }
   return function matrix(command) {
-    var origX = command.x;
-    var origX1 = command.x1;
-    var origX2 = command.x2;
+    const origX = command.x;
+    const origX1 = command.x1;
+    const origX2 = command.x2;
 
     if('undefined' !== typeof command.x) {
       command.x = (command.x * a) +
@@ -477,13 +478,14 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
       command.y2 = origX2 * b + command.y2 * d +
         (command.relative && 'undefined' !== typeof prevY ? 0 : f);
     }
-    function sq(x) { return x*x; }
-    var det = a*d - b*c;
+    function sq(x) { return x * x; }
+    const det = a * d - b * c;
+
     if('undefined' !== typeof command.xRot) {
       // Skip if this is a pure translation
-      if(a !== 1 || b !== 0 || c !== 0 || d !== 1) {
+      if(1 !== a || 0 !== b || 0 !== c || 1 !== d) {
         // Special case for singular matrix
-        if(det === 0) {
+        if(0 === det) {
           // In the singular case, the arc is compressed to a line. The actual geometric image of the original
           // curve under this transform possibly extends beyond the starting and/or ending points of the segment, but
           // for simplicity we ignore this detail and just replace this command with a single line segment.
@@ -495,27 +497,27 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
           command.type = SVGPathData.LINE_TO;
         } else {
           // Convert to radians
-          var xRot = command.xRot*Math.PI/180;
+          const xRot = command.xRot * Math.PI / 180;
 
           // Convert rotated ellipse to general conic form
           // x0^2/rX^2 + y0^2/rY^2 - 1 = 0
           // x0 = x*cos(xRot) + y*sin(xRot)
           // y0 = -x*sin(xRot) + y*cos(xRot)
           // --> A*x^2 + B*x*y + C*y^2 - 1 = 0, where
-          var sinRot = Math.sin(xRot), cosRot = Math.cos(xRot),
-              xCurve = 1/sq(command.rX), yCurve = 1/sq(command.rY);
-          var A = sq(cosRot)*xCurve + sq(sinRot)*yCurve,
-              B = 2*sinRot*cosRot*(xCurve - yCurve),
-              C = sq(sinRot)*xCurve + sq(cosRot)*yCurve;
+          let sinRot = Math.sin(xRot), cosRot = Math.cos(xRot),
+            xCurve = 1 / sq(command.rX), yCurve = 1 / sq(command.rY);
+          let A = sq(cosRot) * xCurve + sq(sinRot) * yCurve,
+            B = 2 * sinRot * cosRot * (xCurve - yCurve),
+            C = sq(sinRot) * xCurve + sq(cosRot) * yCurve;
 
           // Apply matrix to A*x^2 + B*x*y + C*y^2 - 1 = 0
           // x1 = a*x + c*y
           // y1 = b*x + d*y
           //      (we can ignore e and f, since pure translations don't affect the shape of the ellipse)
           // --> A1*x1^2 + B1*x1*y1 + C1*y1^2 - det^2 = 0, where
-          var A1 = A*d*d - B*b*d + C*b*b,
-              B1 = B*(a*d + b*c) - 2*(A*c*d + C*a*b),
-              C1 = A*c*c - B*a*c + C*a*a;
+          let A1 = A * d * d - B * b * d + C * b * b,
+            B1 = B * (a * d + b * c) - 2 * (A * c * d + C * a * b),
+            C1 = A * c * c - B * a * c + C * a * a;
 
           // Unapply newXRot to get back to axis-aligned ellipse equation
           // x1 = x2*cos(newXRot) - y2*sin(newXRot)
@@ -530,18 +532,19 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
           // 2*(C1 - A1)*sin(newXRot)*cos(newXRot) + B1*(cos(newXRot)^2 - sin(newXRot)^2) = 0
           // (A1 - C1)*sin(2*newXRot) = B1*cos(2*newXRot)
           // 2*newXRot = atan2(B1, A1 - C1)
-          var newXRot = ((Math.atan2(B1, A1 - C1) + Math.PI) % Math.PI)/2;
+          const newXRot = ((Math.atan2(B1, A1 - C1) + Math.PI) % Math.PI) / 2;
           // For any integer n, (atan2(B1, A1 - C1) + n*pi)/2 is a solution to the above; incrementing n just swaps the
           // x and y radii computed below (since that's what rotating an ellipse by pi/2 does).  Choosing the rotation
           // between 0 and pi/2 eliminates the ambiguity and leads to more predictable output.
 
           // Finally, we get newRX and newRY from the same-zeroes relationship that gave us newXRot
-          var newSinRot = Math.sin(newXRot), newCosRot = Math.cos(newXRot);
-          command.rX = Math.abs(det)/Math.sqrt(A1*sq(newCosRot) + B1*newSinRot*newCosRot + C1*sq(newSinRot));
-          command.rY = Math.abs(det)/Math.sqrt(A1*sq(newSinRot) - B1*newSinRot*newCosRot + C1*sq(newCosRot));
-          command.xRot = newXRot*180/Math.PI;
+          let newSinRot = Math.sin(newXRot), newCosRot = Math.cos(newXRot);
+
+          command.rX = Math.abs(det) / Math.sqrt(A1 * sq(newCosRot) + B1 * newSinRot * newCosRot + C1 * sq(newSinRot));
+          command.rY = Math.abs(det) / Math.sqrt(A1 * sq(newSinRot) - B1 * newSinRot * newCosRot + C1 * sq(newCosRot));
+          command.xRot = newXRot * 180 / Math.PI;
         }
-      } 
+      }
     }
     // sweepFlag needs to be inverted when mirroring shapes
     // see http://www.itk.ilstu.edu/faculty/javila/SVG/SVG_drawing1/elliptical_curve.htm
@@ -571,11 +574,11 @@ SVGPathDataTransformer.ROTATE = function rotateGenerator(a, x, y) {
     return function rotate(command) {
       return fromOrigin(doRotate(toOrigin(command)));
     };
-  })(SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0)),
+  }(SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0)),
     SVGPathDataTransformer.MATRIX(Math.cos(a), Math.sin(a),
       -Math.sin(a), Math.cos(a), 0, 0),
     SVGPathDataTransformer.TRANSLATE(x || 0, y || 0)
-  );
+  ));
 };
 
 // Translation
@@ -618,10 +621,10 @@ SVGPathDataTransformer.X_AXIS_SIMETRY = function xSymetryGenerator(xDecal) {
     return function xSymetry(command) {
       return translate(scale(toAbs(command)));
     };
-  })(SVGPathDataTransformer.TO_ABS(),
+  }(SVGPathDataTransformer.TO_ABS(),
     SVGPathDataTransformer.SCALE(-1, 1),
     SVGPathDataTransformer.TRANSLATE(xDecal || 0, 0)
-  );
+  ));
 };
 
 // Symetry througth the Y axis
@@ -630,23 +633,23 @@ SVGPathDataTransformer.Y_AXIS_SIMETRY = function ySymetryGenerator(yDecal) {
     return function ySymetry(command) {
       return translate(scale(toAbs(command)));
     };
-  })(SVGPathDataTransformer.TO_ABS(),
+  }(SVGPathDataTransformer.TO_ABS(),
     SVGPathDataTransformer.SCALE(1, -1),
     SVGPathDataTransformer.TRANSLATE(0, yDecal || 0)
-  );
+  ));
 };
 
 // Convert arc commands to curve commands
 SVGPathDataTransformer.A_TO_C = function a2CGenerator() {
-  var prevX = 0;
-  var prevY = 0;
-  var args;
+  let prevX = 0;
+  let prevY = 0;
+  let args;
 
   return (function(toAbs) {
     return function a2C(command) {
-      var commands = [];
-      var i;
-      var ii;
+      const commands = [];
+      let i;
+      let ii;
 
       command = toAbs(command);
       if(command.type === SVGPathData.ARC) {
@@ -671,7 +674,7 @@ SVGPathDataTransformer.A_TO_C = function a2CGenerator() {
       return command;
 
     };
-  })(SVGPathDataTransformer.TO_ABS());
+  }(SVGPathDataTransformer.TO_ABS()));
 };
 
 module.exports = SVGPathDataTransformer;

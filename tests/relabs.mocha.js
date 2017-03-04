@@ -1,19 +1,23 @@
-var assert = (
-    global && global.chai
-    ? global.chai.assert
-    : require('chai').assert
-  )
-  , SVGPathData = (
-    global && global.SVGPathData
-    ? global.SVGPathData
-    : require(__dirname + '/../src/SVGPathData.js')
-  )
-;
+'use strict';
 
-describe("Converting relative commands to absolute ones", function() {
+let assert = (
+    global && global.chai ?
+    global.chai.assert :
+    require('chai').assert
+  ),
+  SVGPathData = (
+    global && global.SVGPathData ?
+    global.SVGPathData :
+    require(`${__dirname}/../src/SVGPathData.js`)
+  )
 
-  it("should work with m commands", function() {
-    var commands = new SVGPathData('m-100,100M10,10m10,10m-1,-1').toAbs().commands;
+  ;
+
+describe('Converting relative commands to absolute ones', () => {
+
+  it('should work with m commands', () => {
+    const commands = new SVGPathData('m-100,100M10,10m10,10m-1,-1').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.MOVE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, -100);
@@ -32,8 +36,9 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].y, 19);
   });
 
-  it("should work with h commands", function() {
-    var commands = new SVGPathData('h100H10h10h-5').toAbs().commands;
+  it('should work with h commands', () => {
+    const commands = new SVGPathData('h100H10h10h-5').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, 100);
@@ -48,8 +53,9 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].x, 15);
   });
 
-  it("should work with v commands", function() {
-    var commands = new SVGPathData('v100V10v5v5').toAbs().commands;
+  it('should work with v commands', () => {
+    const commands = new SVGPathData('v100V10v5v5').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].y, 100);
@@ -64,8 +70,9 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].y, 20);
   });
 
-  it("should work with l commands", function() {
-    var commands = new SVGPathData('l100,-100L1,0l2,2l-1,-1').toAbs().commands;
+  it('should work with l commands', () => {
+    const commands = new SVGPathData('l100,-100L1,0l2,2l-1,-1').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, 100);
@@ -84,11 +91,12 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].y, 1);
   });
 
-  it("should work with c commands", function() {
-    var commands = new SVGPathData('c100,100 100,100 100,100\
+  it('should work with c commands', () => {
+    const commands = new SVGPathData('c100,100 100,100 100,100\
       c100,100 100,100 100,100\
       c100,100 100,100 100,100\
       c100,100 100,100 100,100').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.CURVE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, 100);
@@ -123,9 +131,10 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].y2, 400);
   });
 
-  it("should work with s commands", function() {
-    var commands = new SVGPathData('s100,100 100,100\
+  it('should work with s commands', () => {
+    const commands = new SVGPathData('s100,100 100,100\
       s100,100 100,100s100,100 100,100s100,100 100,100').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_CURVE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, 100);
@@ -152,9 +161,10 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].y2, 400);
   });
 
-  it("should work with q commands", function() {
-    var commands = new SVGPathData('q-100,100 -100,100q-100,100 -100,100\
+  it('should work with q commands', () => {
+    const commands = new SVGPathData('q-100,100 -100,100q-100,100 -100,100\
       q-100,100 -100,100q-100,100 -100,100').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.QUAD_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, -100);
@@ -181,8 +191,9 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].y1, 400);
   });
 
-  it("should work with t commands", function() {
-    var commands = new SVGPathData('t-100,100t-100,100t10,10t10,10').toAbs().commands;
+  it('should work with t commands', () => {
+    const commands = new SVGPathData('t-100,100t-100,100t10,10t10,10').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_QUAD_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, -100);
@@ -201,10 +212,11 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].y, 220);
   });
 
-  it("should work with a commands", function() {
-    var commands = new SVGPathData('a20,20 180 1 0 -100,100\
+  it('should work with a commands', () => {
+    const commands = new SVGPathData('a20,20 180 1 0 -100,100\
       a20,20 180 1 0 -100,100a20,20 180 1 0 -100,100\
       a20,20 180 1 0 -100,100').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.ARC);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].rX, 20);
@@ -243,9 +255,10 @@ describe("Converting relative commands to absolute ones", function() {
     assert.equal(commands[3].y, 400);
   });
 
-  it("should work with nested commands", function() {
-    var commands = new SVGPathData('a20,20 180 1 0 -100,100h10v10l10,10\
+  it('should work with nested commands', () => {
+    const commands = new SVGPathData('a20,20 180 1 0 -100,100h10v10l10,10\
       c10,10 20,20 100,100').toAbs().commands;
+
     assert.equal(commands[0].type, SVGPathData.ARC);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].rX, 20);
@@ -277,10 +290,11 @@ describe("Converting relative commands to absolute ones", function() {
 
 });
 
-describe("Converting absolute commands to relative ones", function() {
+describe('Converting absolute commands to relative ones', () => {
 
-  it("should work with M commands", function() {
-    var commands = new SVGPathData('M100,100M110,90M120,80M130,70').toRel().commands;
+  it('should work with M commands', () => {
+    const commands = new SVGPathData('M100,100M110,90M120,80M130,70').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.MOVE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, 100);
@@ -299,8 +313,9 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y, -10);
   });
 
-  it("should work with M commands", function() {
-    var commands = new SVGPathData('M-100,100m90,-90M20,20M19,19').toRel().commands;
+  it('should work with M commands', () => {
+    const commands = new SVGPathData('M-100,100m90,-90M20,20M19,19').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.MOVE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, -100);
@@ -319,8 +334,9 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y, -1);
   });
 
-  it("should work with H commands", function() {
-    var commands = new SVGPathData('H100H10H20H15').toRel().commands;
+  it('should work with H commands', () => {
+    const commands = new SVGPathData('H100H10H20H15').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, 100);
@@ -335,8 +351,9 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].x, -5);
   });
 
-  it("should work with V commands", function() {
-    var commands = new SVGPathData('V100V10V15V20').toRel().commands;
+  it('should work with V commands', () => {
+    const commands = new SVGPathData('V100V10V15V20').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].y, 100);
@@ -351,8 +368,9 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y, 5);
   });
 
-  it("should work with L commands", function() {
-    var commands = new SVGPathData('L100,-100L1,0L3,2L2,1').toRel().commands;
+  it('should work with L commands', () => {
+    const commands = new SVGPathData('L100,-100L1,0L3,2L2,1').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.LINE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, 100);
@@ -371,11 +389,12 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y, -1);
   });
 
-  it("should work with C commands", function() {
-    var commands = new SVGPathData('C100,100 100,100 100,100\
+  it('should work with C commands', () => {
+    const commands = new SVGPathData('C100,100 100,100 100,100\
       C200,200 200,200 200,200\
       C300,300 300,300 300,300\
       C400,400 400,400 400,400').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.CURVE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, 100);
@@ -410,9 +429,10 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y2, 100);
   });
 
-  it("should work with S commands", function() {
-    var commands = new SVGPathData('S100,100 100,100\
+  it('should work with S commands', () => {
+    const commands = new SVGPathData('S100,100 100,100\
       S200,200 200,200S300,300 300,300S400,400 400,400').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_CURVE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, 100);
@@ -439,9 +459,10 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y2, 100);
   });
 
-  it("should work with Q commands", function() {
-    var commands = new SVGPathData('Q-100,100 -100,100Q-200,200 -200,200\
+  it('should work with Q commands', () => {
+    const commands = new SVGPathData('Q-100,100 -100,100Q-200,200 -200,200\
       Q-300,300 -300,300Q-400,400 -400,400').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.QUAD_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, -100);
@@ -468,8 +489,9 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y1, 100);
   });
 
-  it("should work with T commands", function() {
-    var commands = new SVGPathData('T-100,100T-200,200T-190,210T-180,220').toRel().commands;
+  it('should work with T commands', () => {
+    const commands = new SVGPathData('T-100,100T-200,200T-190,210T-180,220').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_QUAD_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, -100);
@@ -488,10 +510,11 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y, 10);
   });
 
-  it("should work with A commands", function() {
-    var commands = new SVGPathData('A20,20 180 1 0 -100,100\
+  it('should work with A commands', () => {
+    const commands = new SVGPathData('A20,20 180 1 0 -100,100\
       A20,20 180 1 0 -200,200A20,20 180 1 0 -300,300\
       A20,20 180 1 0 -400,400').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.ARC);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].rX, 20);
@@ -530,9 +553,10 @@ describe("Converting absolute commands to relative ones", function() {
     assert.equal(commands[3].y, 100);
   });
 
-  it("should work with nested commands", function() {
-    var commands = new SVGPathData('A20,20 180 1 0 -100,100H-90V110L20,220\
+  it('should work with nested commands', () => {
+    const commands = new SVGPathData('A20,20 180 1 0 -100,100H-90V110L20,220\
       C10,10 20,20 20,220').toRel().commands;
+
     assert.equal(commands[0].type, SVGPathData.ARC);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].rX, 20);

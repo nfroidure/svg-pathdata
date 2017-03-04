@@ -1,34 +1,37 @@
-var assert = (
-    global && global.chai
-    ? global.chai.assert
-    : require('chai').assert
-  )
-  , SVGPathData = (
-    global && global.SVGPathData
-    ? global.SVGPathData
-    : require(__dirname + '/../src/SVGPathData.js')
-  )
-;
+'use strict';
 
-describe("Positive scale", function() {
+let assert = (
+    global && global.chai ?
+    global.chai.assert :
+    require('chai').assert
+  ),
+  SVGPathData = (
+    global && global.SVGPathData ?
+    global.SVGPathData :
+    require(`${__dirname}/../src/SVGPathData.js`)
+  )
 
-  it("should fail with no args", function() {
-    assert.throws(function() {
+  ;
+
+describe('Positive scale', () => {
+
+  it('should fail with no args', () => {
+    assert.throws(() => {
       new SVGPathData(
         'm20,30l10,10z'
       ).scale().encode();
-    }, 'A scale transformation requires the parameter dX'
-      +' to be set and to be a number.');
+    }, 'A scale transformation requires the parameter dX' +
+      ' to be set and to be a number.');
   });
 
-  it("should work with relative path", function() {
+  it('should work with relative path', () => {
     assert.equal(new SVGPathData(
       'm20 30c0 0 10 20 15 30z'
     ).scale(10, 10).encode(),
       'm200 300c0 0 100 200 150 300z');
   });
 
-  it("should work with absolute path", function() {
+  it('should work with absolute path', () => {
     assert.equal(new SVGPathData(
       'M20 30C0 0 10 20 15 30z'
     ).scale(10, 10).encode(),

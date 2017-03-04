@@ -4,21 +4,21 @@
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
 // Access to SVGPathData constructor
-var SVGPathData = require('./SVGPathData.js');
+const SVGPathData = require('./SVGPathData.js');
 
 // TransformStream inherance required modules
-var TransformStream = require('readable-stream').Transform;
-var util = require('util');
+const TransformStream = require('readable-stream').Transform;
+const util = require('util');
 
 // Private consts : Char groups
-var WSP = [' ', '\t', '\r', '\n'];
-var DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-var SIGNS = ['-', '+'];
-var EXPONENTS = ['e', 'E'];
-var DECPOINT = ['.'];
-var FLAGS = ['0', '1'];
-var COMMA = [','];
-var COMMANDS = [
+const WSP = [' ', '\t', '\r', '\n'];
+const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const SIGNS = ['-', '+'];
+const EXPONENTS = ['e', 'E'];
+const DECPOINT = ['.'];
+const FLAGS = ['0', '1'];
+const COMMA = [','];
+const COMMANDS = [
   'm', 'M', 'z', 'Z', 'l', 'L', 'h', 'H', 'v', 'V', 'c', 'C',
   's', 'S', 'q', 'Q', 't', 'T', 'a', 'A',
 ];
@@ -48,7 +48,7 @@ function SVGPathDataParser(options) {
   this.curNumber = '';
   this.curCommand = null;
   this._flush = function(callback) {
-    this._transform(new Buffer(' '), 'utf-8', function() {});
+    this._transform(new Buffer(' '), 'utf-8', () => {});
     // Adding residual command
     if(null !== this.curCommand) {
       if(this.curCommand.invalid) {
@@ -62,9 +62,9 @@ function SVGPathDataParser(options) {
     callback();
   };
   this._transform = function(chunk, encoding, callback) {
-    var str = chunk.toString('buffer' !== encoding ? encoding : 'utf8');
-    var i;
-    var j;
+    const str = chunk.toString('buffer' !== encoding ? encoding : 'utf8');
+    let i;
+    let j;
 
     for(i = 0, j = str.length; i < j; i++) {
       // White spaces parsing
@@ -302,28 +302,28 @@ function SVGPathDataParser(options) {
             };
           } else if('undefined' === typeof this.curCommand.rX) {
             if(0 > Number(this.curNumber)) {
-              this.emit('error', new SyntaxError('Expected positive number,' +
-                ' got "' + this.curNumber + '" at index "' + i + '"'));
+              this.emit('error', new SyntaxError(`${'Expected positive number,' +
+                ' got "'}${this.curNumber}" at index "${i}"`));
             }
             this.curCommand.rX = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.rY) {
             if(0 > Number(this.curNumber)) {
-              this.emit('error', new SyntaxError('Expected positive number,' +
-                ' got "' + this.curNumber + '" at index "' + i + '"'));
+              this.emit('error', new SyntaxError(`${'Expected positive number,' +
+                ' got "'}${this.curNumber}" at index "${i}"`));
             }
             this.curCommand.rY = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.xRot) {
             this.curCommand.xRot = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.lArcFlag) {
             if(-1 === FLAGS.indexOf(this.curNumber)) {
-              this.emit('error', new SyntaxError('Expected a flag, got "' +
-                this.curNumber + '" at index "' + i + '"'));
+              this.emit('error', new SyntaxError(`Expected a flag, got "${
+                this.curNumber}" at index "${i}"`));
             }
             this.curCommand.lArcFlag = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.sweepFlag) {
             if('0' !== this.curNumber && '1' !== this.curNumber) {
-              this.emit('error', new SyntaxError('Expected a flag, got "' +
-                this.curNumber + '" at index "' + i + '"'));
+              this.emit('error', new SyntaxError(`Expected a flag, got "${
+                this.curNumber}" at index "${i}"`));
             }
             this.curCommand.sweepFlag = Number(this.curNumber);
           } else if('undefined' === typeof this.curCommand.x) {
@@ -362,7 +362,7 @@ function SVGPathDataParser(options) {
         if(null !== this.curCommand) {
           if(this.curCommand.invalid) {
             this.emit('error',
-              new SyntaxError('Unterminated command at index ' + i + '.'));
+              new SyntaxError(`Unterminated command at index ${i}.`));
           }
           this.push(this.curCommand);
           this.curCommand = null;
@@ -458,8 +458,8 @@ function SVGPathDataParser(options) {
         };
       // Unkown command
       } else {
-        this.emit('error', new SyntaxError('Unexpected character "' + str[i] +
-          '" at index ' + i + '.'));
+        this.emit('error', new SyntaxError(`Unexpected character "${str[i]
+          }" at index ${i}.`));
       }
       // White spaces can follow a command
       this.state |= SVGPathDataParser.STATE_COMMAS_WSPS |
