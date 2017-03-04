@@ -13,7 +13,6 @@
     }
   },
   "scripts": {
-    "build": "browserify src/SVGPathData.js -o dist/SVGPathData.js -s SVGPathData",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "cli": "env NODE_ENV=${NODE_ENV:-cli}",
     "cover": "istanbul cover _mocha --report html -- tests/*.mocha.js -R spec -t 5000",
@@ -22,7 +21,6 @@
     "lint": "eslint src/*.js tests/*.mocha.js",
     "metapak": "metapak || echo 'Please `npm install --save-dev metapak`' && exit 0",
     "postinstall": "npm run metapak --silent",
-    "prepublish": "npm run build",
     "preversion": "npm t && npm run lint",
     "test": "mocha tests/*.mocha.js",
     "version": "npm run changelog && git add CHANGELOG.md"

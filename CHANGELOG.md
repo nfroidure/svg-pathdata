@@ -1,10 +1,4 @@
-## Change Log
-
-### upcoming (2017/03/04 16:35 +00:00)
-- [6c0368a](https://github.com/nfroidure/SVGPathData/commit/6c0368a53f8a338080f8b681b8c09ae18fd8d694) Added npm run build to prepublish. Pushing updated dist/SVGPathData.js (@NaridaL)
-- [ff84bf1](https://github.com/nfroidure/SVGPathData/commit/ff84bf1767c4ec8b5779e04448f433c62228e1a1) Added QT_TO_C transformer and corresponding tests. (@NaridaL)
-- [c5a6eaa](https://github.com/nfroidure/SVGPathData/commit/c5a6eaa581a4c03bce6ac936930ed9c1a6f7e2cd) SANITIZE transformer now also removes empty arc segments. Added corresponding test. (@NaridaL)
-- [#21](https://github.com/nfroidure/SVGPathData/pull/21) Changed x1/y1 and x2/y2 around for C and c commands. (@NaridaL)
+### v2.0.0 (2017/02/22 08:23 +00:00)
 - [8a33721](https://github.com/nfroidure/SVGPathData/commit/8a33721a08ee1cf837ebf41699c6ab93648ad998) 2.0.0 (@NaridaL)
 - [8c840ab](https://github.com/nfroidure/SVGPathData/commit/8c840ab66ee30139921a9d7d75c3f042d422e97a) Changed x1/y1 and x2/y2 around for C and c commands. (@NaridaL)
 - [#20](https://github.com/nfroidure/SVGPathData/pull/20) Normalization and Sanitation Transformers (@NaridaL)
