@@ -89,15 +89,8 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
   var pathStartY = NaN;
 
   return function toAbs(command) {
-    if(isNaN(pathStartX) && (command.type & SVGPathData.DRAWING_COMMANDS)) {
-      pathStartX = prevX;
-      pathStartY = prevY;
-    }
-    if((command.type & SVGPathData.CLOSE_PATH) && !isNaN(pathStartX)) {
-      prevX = isNaN(pathStartX) ? 0 : pathStartX;
-      prevY = isNaN(pathStartY) ? 0 : pathStartY;
-      pathStartX = NaN;
-      pathStartY = NaN;
+    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+      throw new Error('path must start with moveto');
     }
     if(command.relative) {
       // x1/y1 values
@@ -123,9 +116,14 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
       }
       command.relative = false;
     }
+    if (command.type & SVGPathData.CLOSE_PATH) {
+      prevX = pathStartX;
+      prevY = pathStartY;
+    }
     prevX = ('undefined' !== typeof command.x ? command.x : prevX);
     prevY = ('undefined' !== typeof command.y ? command.y : prevY);
-    if(command.type & SVGPathData.MOVE_TO) {
+
+    if (command.type & SVGPathData.MOVE_TO) {
       pathStartX = prevX;
       pathStartY = prevY;
     }
