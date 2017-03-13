@@ -67,13 +67,13 @@ SVGPathData.prototype.skewY = function() {
     [].slice.call(arguments, 0)));
 };
 
-SVGPathData.prototype.xSymetry = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.X_AXIS_SIMETRY].concat(
+SVGPathData.prototype.xSymmetry = function() {
+  return this.transform.apply(this, [SVGPathData.Transformer.X_AXIS_SYMMETRY].concat(
     [].slice.call(arguments, 0)));
 };
 
-SVGPathData.prototype.ySymetry = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.Y_AXIS_SIMETRY].concat(
+SVGPathData.prototype.ySymmetry = function() {
+  return this.transform.apply(this, [SVGPathData.Transformer.Y_AXIS_SYMMETRY].concat(
     [].slice.call(arguments, 0)));
 };
 

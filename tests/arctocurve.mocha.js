@@ -15,7 +15,7 @@ var assert = (
 // Here we have to round output before testing since there is some lil
 // differences across browsers.
 
-describe("Converting eliptical arc commands to curves", function() {
+describe("Converting elliptical arc commands to curves", function() {
 
   it("should work sweepFlag on 0 and largeArcFlag on 0", function() {
       assert.equal(

@@ -18,7 +18,7 @@ describe("Parsing smooth curve to commands", function() {
   afterEach(function() {
   });
 
-  it("should not work when badly declarated", function() {
+  it("should not work when badly declared", function() {
     assert.throw(function() {
       new SVGPathData('S');
     }, SyntaxError, 'Unterminated command at the path end.');
@@ -91,7 +91,7 @@ describe("Parsing smooth curve to commands", function() {
     assert.equal(commands[2].y, '-40.0032e-5');
   });
 
-  it("should work with multiple declarated pairs of coordinates", function() {
+  it("should work with multiple declared pairs of coordinates", function() {
     var commands = new SVGPathData('S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 s-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
     assert.equal(commands[0].type, SVGPathData.SMOOTH_CURVE_TO);
     assert.equal(commands[0].relative, false);

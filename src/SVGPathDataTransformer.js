@@ -610,10 +610,10 @@ SVGPathDataTransformer.SKEW_Y = function skewYGenerator(a) {
   return SVGPathDataTransformer.MATRIX(1, Math.atan(a), 0, 1, 0, 0);
 };
 
-// Symetry througth the X axis
-SVGPathDataTransformer.X_AXIS_SIMETRY = function xSymetryGenerator(xDecal) {
+// Symmetry througth the X axis
+SVGPathDataTransformer.X_AXIS_SYMMETRY = function xSymmetryGenerator(xDecal) {
   return (function(toAbs, scale, translate) {
-    return function xSymetry(command) {
+    return function xSymmetry(command) {
       return translate(scale(toAbs(command)));
     };
   })(SVGPathDataTransformer.TO_ABS(),
@@ -622,10 +622,10 @@ SVGPathDataTransformer.X_AXIS_SIMETRY = function xSymetryGenerator(xDecal) {
   );
 };
 
-// Symetry througth the Y axis
-SVGPathDataTransformer.Y_AXIS_SIMETRY = function ySymetryGenerator(yDecal) {
+// Symmetry througth the Y axis
+SVGPathDataTransformer.Y_AXIS_SYMMETRY = function ySymmetryGenerator(yDecal) {
   return (function(toAbs, scale, translate) {
-    return function ySymetry(command) {
+    return function ySymmetry(command) {
       return translate(scale(toAbs(command)));
     };
   })(SVGPathDataTransformer.TO_ABS(),
