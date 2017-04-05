@@ -1,6 +1,6 @@
 {
   "name": "svg-pathdata",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Manipulate SVG path data (path[d] attribute content) simply and efficiently.",
   "main": "src/SVGPathData.js",
   "metapak": {
@@ -71,7 +71,7 @@
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
-  }
+    }
   },
   "greenkeeper": {
     "ignore": [

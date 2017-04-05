@@ -1,3 +1,30 @@
+<a name="2.0.2"></a>
+## [2.0.2](https://github.com/nfroidure/SVGPathData/compare/v2.0.1...v2.0.2) (2017-04-05)
+
+
+### Bug Fixes
+
+* **build:** Fix tests and regenerate the changelog ([fa281fa](https://github.com/nfroidure/SVGPathData/commit/fa281fa))
+
+
+### build
+
+* **metapak-nfroidure:** Add metapak-nfroidure ([6be898c](https://github.com/nfroidure/SVGPathData/commit/6be898c))
+
+
+### Code Refactoring
+
+* **dist:** No more build ([8ce46da](https://github.com/nfroidure/SVGPathData/commit/8ce46da))
+
+
+### BREAKING CHANGES
+
+* **dist:** No more dist, please transpile in your own builds.
+* **metapak-nfroidure:** Since the eslint --fix option were used, there may be some breaking features but
+this very old codebase really need a total cleanup.
+
+
+
 ### v2.0.0 (2017/02/22 08:23 +00:00)
 - [8a33721](https://github.com/nfroidure/SVGPathData/commit/8a33721a08ee1cf837ebf41699c6ab93648ad998) 2.0.0 (@NaridaL)
 - [8c840ab](https://github.com/nfroidure/SVGPathData/commit/8c840ab66ee30139921a9d7d75c3f042d422e97a) Changed x1/y1 and x2/y2 around for C and c commands. (@NaridaL)
