@@ -1,53 +1,46 @@
-var assert = (
-    global && global.chai
-    ? global.chai.assert
-    : require('chai').assert
-  )
-  , SVGPathData = (
-    global && global.SVGPathData
-    ? global.SVGPathData
-    : require(__dirname + '/../src/SVGPathData.js')
-  )
-;
+/* eslint max-len:0 */
+'use strict';
 
-describe("Parsing horizontal commands", function() {
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
-  beforeEach(function() {
-  });
+describe('Parsing horizontal commands', () => {
 
-  afterEach(function() {
-  });
+  it('should work with single coordinate', () => {
+    const commands = new SVGPathData('H100').commands;
 
-  it("should work with single coordinate", function() {
-    var commands = new SVGPathData('H100').commands;
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, '100');
   });
 
-  it("should work with single complexer coordinate", function() {
-    var commands = new SVGPathData('H-10e-5').commands;
+  it('should work with single complexer coordinate', () => {
+    const commands = new SVGPathData('H-10e-5').commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, '-10e-5');
   });
 
-  it("should work with single even more complexer coordinate", function() {
-    var commands = new SVGPathData('H-10.0032e-5').commands;
+  it('should work with single even more complexer coordinate', () => {
+    const commands = new SVGPathData('H-10.0032e-5').commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x, '-10.0032e-5');
   });
 
-  it("should work with single relative coordinate", function() {
-    var commands = new SVGPathData('h100').commands;
+  it('should work with single relative coordinate', () => {
+    const commands = new SVGPathData('h100').commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].x, '100');
   });
 
-  it("should work with comma separated coordinates", function() {
-    var commands = new SVGPathData('H123,456,7890,9876').commands;
+  it('should work with comma separated coordinates', () => {
+    const commands = new SVGPathData('H123,456,7890,9876').commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].x, '123');
     assert.equal(commands[1].type, SVGPathData.HORIZ_LINE_TO);
@@ -58,8 +51,9 @@ describe("Parsing horizontal commands", function() {
     assert.equal(commands[3].x, '9876');
   });
 
-  it("should work with space separated coordinates", function() {
-    var commands = new SVGPathData('H123 456 7890 9876').commands;
+  it('should work with space separated coordinates', () => {
+    const commands = new SVGPathData('H123 456 7890 9876').commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].x, '123');
     assert.equal(commands[1].type, SVGPathData.HORIZ_LINE_TO);
@@ -70,8 +64,9 @@ describe("Parsing horizontal commands", function() {
     assert.equal(commands[3].x, '9876');
   });
 
-  it("should work with nested separated coordinates", function() {
-    var commands = new SVGPathData('H123 ,  456  \t,\n7890 \r\n 9876').commands;
+  it('should work with nested separated coordinates', () => {
+    const commands = new SVGPathData('H123 ,  456  \t,\n7890 \r\n 9876').commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].x, '123');
     assert.equal(commands[1].type, SVGPathData.HORIZ_LINE_TO);
@@ -82,9 +77,12 @@ describe("Parsing horizontal commands", function() {
     assert.equal(commands[3].x, '9876');
   });
 
-  it("should work with multiple command declarations", function() {
-    var commands = new SVGPathData('H123 ,  456  \t,\n7890 \r\n 9876H123 , \
-       456  \t,\n7890 \r\n 9876').commands;
+  it('should work with multiple command declarations', () => {
+    const commands = new SVGPathData(`
+      H123 ,  456  \t,\n7890 \r\n 9876H123 ,
+       456  \t,\n7890 \r\n 9876
+     `).commands;
+
     assert.equal(commands[0].type, SVGPathData.HORIZ_LINE_TO);
     assert.equal(commands[0].x, '123');
     assert.equal(commands[1].type, SVGPathData.HORIZ_LINE_TO);
@@ -105,44 +103,49 @@ describe("Parsing horizontal commands", function() {
 
 });
 
-describe("Parsing vertical commands", function() {
+describe('Parsing vertical commands', () => {
 
-  beforeEach(function() {
+  beforeEach(() => {
   });
 
-  afterEach(function() {
+  afterEach(() => {
   });
 
-  it("should work with single coordinate", function() {
-    var commands = new SVGPathData('V100').commands;
+  it('should work with single coordinate', () => {
+    const commands = new SVGPathData('V100').commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].y, '100');
   });
 
-  it("should work with single complexer coordinate", function() {
-    var commands = new SVGPathData('V-10e-5').commands;
+  it('should work with single complexer coordinate', () => {
+    const commands = new SVGPathData('V-10e-5').commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].y, '-10e-5');
   });
 
-  it("should work with single even more complexer coordinate", function() {
-    var commands = new SVGPathData('V-10.0032e-5').commands;
+  it('should work with single even more complexer coordinate', () => {
+    const commands = new SVGPathData('V-10.0032e-5').commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].y, '-10.0032e-5');
   });
 
-  it("should work with single relative coordinate", function() {
-    var commands = new SVGPathData('v100').commands;
+  it('should work with single relative coordinate', () => {
+    const commands = new SVGPathData('v100').commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].relative, true);
     assert.equal(commands[0].y, '100');
   });
 
-  it("should work with comma separated coordinates", function() {
-    var commands = new SVGPathData('V123,456,7890,9876').commands;
+  it('should work with comma separated coordinates', () => {
+    const commands = new SVGPathData('V123,456,7890,9876').commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].y, '123');
     assert.equal(commands[1].type, SVGPathData.VERT_LINE_TO);
@@ -153,8 +156,9 @@ describe("Parsing vertical commands", function() {
     assert.equal(commands[3].y, '9876');
   });
 
-  it("should work with space separated coordinates", function() {
-    var commands = new SVGPathData('V123 456 7890 9876').commands;
+  it('should work with space separated coordinates', () => {
+    const commands = new SVGPathData('V123 456 7890 9876').commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].y, '123');
     assert.equal(commands[1].type, SVGPathData.VERT_LINE_TO);
@@ -165,8 +169,9 @@ describe("Parsing vertical commands", function() {
     assert.equal(commands[3].y, '9876');
   });
 
-  it("should work with nested separated coordinates", function() {
-    var commands = new SVGPathData('V123 ,  456  \t,\n7890 \r\n 9876').commands;
+  it('should work with nested separated coordinates', () => {
+    const commands = new SVGPathData('V123 ,  456  \t,\n7890 \r\n 9876').commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].y, '123');
     assert.equal(commands[1].type, SVGPathData.VERT_LINE_TO);
@@ -177,9 +182,12 @@ describe("Parsing vertical commands", function() {
     assert.equal(commands[3].y, '9876');
   });
 
-  it("should work with multiple command declarations", function() {
-    var commands = new SVGPathData('V123 ,  456  \t,\n7890 \r\n\
-     9876V123 ,  456  \t,\n7890 \r\n 9876').commands;
+  it('should work with multiple command declarations', () => {
+    const commands = new SVGPathData(`
+      V123 ,  456  \t,\n7890 \r\n
+      9876V123 ,  456  \t,\n7890 \r\n 9876
+    `).commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].y, '123');
     assert.equal(commands[1].type, SVGPathData.VERT_LINE_TO);
@@ -200,17 +208,18 @@ describe("Parsing vertical commands", function() {
 
 });
 
-describe("Parsing nested vertical/horizontal commands", function() {
+describe('Parsing nested vertical/horizontal commands', () => {
 
-  beforeEach(function() {
+  beforeEach(() => {
   });
 
-  afterEach(function() {
+  afterEach(() => {
   });
 
-  it("should work", function() {
-    var commands = new SVGPathData(
+  it('should work', () => {
+    const commands = new SVGPathData(
       'V100H100v0.12h0.12,V100,h100v-10e-5 H-10e-5').commands;
+
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].y, '100');
@@ -239,15 +248,15 @@ describe("Parsing nested vertical/horizontal commands", function() {
 
 });
 
-describe("Encoding nested vertical/horizontal commands", function() {
+describe('Encoding nested vertical/horizontal commands', () => {
 
-  beforeEach(function() {
+  beforeEach(() => {
   });
 
-  afterEach(function() {
+  afterEach(() => {
   });
 
-  it("should work", function() {
+  it('should work', () => {
     assert.equal(
       new SVGPathData('V100H100v0.12h0.12V100h100v-10e-5H-10e-5').encode(),
       'V100H100v0.12h0.12V100h100v-0.0001H-0.0001'
@@ -255,4 +264,3 @@ describe("Encoding nested vertical/horizontal commands", function() {
   });
 
 });
-

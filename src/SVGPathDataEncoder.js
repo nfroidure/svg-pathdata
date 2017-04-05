@@ -4,14 +4,14 @@
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
 // Access to SVGPathData constructor
-var SVGPathData = require('./SVGPathData.js');
+const SVGPathData = require('./SVGPathData.js');
 
 // TransformStream inherance required modules
-var TransformStream = require('readable-stream').Transform;
-var util = require('util');
+const TransformStream = require('readable-stream').Transform;
+const util = require('util');
 
 // Private consts : Char groups
-var WSP = ' ';
+const WSP = ' ';
 
 // Inherit of writeable stream
 util.inherits(SVGPathDataEncoder, TransformStream);
@@ -38,9 +38,9 @@ function SVGPathDataEncoder(options) {
 
 // Read method
 SVGPathDataEncoder.prototype._transform = function(commands, encoding, done) {
-  var str = '';
-  var i;
-  var j;
+  let str = '';
+  let i;
+  let j;
 
   if(!(commands instanceof Array)) {
     commands = [commands];
@@ -95,8 +95,8 @@ SVGPathDataEncoder.prototype._transform = function(commands, encoding, done) {
         WSP + commands[i].x + WSP + commands[i].y;
     // Unkown command
     } else {
-      this.emit('error', new Error('Unexpected command type "' +
-        commands[i].type + '" at index ' + i + '.'));
+      this.emit('error', new Error(`Unexpected command type "${
+        commands[i].type}" at index ${i}.`));
     }
   }
   this.push(new Buffer(str, 'utf8'));

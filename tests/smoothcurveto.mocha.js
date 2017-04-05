@@ -1,46 +1,35 @@
-var assert = (
-    global && global.chai
-    ? global.chai.assert
-    : require('chai').assert
-  )
-  , SVGPathData = (
-    global && global.SVGPathData
-    ? global.SVGPathData
-    : require(__dirname + '/../src/SVGPathData.js')
-  )
-;
+/* eslint max-len:0 */
+'use strict';
 
-describe("Parsing smooth curve to commands", function() {
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
 
-  beforeEach(function() {
-  });
+describe('Parsing smooth curve to commands', () => {
 
-  afterEach(function() {
-  });
-
-  it("should not work when badly declared", function() {
-    assert.throw(function() {
+  it('should not work when badly declared', () => {
+    assert.throw(() => {
       new SVGPathData('S');
     }, SyntaxError, 'Unterminated command at the path end.');
-    assert.throw(function() {
+    assert.throw(() => {
       new SVGPathData('S10');
     }, SyntaxError, 'Unterminated command at the path end.');
-    assert.throw(function() {
+    assert.throw(() => {
       new SVGPathData('S10 10');
     }, SyntaxError, 'Unterminated command at the path end.');
-    assert.throw(function() {
+    assert.throw(() => {
       new SVGPathData('S10 10 10');
     }, SyntaxError, 'Unterminated command at the path end.');
-    assert.throw(function() {
+    assert.throw(() => {
       new SVGPathData('S10 10 10 10 10 10');
     }, SyntaxError, 'Unterminated command at the path end.');
-    assert.throw(function() {
+    assert.throw(() => {
       new SVGPathData('S10 10 10S10 10 10 10');
     }, SyntaxError, 'Unterminated command at index 9.');
   });
 
-  it("should work with comma separated coordinates", function() {
-    var commands = new SVGPathData('S123,456 789,987').commands;
+  it('should work with comma separated coordinates', () => {
+    const commands = new SVGPathData('S123,456 789,987').commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_CURVE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x2, '123');
@@ -49,8 +38,9 @@ describe("Parsing smooth curve to commands", function() {
     assert.equal(commands[0].y, '987');
   });
 
-  it("should work with space separated coordinates", function() {
-    var commands = new SVGPathData('S123 456 789 987').commands;
+  it('should work with space separated coordinates', () => {
+    const commands = new SVGPathData('S123 456 789 987').commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_CURVE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x2, '123');
@@ -59,8 +49,9 @@ describe("Parsing smooth curve to commands", function() {
     assert.equal(commands[0].y, '987');
   });
 
-  it("should work with nested separated complexer coordinate pairs", function() {
-    var commands = new SVGPathData('S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
+  it('should work with nested separated complexer coordinate pairs', () => {
+    const commands = new SVGPathData('S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_CURVE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x2, '-10.0032e-5');
@@ -69,8 +60,9 @@ describe("Parsing smooth curve to commands", function() {
     assert.equal(commands[0].y, '-40.0032e-5');
   });
 
-  it("should work with multiple pairs of coordinates", function() {
-    var commands = new SVGPathData('S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
+  it('should work with multiple pairs of coordinates', () => {
+    const commands = new SVGPathData('S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 -10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_CURVE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x2, '-10.0032e-5');
@@ -91,8 +83,9 @@ describe("Parsing smooth curve to commands", function() {
     assert.equal(commands[2].y, '-40.0032e-5');
   });
 
-  it("should work with multiple declared pairs of coordinates", function() {
-    var commands = new SVGPathData('S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 s-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
+  it('should work with multiple declared pairs of coordinates', () => {
+    const commands = new SVGPathData('S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 s-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5 S-10.0032e-5,-20.0032e-5 -30.0032e-5,-40.0032e-5').commands;
+
     assert.equal(commands[0].type, SVGPathData.SMOOTH_CURVE_TO);
     assert.equal(commands[0].relative, false);
     assert.equal(commands[0].x2, '-10.0032e-5');

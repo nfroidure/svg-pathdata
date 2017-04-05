@@ -1,33 +1,27 @@
-var assert = (
-    global && global.chai
-    ? global.chai.assert
-    : require('chai').assert
-  )
-  , SVGPathData = (
-    global && global.SVGPathData
-    ? global.SVGPathData
-    : require(__dirname + '/../src/SVGPathData.js')
-  )
-;
+/* eslint max-len:0 */
+'use strict';
 
-describe("HVZA normalization", function() {
+const assert = require('chai').assert;
+const SVGPathData = require('../src/SVGPathData.js');
+
+describe('HVZA normalization', () => {
 
   // currently z/Z is always absolute
-  it("should tranform relative h v z", function() {
+  it('should tranform relative h v z', () => {
     assert.equal(new SVGPathData(
       'm 10 10 h 100 v 100 z'
       ).normalizeHVZ().encode(),
       new SVGPathData('m 10 10 l 100 0 l 0 100 L 10 10').encode());
   });
 
-  it("should tranform absolute h v z", function() {
+  it('should tranform absolute h v z', () => {
     assert.equal(new SVGPathData(
       'M 10 10 H 100 V 100 Z'
       ).normalizeHVZ().encode(),
       new SVGPathData('M 10 10 L 100 10 L 100 100 L 10 10').encode());
   });
 
-  it("should tranform degenerate arcs", function() {
+  it('should tranform degenerate arcs', () => {
     assert.equal(new SVGPathData(
       'M 10 10 A 0 10 0 0 0 100 100 a 20 0 0 0 0 20 0'
       ).normalizeHVZ().encode(),
