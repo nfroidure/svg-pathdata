@@ -5126,13 +5126,13 @@ SVGPathData.prototype.skewY = function() {
     [].slice.call(arguments, 0)));
 };
 
-SVGPathData.prototype.xSymetry = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.X_AXIS_SIMETRY].concat(
+SVGPathData.prototype.xSymmetry = function() {
+  return this.transform.apply(this, [SVGPathData.Transformer.X_AXIS_SYMMETRY].concat(
     [].slice.call(arguments, 0)));
 };
 
-SVGPathData.prototype.ySymetry = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.Y_AXIS_SIMETRY].concat(
+SVGPathData.prototype.ySymmetry = function() {
+  return this.transform.apply(this, [SVGPathData.Transformer.Y_AXIS_SYMMETRY].concat(
     [].slice.call(arguments, 0)));
 };
 
@@ -5143,17 +5143,14 @@ SVGPathData.prototype.aToC = function() {
 
 SVGPathData.prototype.transform = function(transformFunction) {
   var newCommands = [];
-  var curCommands = [];
-  var commands = this.commands;
-  var i;
-  var ii;
+  var curCommands;
 
-  transformFunction = transformFunction.apply(null, [].slice.call(arguments, 1));
+  transformFunction = transformFunction.apply(null, [].slice.call(arguments, 1))
 
-  for(i = 0, ii = commands.length; i < ii; i++) {
-    curCommands = transformFunction(commands[i]);
-    if(curCommands instanceof Array) {
-      newCommands = newCommands.concat(curCommands);
+  for (var i = 0; i < this.commands.length; i++) {
+    curCommands = transformFunction(this.commands[i]);
+    if (curCommands instanceof Array) {
+      Array.prototype.push.apply(newCommands, curCommands);
     } else {
       newCommands.push(curCommands);
     }
@@ -5940,15 +5937,8 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
   var pathStartY = NaN;
 
   return function toAbs(command) {
-    if(isNaN(pathStartX) && (command.type & SVGPathData.DRAWING_COMMANDS)) {
-      pathStartX = prevX;
-      pathStartY = prevY;
-    }
-    if((command.type & SVGPathData.CLOSE_PATH) && !isNaN(pathStartX)) {
-      prevX = isNaN(pathStartX) ? 0 : pathStartX;
-      prevY = isNaN(pathStartY) ? 0 : pathStartY;
-      pathStartX = NaN;
-      pathStartY = NaN;
+    if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+      throw new Error('path must start with moveto');
     }
     if(command.relative) {
       // x1/y1 values
@@ -5974,9 +5964,14 @@ SVGPathDataTransformer.TO_ABS = function toAbsGenerator() {
       }
       command.relative = false;
     }
+    if (command.type & SVGPathData.CLOSE_PATH) {
+      prevX = pathStartX;
+      prevY = pathStartY;
+    }
     prevX = ('undefined' !== typeof command.x ? command.x : prevX);
     prevY = ('undefined' !== typeof command.y ? command.y : prevY);
-    if(command.type & SVGPathData.MOVE_TO) {
+
+    if (command.type & SVGPathData.MOVE_TO) {
       pathStartX = prevX;
       pathStartY = prevY;
     }
@@ -6144,8 +6139,8 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
   var prevY = 0;
   var pathStartX = NaN;
   var pathStartY = NaN;
-  var prevQuadCX = NaN;
-  var prevQuadCY = NaN;
+  var prevQuadX1 = NaN;
+  var prevQuadY1 = NaN;
 
   return function qtToC(command) {
     if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
@@ -6153,21 +6148,24 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
     }
     if (command.type & SVGPathData.SMOOTH_QUAD_TO) {
       command.type = SVGPathData.QUAD_TO;
-      prevQuadCX = isNaN(prevQuadCX) ? prevX : prevQuadCX;
-      prevQuadCY = isNaN(prevQuadCY) ? prevY : prevQuadCY;
-      command.x1 = command.relative ? prevX - prevQuadCX : 2 * prevX - prevQuadCX;
-      command.y1 = command.relative ? prevY - prevQuadCY : 2 * prevY - prevQuadCY;
+      prevQuadX1 = isNaN(prevQuadX1) ? prevX : prevQuadX1;
+      prevQuadY1 = isNaN(prevQuadY1) ? prevY : prevQuadY1;
+      command.x1 = command.relative ? prevX - prevQuadX1 : 2 * prevX - prevQuadX1;
+      command.y1 = command.relative ? prevY - prevQuadY1 : 2 * prevY - prevQuadY1;
     }
     if (command.type & SVGPathData.QUAD_TO) {
-      prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
-      prevQuadCY = command.relative ? prevY + command.y1 : command.y1;
+      prevQuadX1 = command.relative ? prevX + command.x1 : command.x1;
+      prevQuadY1 = command.relative ? prevY + command.y1 : command.y1;
+      var x1 = command.x1, y1 = command.y1
 
       command.type = SVGPathData.CURVE_TO;
-      command.x2 = command.x1;
-      command.y2 = command.y1;
+      command.x1 = ((command.relative ? 0 : prevX) * 2 + x1) / 3
+      command.y1 = ((command.relative ? 0 : prevY) * 2 + y1) / 3
+      command.x2 = (command.x * 2 + x1) / 3
+      command.y2 = (command.y * 2 + y1) / 3
     } else {
-      prevQuadCX = NaN;
-      prevQuadCY = NaN;
+      prevQuadX1 = NaN;
+      prevQuadY1 = NaN;
     }
 
 
@@ -6463,10 +6461,10 @@ SVGPathDataTransformer.SKEW_Y = function skewYGenerator(a) {
   return SVGPathDataTransformer.MATRIX(1, Math.atan(a), 0, 1, 0, 0);
 };
 
-// Symetry througth the X axis
-SVGPathDataTransformer.X_AXIS_SIMETRY = function xSymetryGenerator(xDecal) {
+// Symmetry througth the X axis
+SVGPathDataTransformer.X_AXIS_SYMMETRY = function xSymmetryGenerator(xDecal) {
   return (function(toAbs, scale, translate) {
-    return function xSymetry(command) {
+    return function xSymmetry(command) {
       return translate(scale(toAbs(command)));
     };
   })(SVGPathDataTransformer.TO_ABS(),
@@ -6475,10 +6473,10 @@ SVGPathDataTransformer.X_AXIS_SIMETRY = function xSymetryGenerator(xDecal) {
   );
 };
 
-// Symetry througth the Y axis
-SVGPathDataTransformer.Y_AXIS_SIMETRY = function ySymetryGenerator(yDecal) {
+// Symmetry througth the Y axis
+SVGPathDataTransformer.Y_AXIS_SYMMETRY = function ySymmetryGenerator(yDecal) {
   return (function(toAbs, scale, translate) {
-    return function ySymetry(command) {
+    return function ySymmetry(command) {
       return translate(scale(toAbs(command)));
     };
   })(SVGPathDataTransformer.TO_ABS(),
@@ -6542,7 +6540,55 @@ var split = "split";
 var concat = "concat";
 var apply = "apply";
 var has = "hasOwnProperty";
+/**
+ * This function calculates the center coordinates and the start and end curve parameters of an arc,
+ * given the parameters part of an SVG A command.
+ *
+ * cf. http://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes
+ */
+function calcArcCenterAndParams(x1, y1, rx, ry, angle, large_arc_flag, sweep_flag, x2, y2) {
+  function rotate(x, y, rad) {
+    return {
+      x: x * Math.cos(rad) - y * Math.sin(rad),
+      y: x * Math.sin(rad) + y * Math.cos(rad)};
+  }
+  var xy, rad = PI / 180 * (+angle || 0)
 
+  var p1rot = rotate(x1, y1, -rad);
+  x1 = p1rot.x;
+  y1 = p1rot.y;
+  var p2rot = rotate(x2, y2, -rad);
+  x2 = p2rot.x;
+  y2 = p2rot.y;
+  var
+    x = (x1 - x2) / 2,
+    y = (y1 - y2) / 2;
+  var h = (x * x) / (rx * rx) + (y * y) / (ry * ry);
+  if (h > 1) {
+    h = Math.sqrt(h);
+    rx = h * rx;
+    ry = h * ry;
+  }
+  var rx2 = rx * rx,
+    ry2 = ry * ry,
+    k = (large_arc_flag === sweep_flag ? -1 : 1) *
+      Math.sqrt(Math.abs((rx2 * ry2 - rx2 * y * y - ry2 * x * x) / (rx2 * y * y + ry2 * x * x))),
+    cx = k * rx * y / ry + (x1 + x2) / 2,
+    cy = k * -ry * x / rx + (y1 + y2) / 2,
+    f1 = Math.asin(((y1 - cy) / ry).toFixed(9)),
+    f2 = Math.asin(((y2 - cy) / ry).toFixed(9));
+  f1 = x1 < cx ? PI - f1 : f1;
+  f2 = x2 < cx ? PI - f2 : f2;
+  f1 < 0 && (f1 = PI * 2 + f1);
+  f2 < 0 && (f2 = PI * 2 + f2);
+  if (sweep_flag && f1 > f2) {
+    f1 = f1 - PI * 2;
+  }
+  if (!sweep_flag && f2 > f1) {
+    f2 = f2 - PI * 2;
+  }
+  return [f1, f2, cx, cy, rx, ry]
+}
 function a2c(x1, y1, rx, ry, angle, large_arc_flag, sweep_flag, x2, y2, recursive) {
     // for more information of where this math came from visit:
     // http://www.w3.org/TR/SVG11/implnote.html#ArcImplementationNotes

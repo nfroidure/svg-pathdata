@@ -291,8 +291,8 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
   var prevY = 0;
   var pathStartX = NaN;
   var pathStartY = NaN;
-  var prevQuadCX = NaN;
-  var prevQuadCY = NaN;
+  var prevQuadX1 = NaN;
+  var prevQuadY1 = NaN;
 
   return function qtToC(command) {
     if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
@@ -300,21 +300,24 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
     }
     if (command.type & SVGPathData.SMOOTH_QUAD_TO) {
       command.type = SVGPathData.QUAD_TO;
-      prevQuadCX = isNaN(prevQuadCX) ? prevX : prevQuadCX;
-      prevQuadCY = isNaN(prevQuadCY) ? prevY : prevQuadCY;
-      command.x1 = command.relative ? prevX - prevQuadCX : 2 * prevX - prevQuadCX;
-      command.y1 = command.relative ? prevY - prevQuadCY : 2 * prevY - prevQuadCY;
+      prevQuadX1 = isNaN(prevQuadX1) ? prevX : prevQuadX1;
+      prevQuadY1 = isNaN(prevQuadY1) ? prevY : prevQuadY1;
+      command.x1 = command.relative ? prevX - prevQuadX1 : 2 * prevX - prevQuadX1;
+      command.y1 = command.relative ? prevY - prevQuadY1 : 2 * prevY - prevQuadY1;
     }
     if (command.type & SVGPathData.QUAD_TO) {
-      prevQuadCX = command.relative ? prevX + command.x1 : command.x1;
-      prevQuadCY = command.relative ? prevY + command.y1 : command.y1;
+      prevQuadX1 = command.relative ? prevX + command.x1 : command.x1;
+      prevQuadY1 = command.relative ? prevY + command.y1 : command.y1;
+      var x1 = command.x1, y1 = command.y1
 
       command.type = SVGPathData.CURVE_TO;
-      command.x2 = command.x1;
-      command.y2 = command.y1;
+      command.x1 = ((command.relative ? 0 : prevX) * 2 + x1) / 3
+      command.y1 = ((command.relative ? 0 : prevY) * 2 + y1) / 3
+      command.x2 = (command.x * 2 + x1) / 3
+      command.y2 = (command.y * 2 + y1) / 3
     } else {
-      prevQuadCX = NaN;
-      prevQuadCY = NaN;
+      prevQuadX1 = NaN;
+      prevQuadY1 = NaN;
     }
 
 

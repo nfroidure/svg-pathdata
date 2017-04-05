@@ -14,19 +14,20 @@ describe("qt to c", function() {
 
   it("absolute Q and T commands should be converted", function() {
     assert.equal(new SVGPathData('M0 0\
-    Q0,10 10,10\
-    T10,20').qtToC().encode(),
+    Q0,9 9,9\
+    T9,18').qtToC().encode(),
       new SVGPathData('M0 0\
-    C0,10 0,10 10,10\
-    C20,10 20,10 10,20').encode());
+    C0,3 6,9 9,9\
+    C12,9 12,15 9,18').encode());
   });
 
   it("relative Q and T commands should be converted", function() {
-    assert.equal(new SVGPathData('M10 20\
-    q0,10 10,10\
-    t10,20').qtToC().encode(),
-      new SVGPathData('M10 20\
-    c0,10 0,10 10,10\
-    c10,0 10,0 10,20').encode());
+    assert.equal(new SVGPathData('M9 18\
+    q0,9 9,9\
+    t9,18').qtToC().encode(),
+      new SVGPathData('M9 18\
+    c0,3 6,9 9,9\
+    c3,0 9,12 9,18').encode());
   });
+
 });
