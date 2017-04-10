@@ -168,49 +168,50 @@ SVGPathDataTransformer.TO_REL = function toRelGenerator() {
 };
 
 // Convert H, V, Z and A with rX = 0 to L
-SVGPathDataTransformer.NORMALIZE_HVZ = function normalizeHVZGenerator() {
-  let prevX = 0;
-  let prevY = 0;
-  let pathStartX = NaN;
-  let pathStartY = NaN;
+SVGPathDataTransformer.NORMALIZE_HVZ =
+  function normalizeHVZGenerator(normalizeZ = true, normalizeH = true, normalizeV = true) {
+    let prevX = 0;
+    let prevY = 0;
+    let pathStartX = NaN;
+    let pathStartY = NaN;
 
-  return function normalizeHVZ(command) {
-    if(isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
-      throw new Error('path must start with moveto');
-    }
-    if(command.type & SVGPathData.HORIZ_LINE_TO) {
-      command.type = SVGPathData.LINE_TO;
-      command.y = command.relative ? 0 : prevY;
-    }
-    if(command.type & SVGPathData.VERT_LINE_TO) {
-      command.type = SVGPathData.LINE_TO;
-      command.x = command.relative ? 0 : prevX;
-    }
-    if(command.type & SVGPathData.CLOSE_PATH) {
-      command.type = SVGPathData.LINE_TO;
-      command.x = command.relative ? pathStartX - prevX : pathStartX;
-      command.y = command.relative ? pathStartY - prevY : pathStartY;
-    }
-    if(command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY)) {
-      command.type = SVGPathData.LINE_TO;
-      delete command.rX;
-      delete command.rY;
-      delete command.xRot;
-      delete command.lArcFlag;
-      delete command.sweepFlag;
-    }
-    // all commands have x and y now
-    prevX = (command.relative ? prevX + command.x : command.x);
-    prevY = (command.relative ? prevY + command.y : command.y);
+    return function normalizeHVZ(command) {
+      if(isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
+        throw new Error('path must start with moveto');
+      }
+      if(normalizeH && command.type & SVGPathData.HORIZ_LINE_TO) {
+        command.type = SVGPathData.LINE_TO;
+        command.y = command.relative ? 0 : prevY;
+      }
+      if(normalizeV && command.type & SVGPathData.VERT_LINE_TO) {
+        command.type = SVGPathData.LINE_TO;
+        command.x = command.relative ? 0 : prevX;
+      }
+      if(normalizeZ && command.type & SVGPathData.CLOSE_PATH) {
+        command.type = SVGPathData.LINE_TO;
+        command.x = command.relative ? pathStartX - prevX : pathStartX;
+        command.y = command.relative ? pathStartY - prevY : pathStartY;
+      }
+      if(command.type & SVGPathData.ARC && (0 === command.rX || 0 === command.rY)) {
+        command.type = SVGPathData.LINE_TO;
+        delete command.rX;
+        delete command.rY;
+        delete command.xRot;
+        delete command.lArcFlag;
+        delete command.sweepFlag;
+      }
+      // all commands have x and y now
+      prevX = (command.relative ? prevX + command.x : command.x);
+      prevY = (command.relative ? prevY + command.y : command.y);
 
-    if(command.type & SVGPathData.MOVE_TO) {
-      pathStartX = prevX;
-      pathStartY = prevY;
-    }
+      if(command.type & SVGPathData.MOVE_TO) {
+        pathStartX = prevX;
+        pathStartY = prevY;
+      }
 
-    return command;
+      return command;
+    };
   };
-};
 
 /*
  * Transforms smooth curves and quads to normal curves and quads (SsTt to CcQq)
@@ -343,7 +344,7 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
 /*
  * remove 0-length segments
  */
-SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
+SVGPathDataTransformer.SANITIZE = function sanitizeGenerator(eps = 0) {
   let prevX = 0;
   let prevY = 0;
   let pathStartX = NaN;
@@ -407,7 +408,11 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator() {
       const y2Rel = 'undefined' === typeof command.y2 ? 0 :
         (command.relative ? command.y : command.y2 - prevY);
 
-      if(0 === xRel && 0 === yRel && 0 === x1Rel && 0 === y1Rel && 0 === x2Rel && 0 === y2Rel) {
+      const abs = Math.abs;
+
+      if(abs(xRel) <= eps && abs(yRel) <= eps &&
+        abs(x1Rel) <= eps && abs(y1Rel) <= eps &&
+        abs(x2Rel) <= eps && abs(y2Rel) <= eps) {
         skip = true;
       }
     }
@@ -455,13 +460,13 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
     if('undefined' !== typeof command.x) {
       command.x = (command.x * a) +
         ('undefined' !== typeof command.y ?
-          command.y : (command.relative ? 0 : prevY || 0)
+            command.y : (command.relative ? 0 : prevY || 0)
         ) * c +
         (command.relative && 'undefined' !== typeof prevX ? 0 : e);
     }
     if('undefined' !== typeof command.y) {
       command.y = ('undefined' !== typeof origX ?
-          origX : (command.relative ? 0 : prevX || 0)
+            origX : (command.relative ? 0 : prevX || 0)
         ) * b +
         command.y * d +
         (command.relative && 'undefined' !== typeof prevY ? 0 : f);

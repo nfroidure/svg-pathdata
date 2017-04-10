@@ -22,7 +22,8 @@ SVGPathData.prototype.toRel = function() {
 };
 
 SVGPathData.prototype.normalizeHVZ = function() {
-  return this.transform(SVGPathData.Transformer.NORMALIZE_HVZ);
+  return this.transform.apply(this, [SVGPathData.Transformer.NORMALIZE_HVZ].concat(
+    [].slice.call(arguments, 0)));
 };
 
 SVGPathData.prototype.normalizeST = function() {
@@ -34,7 +35,8 @@ SVGPathData.prototype.qtToC = function() {
 };
 
 SVGPathData.prototype.sanitize = function() {
-  return this.transform(SVGPathData.Transformer.SANITIZE);
+  return this.transform.apply(this, [SVGPathData.Transformer.SANITIZE].concat(
+    [].slice.call(arguments, 0)));
 };
 
 SVGPathData.prototype.translate = function() {
