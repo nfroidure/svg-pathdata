@@ -11,8 +11,7 @@ describe('Positive translation', () => {
       new SVGPathData(
         'm20,30l10,10z'
       ).translate().encode();
-    }, 'A translate transformation requires the parameter dX' +
-      ' to be set and to be a number.');
+    }, Error);
   });
 
   it('should work with relative path', () => {

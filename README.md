@@ -29,37 +29,22 @@ const SVGPathData = require('svg-pathdata');
 
 ## Reading PathData
 ```js
-var pathData = new SVGPathData ('\
-  M 10 10 \
-  H 60 \
-  V 60 \
-  L 10 60 \
-  Z \
-');
+const pathData = new SVGPathData (`
+  M 10 10
+  H 60
+  V 60
+  L 10 60
+  Z`);
+
 
 console.log(pathData.commands);
 
-// {"commands":[{
-//    "type": SVGPathData.MOVE_TO,
-//    "relative": false,
-//    "x": 10, "y": 10
-//  },{
-//    "type": SVGPathData.HORIZ_LINE_TO,
-//    "relative": false,
-//    "x": 60
-//  },{
-//    "type": SVGPathData.VERT_LINE_TO,
-//    "relative":false,
-//    "y": 60
-//  },{
-//    "type": SVGPathData.LINE_TO,
-//    "relative": false,
-//    "x": 10,
-//    "y": 60
-//  },{
-//    "type": SVGPathData.CLOSE_PATH
-//  }
-// ]}
+
+// [  {type: SVGPathData.MOVE_TO,       relative: false,  x: 10,  y: 10},
+//    {type: SVGPathData.HORIZ_LINE_TO, relative: false,  x: 60},
+//    {type: SVGPathData.VERT_LINE_TO,  relative: false,          y: 60},
+//    {type: SVGPathData.LINE_TO,       relative: false,  x: 10,  y: 60},
+//    {type: SVGPathData.CLOSE_PATH}]
 ```
 
 ## Reading streamed PathData
@@ -118,13 +103,12 @@ parser.end();
 
 ## Outputting PathData
 ```js
-var pathData = new SVGPathData ('\
-  M 10 10 \
-  H 60 \
-  V 60 \
-  L 10 60 \
-  Z \
-');
+var pathData = new SVGPathData (`
+  M 10 10
+  H 60
+  V 60
+  L 10 60
+  Z`);
 
 console.log(pathData.encode());
 // "M10 10H60V60L10 60Z"

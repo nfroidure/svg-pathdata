@@ -11,38 +11,32 @@ describe('Matrix transformation should be the same than it\'s equivalent transfo
       new SVGPathData(
         'm20,30l10,10z'
       ).matrix().encode();
-    }, 'A matrix transformation requires parameters [a,b,c,d,e,f]' +
-      ' to be set and to be numbers.');
+    }, Error);
     assert.throws(() => {
       new SVGPathData(
         'm20,30l10,10z'
       ).matrix(1).encode();
-    }, 'A matrix transformation requires parameters [a,b,c,d,e,f]' +
-      ' to be set and to be numbers.');
+    }, Error);
     assert.throws(() => {
       new SVGPathData(
         'm20,30l10,10z'
       ).matrix(1, 1).encode();
-    }, 'A matrix transformation requires parameters [a,b,c,d,e,f]' +
-      ' to be set and to be numbers.');
+    }, Error);
     assert.throws(() => {
       new SVGPathData(
         'm20,30l10,10z'
       ).matrix(1, 1, 1).encode();
-    }, 'A matrix transformation requires parameters [a,b,c,d,e,f]' +
-      ' to be set and to be numbers.');
+    }, Error);
     assert.throws(() => {
       new SVGPathData(
         'm20,30l10,10z'
       ).matrix(1, 1, 1, 1).encode();
-    }, 'A matrix transformation requires parameters [a,b,c,d,e,f]' +
-      ' to be set and to be numbers.');
+    }, Error);
     assert.throws(() => {
       new SVGPathData(
         'm20,30l10,10z'
       ).matrix(1, 1, 1, 1, 1).encode();
-    }, 'A matrix transformation requires parameters [a,b,c,d,e,f]' +
-      ' to be set and to be numbers.');
+    }, Error);
   });
 
   it('for scale', () => {

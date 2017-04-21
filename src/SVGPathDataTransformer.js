@@ -14,6 +14,18 @@ const SVGPathData = require('./SVGPathData.js');
 const TransformStream = require('readable-stream').Transform;
 const util = require('util');
 
+const DEBUG_CHECK_NUMBERS = true;
+function assertNumbers(...numbers) {
+  if(DEBUG_CHECK_NUMBERS) {
+    for(let i = 0; i < numbers.length; i++) {
+      if('number' !== typeof numbers[i]) {
+        throw new Error(`assertNumbers arguments[${i}] is not a number. ${typeof numbers[i]} == typeof ${numbers[i]}`);
+      }
+    }
+  }
+  return true;
+}
+
 // Inherit of transform stream
 util.inherits(SVGPathDataTransformer, TransformStream);
 
@@ -53,8 +65,8 @@ SVGPathDataTransformer.prototype._transform = function(commands, encoding, done)
 
 // Predefined transforming functions
 // Rounds commands values
-SVGPathDataTransformer.ROUND = function roundGenerator(roundVal) {
-  roundVal = roundVal || 10e12;
+SVGPathDataTransformer.ROUND = function roundGenerator(roundVal = 1e13) {
+  assertNumbers(roundVal);
   return function round(command) {
     // x1/y1 values
     if('undefined' !== typeof command.x1) {
@@ -72,10 +84,10 @@ SVGPathDataTransformer.ROUND = function roundGenerator(roundVal) {
     }
     // Finally x/y values
     if('undefined' !== typeof command.x) {
-      command.x = Math.round(command.x * roundVal, 12) / roundVal;
+      command.x = Math.round(command.x * roundVal) / roundVal;
     }
     if('undefined' !== typeof command.y) {
-      command.y = Math.round(command.y * roundVal, 12) / roundVal;
+      command.y = Math.round(command.y * roundVal) / roundVal;
     }
     return command;
   };
@@ -345,6 +357,7 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
  * remove 0-length segments
  */
 SVGPathDataTransformer.SANITIZE = function sanitizeGenerator(eps = 0) {
+  assertNumbers(eps);
   let prevX = 0;
   let prevY = 0;
   let pathStartX = NaN;
@@ -443,15 +456,10 @@ SVGPathDataTransformer.SANITIZE = function sanitizeGenerator(eps = 0) {
 // Matrix : http://apike.ca/prog_svg_transform.html
 // eslint-disable-next-line
 SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
+  assertNumbers(a, b, c, d, e, f);
   let prevX;
   let prevY;
 
-  if('number' !== typeof a || 'number' !== typeof b ||
-    'number' !== typeof c || 'number' !== typeof d ||
-    'number' !== typeof e || 'number' !== typeof f) {
-    throw new Error('A matrix transformation requires parameters' +
-      ' [a,b,c,d,e,f] to be set and to be numbers.');
-  }
   return function matrix(command) {
     const origX = command.x;
     const origX1 = command.x1;
@@ -576,79 +584,41 @@ SVGPathDataTransformer.MATRIX = function matrixGenerator(a, b, c, d, e, f) {
   };
 };
 
-// Rotation
-SVGPathDataTransformer.ROTATE = function rotateGenerator(a, x, y) {
-  if('number' !== typeof a) {
-    throw new Error('A rotate transformation requires the parameter a' +
-      ' to be set and to be a number.');
-  }
-  return (function(toOrigin, doRotate, fromOrigin) {
-    return function rotate(command) {
-      return fromOrigin(doRotate(toOrigin(command)));
-    };
-  }(SVGPathDataTransformer.TRANSLATE(-(x || 0), -(y || 0)),
-    SVGPathDataTransformer.MATRIX(Math.cos(a), Math.sin(a),
-      -Math.sin(a), Math.cos(a), 0, 0),
-    SVGPathDataTransformer.TRANSLATE(x || 0, y || 0)
-  ));
+SVGPathDataTransformer.ROTATE = function rotateGenerator(a, x = 0, y = 0) {
+  assertNumbers(a, x, y);
+  const sin = Math.sin(a);
+  const cos = Math.cos(a);
+
+  return SVGPathDataTransformer.MATRIX(cos, sin, -sin, cos, x - x * cos + y * sin, y - x * sin - y * cos);
 };
 
-// Translation
-SVGPathDataTransformer.TRANSLATE = function translateGenerator(dX, dY) {
-  if('number' !== typeof dX) {
-    throw new Error('A translate transformation requires the parameter dX' +
-      ' to be set and to be a number.');
-  }
-  return SVGPathDataTransformer.MATRIX(1, 0, 0, 1, dX, dY || 0);
+SVGPathDataTransformer.TRANSLATE = function translateGenerator(dX, dY = 0) {
+  assertNumbers(dX, dY);
+  return SVGPathDataTransformer.MATRIX(1, 0, 0, 1, dX, dY);
 };
 
-// Scaling
-SVGPathDataTransformer.SCALE = function scaleGenerator(dX, dY) {
-  if('number' !== typeof dX) {
-    throw new Error('A scale transformation requires the parameter dX' +
-      ' to be set and to be a number.');
-  }
-  return SVGPathDataTransformer.MATRIX(dX, 0, 0, dY || dX, 0, 0);
+SVGPathDataTransformer.SCALE = function scaleGenerator(dX, dY = dX) {
+  assertNumbers(dX, dY);
+  return SVGPathDataTransformer.MATRIX(dX, 0, 0, dY, 0, 0);
 };
 
-// Skew
 SVGPathDataTransformer.SKEW_X = function skewXGenerator(a) {
-  if('number' !== typeof a) {
-    throw new Error('A skewX transformation requires the parameter x' +
-      ' to be set and to be a number.');
-  }
+  assertNumbers(a);
   return SVGPathDataTransformer.MATRIX(1, 0, Math.atan(a), 1, 0, 0);
 };
 SVGPathDataTransformer.SKEW_Y = function skewYGenerator(a) {
-  if('number' !== typeof a) {
-    throw new Error('A skewY transformation requires the parameter y' +
-      ' to be set and to be a number.');
-  }
+  assertNumbers(a);
   return SVGPathDataTransformer.MATRIX(1, Math.atan(a), 0, 1, 0, 0);
 };
 
-// Symmetry througth the X axis
-SVGPathDataTransformer.X_AXIS_SYMMETRY = function xSymmetryGenerator(xDecal) {
-  return (function(toAbs, scale, translate) {
-    return function xSymmetry(command) {
-      return translate(scale(toAbs(command)));
-    };
-  }(SVGPathDataTransformer.TO_ABS(),
-    SVGPathDataTransformer.SCALE(-1, 1),
-    SVGPathDataTransformer.TRANSLATE(xDecal || 0, 0)
-  ));
+SVGPathDataTransformer.X_AXIS_SYMMETRY = function xSymmetryGenerator(xOffset = 0) {
+  assertNumbers(xOffset);
+  return SVGPathDataTransformer.MATRIX(-1, 0, 0, 1, xOffset, 0);
 };
 
-// Symmetry througth the Y axis
-SVGPathDataTransformer.Y_AXIS_SYMMETRY = function ySymmetryGenerator(yDecal) {
-  return (function(toAbs, scale, translate) {
-    return function ySymmetry(command) {
-      return translate(scale(toAbs(command)));
-    };
-  }(SVGPathDataTransformer.TO_ABS(),
-    SVGPathDataTransformer.SCALE(1, -1),
-    SVGPathDataTransformer.TRANSLATE(0, yDecal || 0)
-  ));
+SVGPathDataTransformer.Y_AXIS_SYMMETRY = function ySymmetryGenerator(yOffset = 0) {
+  assertNumbers(yOffset);
+  return SVGPathDataTransformer.MATRIX(1, 0, 0, -1, 0, yOffset);
 };
 
 // Convert arc commands to curve commands
@@ -656,37 +626,35 @@ SVGPathDataTransformer.A_TO_C = function a2CGenerator() {
   let prevX = 0;
   let prevY = 0;
   let args;
+  const toAbs = SVGPathDataTransformer.TO_ABS();
 
-  return (function(toAbs) {
-    return function a2C(command) {
-      const commands = [];
-      let i;
-      let ii;
+  return function a2C(command) {
+    const commands = [];
+    let i;
+    let ii;
 
-      command = toAbs(command);
-      if(command.type === SVGPathData.ARC) {
-        args = a2c(prevX, prevY, command.rX, command.rX, command.xRot,
-          command.lArcFlag, command.sweepFlag, command.x, command.y);
-        prevX = command.x; prevY = command.y;
-        for(i = 0, ii = args.length; i < ii; i += 6) {
-          commands.push({
-            type: SVGPathData.CURVE_TO,
-            relative: false,
-            x1: args[i],
-            y1: args[i + 1],
-            x2: args[i + 2],
-            y2: args[i + 3],
-            x: args[i + 4],
-            y: args[i + 5],
-          });
-        }
-        return commands;
-      }
+    command = toAbs(command);
+    if(command.type === SVGPathData.ARC) {
+      args = a2c(prevX, prevY, command.rX, command.rX, command.xRot,
+        command.lArcFlag, command.sweepFlag, command.x, command.y);
       prevX = command.x; prevY = command.y;
-      return command;
-
-    };
-  }(SVGPathDataTransformer.TO_ABS()));
+      for(i = 0, ii = args.length; i < ii; i += 6) {
+        commands.push({
+          type: SVGPathData.CURVE_TO,
+          relative: false,
+          x1: args[i],
+          y1: args[i + 1],
+          x2: args[i + 2],
+          y2: args[i + 3],
+          x: args[i + 4],
+          y: args[i + 5],
+        });
+      }
+      return commands;
+    }
+    prevX = command.x; prevY = command.y;
+    return command;
+  };
 };
 
 module.exports = SVGPathDataTransformer;

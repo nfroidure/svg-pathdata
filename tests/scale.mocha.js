@@ -11,8 +11,7 @@ describe('Positive scale', () => {
       new SVGPathData(
         'm20,30l10,10z'
       ).scale().encode();
-    }, 'A scale transformation requires the parameter dX' +
-      ' to be set and to be a number.');
+    }, Error);
   });
 
   it('should work with relative path', () => {
