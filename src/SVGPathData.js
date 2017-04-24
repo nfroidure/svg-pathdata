@@ -1,108 +1,94 @@
+/* eslint-disable new-cap,max-params */
 'use strict';
 
 function SVGPathData(content) {
   this.commands = SVGPathData.parse(content);
 }
 
-SVGPathData.prototype.encode = function() {
-  return SVGPathData.encode(this.commands);
-};
+SVGPathData.prototype = {
+  encode() {
+    return SVGPathData.encode(this.commands);
+  },
 
-SVGPathData.prototype.round = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.ROUND].concat(
-    [].slice.call(arguments, 0)));
-};
+  round(x) {
+    return this.transform(SVGPathData.Transformer.ROUND(x));
+  },
 
-SVGPathData.prototype.toAbs = function() {
-  return this.transform(SVGPathData.Transformer.TO_ABS);
-};
+  toAbs() {
+    return this.transform(SVGPathData.Transformer.TO_ABS());
+  },
 
-SVGPathData.prototype.toRel = function() {
-  return this.transform(SVGPathData.Transformer.TO_REL);
-};
+  toRel() {
+    return this.transform(SVGPathData.Transformer.TO_REL());
+  },
 
-SVGPathData.prototype.normalizeHVZ = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.NORMALIZE_HVZ].concat(
-    [].slice.call(arguments, 0)));
-};
+  normalizeHVZ(a, b, c) {
+    return this.transform(SVGPathData.Transformer.NORMALIZE_HVZ(a, b, c));
+  },
 
-SVGPathData.prototype.normalizeST = function() {
-  return this.transform(SVGPathData.Transformer.NORMALIZE_ST);
-};
+  normalizeST() {
+    return this.transform(SVGPathData.Transformer.NORMALIZE_ST());
+  },
 
-SVGPathData.prototype.qtToC = function() {
-  return this.transform(SVGPathData.Transformer.QT_TO_C);
-};
+  qtToC() {
+    return this.transform(SVGPathData.Transformer.QT_TO_C());
+  },
 
-SVGPathData.prototype.sanitize = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.SANITIZE].concat(
-    [].slice.call(arguments, 0)));
-};
+  aToC() {
+    return this.transform(SVGPathData.Transformer.A_TO_C());
+  },
 
-SVGPathData.prototype.translate = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.TRANSLATE].concat(
-    [].slice.call(arguments, 0)));
-};
+  sanitize() {
+    return this.transform(SVGPathData.Transformer.SANITIZE());
+  },
 
-SVGPathData.prototype.scale = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.SCALE].concat(
-    [].slice.call(arguments, 0)));
-};
+  translate(x, y) {
+    return this.transform(SVGPathData.Transformer.TRANSLATE(x, y));
+  },
 
-SVGPathData.prototype.rotate = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.ROTATE].concat(
-    [].slice.call(arguments, 0)));
-};
+  scale(x, y) {
+    return this.transform(SVGPathData.Transformer.SCALE(x, y));
+  },
 
-SVGPathData.prototype.matrix = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.MATRIX].concat(
-    [].slice.call(arguments, 0)));
-};
+  rotate(a, x, y) {
+    return this.transform(SVGPathData.Transformer.ROTATE(a, x, y));
+  },
 
-SVGPathData.prototype.skewX = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.SKEW_X].concat(
-    [].slice.call(arguments, 0)));
-};
+  matrix(a, b, c, d, e, f) {
+    return this.transform(SVGPathData.Transformer.MATRIX(a, b, c, d, e, f));
+  },
 
-SVGPathData.prototype.skewY = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.SKEW_Y].concat(
-    [].slice.call(arguments, 0)));
-};
+  skewX(a) {
+    return this.transform(SVGPathData.Transformer.SKEW_X(a));
+  },
 
-SVGPathData.prototype.xSymmetry = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.X_AXIS_SYMMETRY].concat(
-    [].slice.call(arguments, 0)));
-};
+  skewY(a) {
+    return this.transform(SVGPathData.Transformer.SKEW_Y(a));
+  },
 
-SVGPathData.prototype.ySymmetry = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.Y_AXIS_SYMMETRY].concat(
-    [].slice.call(arguments, 0)));
-};
+  xSymmetry(xOffset) {
+    return this.transform(SVGPathData.Transformer.X_AXIS_SYMMETRY(xOffset));
+  },
 
-SVGPathData.prototype.aToC = function() {
-  return this.transform.apply(this, [SVGPathData.Transformer.A_TO_C].concat(
-    [].slice.call(arguments, 0)));
-};
+  ySymmetry(yOffset) {
+    return this.transform(SVGPathData.Transformer.Y_AXIS_SYMMETRY(yOffset));
+  },
 
-SVGPathData.prototype.transform = function(transformFunction) {
-  let newCommands = [];
-  let curCommands = [];
-  const commands = this.commands;
-  let i;
-  let ii;
+  transform(transformFunction) {
+    const newCommands = [];
 
-  transformFunction = transformFunction(...[].slice.call(arguments, 1));
+    for(let i = 0; i < this.commands.length; i++) {
+      const transformedCommand = transformFunction(this.commands[i]);
 
-  for(i = 0, ii = commands.length; i < ii; i++) {
-    curCommands = transformFunction(commands[i]);
-    if(curCommands instanceof Array) {
-      newCommands = newCommands.concat(curCommands);
-    } else {
-      newCommands.push(curCommands);
+      if(transformedCommand instanceof Array) {
+        newCommands.push(...transformedCommand);
+      } else {
+        newCommands.push(transformedCommand);
+      }
     }
-  }
-  this.commands = newCommands;
-  return this;
+    this.commands = newCommands;
+    return this;
+  },
 };
 
 // Static methods
@@ -113,12 +99,9 @@ SVGPathData.encode = function(commands) {
   encoder.on('readable', () => {
     let str;
 
-    do {
-      str = encoder.read();
-      if(null !== str) {
-        content += str;
-      }
-    } while(null !== str);
+    while(null !== (str = encoder.read())) {
+      content += str;
+    }
   });
   encoder.write(commands);
   encoder.end();
@@ -132,12 +115,9 @@ SVGPathData.parse = function(content) {
   parser.on('readable', () => {
     let command;
 
-    do {
-      command = parser.read();
-      if(null !== command) {
-        commands.push(command);
-      }
-    } while(null !== command);
+    while(null !== (command = parser.read())) {
+      commands.push(command);
+    }
   });
   parser.write(content);
   parser.end();
@@ -162,7 +142,7 @@ SVGPathData.DRAWING_COMMANDS =
   SVGPathData.CURVE_TO | SVGPathData.SMOOTH_CURVE_TO | SVGPathData.QUAD_TO |
   SVGPathData.SMOOTH_QUAD_TO | SVGPathData.ARC;
 
-// Export the main contructor first (tests are failing otherwise)
+// Export the main constructor first (tests fail otherwise)
 module.exports = SVGPathData;
 
 // Expose the internal constructors

@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /* eslint max-len:0 */
 'use strict';
 
@@ -12,12 +13,6 @@ describe('SVGPathDataTransformer', () => {
     }, 'Please provide a transform callback to receive commands.');
   });
 
-  it('should fail with bad transform function', () => {
-    assert.throws(() => {
-      new SVGPathData.Transformer(() => {});
-    }, 'Please provide a valid transform (returning a function).');
-  });
-
   it('should still work when the new operator is forgotten', () => {
     assert.doesNotThrow(() => {
       new SVGPathData.Transformer(SVGPathData.Transformer.SCALE, 1, 1);
@@ -25,10 +20,15 @@ describe('SVGPathDataTransformer', () => {
   });
 
   it('should work in streaming mode', () => {
-    const encoder = new SVGPathData.Transformer(SVGPathData.Transformer.SCALE, 1, 1);
+    const encoder = new SVGPathData.Transformer(SVGPathData.Transformer.SCALE(1, 1));
 
     encoder.write({
-      type: SVGPathData.Parser.LINE_TO,
+      type: SVGPathData.MOVE_TO,
+      relative: false,
+      x: 0,
+      y: 0,
+    }, {
+      type: SVGPathData.LINE_TO,
       relative: true,
       x: 10,
       y: 10,

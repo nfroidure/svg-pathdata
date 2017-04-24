@@ -14,7 +14,7 @@ describe('Positive rotate from the origin', () => {
     }, Error);
   });
 
-  it('should work with relative horinzontal path', () => {
+  it('should work with relative horizontal path', () => {
     assert.equal(new SVGPathData(
       'm10 0l60 0z'
     ).rotate(Math.PI).round(6).encode(),

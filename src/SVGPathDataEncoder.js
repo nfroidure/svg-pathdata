@@ -91,7 +91,7 @@ SVGPathDataEncoder.prototype._transform = function(commands, encoding, done) {
       str += (commands[i].relative ? 'a' : 'A') +
         commands[i].rX + WSP + commands[i].rY +
         WSP + commands[i].xRot +
-        WSP + commands[i].lArcFlag + WSP + commands[i].sweepFlag +
+        WSP + (+commands[i].lArcFlag) + WSP + (+commands[i].sweepFlag) +
         WSP + commands[i].x + WSP + commands[i].y;
     // Unkown command
     } else {
