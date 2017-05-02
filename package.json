@@ -1,6 +1,6 @@
 {
   "name": "svg-pathdata",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "description": "Manipulate SVG path data (path[d] attribute content) simply and efficiently.",
   "main": "src/SVGPathData.js",
   "metapak": {
