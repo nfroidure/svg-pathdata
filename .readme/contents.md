@@ -57,7 +57,7 @@ parser.end();
 
 ## Outputting PathData
 ```js
-var pathData = new SVGPathData (`
+const pathData = new SVGPathData (`
   M 10 10
   H 60
   V 60
@@ -71,7 +71,7 @@ console.log(pathData.encode());
 
 ## Streaming PathData out
 ```js
-var encoder = new SVGPathData.Encoder();
+const encoder = new SVGPathData.Encoder();
 encoder.setEncoding('utf8');
 
 encode.on('data', console.log(str));
@@ -101,13 +101,12 @@ This library was made to live decoding/transform/encoding SVG PathData. Here is
 ### The synchronous way
 ```js
 console.log(
-  new SVGPathData ('\
-   m 10,10 \
-   h 60 \
-   v 60 \
-   l 10,60 \
-   z'
-  )
+  new SVGPathData (`
+   m 10,10
+   h 60
+   v 60
+   l 10,60
+   z`)
   .toAbs()
   .encode()
 );
@@ -146,7 +145,7 @@ new SVGPathData('...')
 
 // Streaming usage
 process.stdin.pipe(new SVGPathData.Parser())
-  .pipe(new SVGPathData.Transformer(SET_X_TO(25))
+  .pipe(new SVGPathData.Transformer(SET_X_TO(25)))
   .pipe(new SVGPathData.Encoder())
   .pipe(process.stdout);
 ```

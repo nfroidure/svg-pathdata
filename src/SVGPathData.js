@@ -74,6 +74,10 @@ SVGPathData.prototype = {
     return this.transform(SVGPathData.Transformer.Y_AXIS_SYMMETRY(yOffset));
   },
 
+  annotateArcs() {
+    return this.transform(SVGPathData.Transformer.ANNOTATE_ARCS());
+  },
+
   transform(transformFunction) {
     const newCommands = [];
 
