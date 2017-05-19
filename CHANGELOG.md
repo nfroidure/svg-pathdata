@@ -1,3 +1,8 @@
+<a name="3.1.0"></a>
+# [3.1.0](https://github.com/nfroidure/SVGPathData/compare/v3.0.0...v3.1.0) (2017-05-19)
+
+
+
 <a name="3.0.0"></a>
 # [3.0.0](https://github.com/nfroidure/SVGPathData/compare/v2.0.3...v3.0.0) (2017-05-02)
 
