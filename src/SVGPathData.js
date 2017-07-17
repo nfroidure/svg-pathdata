@@ -78,6 +78,12 @@ SVGPathData.prototype = {
     return this.transform(SVGPathData.Transformer.ANNOTATE_ARCS());
   },
 
+  getBounds() {
+    const boundsTransform = SVGPathData.Transformer.CALCULATE_BOUNDS()
+    this.transform(boundsTransform)
+    return boundsTransform
+  },
+
   transform(transformFunction) {
     const newCommands = [];
 

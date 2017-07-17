@@ -584,4 +584,69 @@ SVGPathDataTransformer.ANNOTATE_ARCS = function() {
   });
 };
 
+// @see annotateArcCommand
+SVGPathDataTransformer.CALCULATE_BOUNDS = function() {
+  const f = SVGPathDataTransformer.INFO((command, prevXAbs, prevYAbs, pathStartXAbs, pathStartYAbs) => {
+    if(isNaN(pathStartXAbs) && !(command.type & SVGPathData.MOVE_TO)) {
+      throw new Error('path must start with moveto');
+    }
+    function fixX(x) {
+      const absX = command.relative ? prevXAbs + x : x
+      if (absX > f.maxX) f.maxX = absX
+      if (absX < f.maxX) f.minX = absX
+    }
+    function fixY(y) {
+      const absY = command.relative ? prevXAbs + y : y
+      if (absY > f.maxY) f.maxY = absY
+      if (absY < f.maxY) f.minY = absY
+    }
+    const prevX = command.relative ? 0 : prevXAbs
+    const prevY = command.relative ? 0 : prevYAbs
+    if(command.type & SVGPathData.HORIZ_LINE_TO) {
+      fixX(command.x);
+    }
+    if(command.type & SVGPathData.VERT_LINE_TO) {
+      fixY(command.y);
+    }
+    if(command.type & SVGPathData.LINE_TO) {
+      fixX(command.x);
+      fixY(command.y);
+    }
+    if(command.type & SVGPathData.CLOSE_PATH) {
+      fixX(command.x);
+      fixY(command.y);
+    }
+    if(command.type & SVGPathData.CLOSE_PATH) {
+      if (pathStartXAbs > f.maxX) f.maxX = pathStartXAbs
+      if (pathStartXAbs < f.maxX) f.minX = pathStartXAbs
+      if (pathStartYAbs > f.maxY) f.maxY = pathStartYAbs
+      if (pathStartYAbs < f.maxY) f.minY = pathStartYAbs
+    }
+    if(command.type & SVGPathData.CURVE_TO) {
+      // add start and end points
+      fixX(prevX)
+      fixX(command.x)
+      fixY(prevY)
+      fixY(command.y)
+      const xDerivRoots = bezierRoot(prevX, command.x1, command.x2, command.x)
+      for (const xDerivRoot of xDerivRoots) {
+        if (xDerivRoot > 0 && xDerivRoot < 1) {
+          fixX(bezierAt(prevX, command.x1, command.x2, command.x, xDerivRoot))
+        }
+      }
+      const yDerivRoots = bezierRoot(prevY, command.y1, command.y2, command.y)
+      for (const yDerivRoot of yDerivRoots) {
+        if (yDerivRoot > 0 && yDerivRoot < 1) {
+          fixY(bezierAt(prevY, command.y1, command.y2, command.y, yDerivRoot))
+        }
+      }
+    }
+    return command
+  });
+  f.minX = Infinity
+  f.maxX = -Infinity
+  f.minY = Infinity
+  f.maxY = -Infinity
+};
+
 module.exports = SVGPathDataTransformer;
