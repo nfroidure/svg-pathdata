@@ -1,4 +1,4 @@
-/* eslint-disable new-cap,max-params */
+/* eslint-disable new-cap,max-params,func-names */
 'use strict';
 
 function SVGPathData(content) {
@@ -79,9 +79,10 @@ SVGPathData.prototype = {
   },
 
   getBounds() {
-    const boundsTransform = SVGPathData.Transformer.CALCULATE_BOUNDS()
-    this.transform(boundsTransform)
-    return boundsTransform
+    const boundsTransform = SVGPathData.Transformer.CALCULATE_BOUNDS();
+
+    this.transform(boundsTransform);
+    return boundsTransform;
   },
 
   transform(transformFunction) {

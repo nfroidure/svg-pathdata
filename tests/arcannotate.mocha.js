@@ -4,7 +4,7 @@
 const assert = require('chai').assert;
 const SVGPathData = require('../src/SVGPathData.js');
 
-// Sample pathes from MDN
+// Sample paths from MDN
 // https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths
 // Here we have to round output before testing since there is some lil
 // differences across browsers.
@@ -46,8 +46,8 @@ describe('Converting elliptical arc commands to curves', () => {
     assert.equal((arc.phi1 + 360) % 360, 270);
   });
 
-  it('should work sweepFlag on 0 and largeArcFlag on 1', () => {
-    const arc = new SVGPathData('M110 215 A 30 50 0 0 1 162.55 162.45').annotateArcs().commands[1];
+  it('should work sweepFlag on 1 and largeArcFlag on 1', () => {
+    const arc = new SVGPathData('M110 215 A 30 50 0 1 1 162.55 162.45').annotateArcs().commands[1];
 
     assert.equal(arc.relative, false);
     assert.equal(arc.rX, 30.64165220741206);
@@ -56,6 +56,13 @@ describe('Converting elliptical arc commands to curves', () => {
     assert.equal(arc.cY, 188.725);
     assert.equal(arc.phi1, 149.03624346792648);
     assert.equal(arc.phi2, 329.03624346792645);
+  });
+
+  it('should work sweepFlag on 0 and largeArcFlag on 1xx', () => {
+    const arc = new SVGPathData('M80 80 A 45 60, 0, 1, 1, 125 125').annotateArcs().commands[1];
+
+    assert.equal(arc.relative, false);
+    assert.isBelow(arc.cX, 125);
   });
 
 

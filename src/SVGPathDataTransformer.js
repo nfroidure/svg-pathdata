@@ -1,4 +1,4 @@
-/* eslint-disable complexity,prefer-reflect,max-params */
+/* eslint-disable complexity,prefer-reflect,max-params,newline-after-var,func-names */
 /* eslint new-cap: 0, no-mixed-operators: 0, max-len:0 */
 'use strict';
 
@@ -6,7 +6,8 @@
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
 // a2c utility
-const { a2c, annotateArcCommand } = require('./a2c.js');
+const { a2c } = require('./a2c.js');
+const { bezierAt, bezierRoot, annotateArcCommand, arcAt, intersectionUnitCircleLine, assertNumbers } = require('./mathUtils.js');
 
 // Access to SVGPathData constructor
 const SVGPathData = require('./SVGPathData.js');
@@ -14,19 +15,6 @@ const SVGPathData = require('./SVGPathData.js');
 // TransformStream inheritance required modules
 const TransformStream = require('readable-stream').Transform;
 const util = require('util');
-
-const DEBUG_CHECK_NUMBERS = true;
-
-function assertNumbers(...numbers) {
-  if(DEBUG_CHECK_NUMBERS) {
-    for(let i = 0; i < numbers.length; i++) {
-      if('number' !== typeof numbers[i]) {
-        throw new Error(`assertNumbers arguments[${i}] is not a number. ${typeof numbers[i]} == typeof ${numbers[i]}`);
-      }
-    }
-  }
-  return true;
-}
 
 // Inherit of transform stream
 util.inherits(SVGPathDataTransformer, TransformStream);
@@ -584,69 +572,110 @@ SVGPathDataTransformer.ANNOTATE_ARCS = function() {
   });
 };
 
+SVGPathDataTransformer.CLONE = function() {
+  return c => Object.assign({}, c);
+};
+
+
 // @see annotateArcCommand
 SVGPathDataTransformer.CALCULATE_BOUNDS = function() {
-  const f = SVGPathDataTransformer.INFO((command, prevXAbs, prevYAbs, pathStartXAbs, pathStartYAbs) => {
-    if(isNaN(pathStartXAbs) && !(command.type & SVGPathData.MOVE_TO)) {
-      throw new Error('path must start with moveto');
+  const clone = SVGPathDataTransformer.CLONE();
+  const toAbs = SVGPathDataTransformer.TO_ABS();
+  const qtToC = SVGPathDataTransformer.QT_TO_C();
+  const normST = SVGPathDataTransformer.NORMALIZE_ST();
+  const f = SVGPathDataTransformer.INFO((command, prevXAbs, prevYAbs) => {
+    const c = normST(qtToC(toAbs(clone(command))));
+    function fixX(absX) {
+      if(absX > f.maxX) { f.maxX = absX; }
+      if(absX < f.minX) { f.minX = absX; }
     }
-    function fixX(x) {
-      const absX = command.relative ? prevXAbs + x : x
-      if (absX > f.maxX) f.maxX = absX
-      if (absX < f.maxX) f.minX = absX
+    function fixY(absY) {
+      if(absY > f.maxY) { f.maxY = absY; }
+      if(absY < f.minY) { f.minY = absY; }
     }
-    function fixY(y) {
-      const absY = command.relative ? prevXAbs + y : y
-      if (absY > f.maxY) f.maxY = absY
-      if (absY < f.maxY) f.minY = absY
+    if(c.type & SVGPathData.DRAWING_COMMANDS) {
+      fixX(prevXAbs);
+      fixY(prevYAbs);
     }
-    const prevX = command.relative ? 0 : prevXAbs
-    const prevY = command.relative ? 0 : prevYAbs
-    if(command.type & SVGPathData.HORIZ_LINE_TO) {
-      fixX(command.x);
+    if(c.type & SVGPathData.HORIZ_LINE_TO) {
+      fixX(c.x);
     }
-    if(command.type & SVGPathData.VERT_LINE_TO) {
-      fixY(command.y);
+    if(c.type & SVGPathData.VERT_LINE_TO) {
+      fixY(c.y);
     }
-    if(command.type & SVGPathData.LINE_TO) {
-      fixX(command.x);
-      fixY(command.y);
+    if(c.type & SVGPathData.LINE_TO) {
+      fixX(c.x);
+      fixY(c.y);
     }
-    if(command.type & SVGPathData.CLOSE_PATH) {
-      fixX(command.x);
-      fixY(command.y);
-    }
-    if(command.type & SVGPathData.CLOSE_PATH) {
-      if (pathStartXAbs > f.maxX) f.maxX = pathStartXAbs
-      if (pathStartXAbs < f.maxX) f.minX = pathStartXAbs
-      if (pathStartYAbs > f.maxY) f.maxY = pathStartYAbs
-      if (pathStartYAbs < f.maxY) f.minY = pathStartYAbs
-    }
-    if(command.type & SVGPathData.CURVE_TO) {
+    if(c.type & SVGPathData.CURVE_TO) {
       // add start and end points
-      fixX(prevX)
-      fixX(command.x)
-      fixY(prevY)
-      fixY(command.y)
-      const xDerivRoots = bezierRoot(prevX, command.x1, command.x2, command.x)
-      for (const xDerivRoot of xDerivRoots) {
-        if (xDerivRoot > 0 && xDerivRoot < 1) {
-          fixX(bezierAt(prevX, command.x1, command.x2, command.x, xDerivRoot))
+      fixX(c.x);
+      fixY(c.y);
+      const xDerivRoots = bezierRoot(prevXAbs, c.x1, c.x2, c.x);
+
+      for(const derivRoot of xDerivRoots) {
+        if(0 < derivRoot && 1 > derivRoot) {
+          fixX(bezierAt(prevXAbs, c.x1, c.x2, c.x, derivRoot));
         }
       }
-      const yDerivRoots = bezierRoot(prevY, command.y1, command.y2, command.y)
-      for (const yDerivRoot of yDerivRoots) {
-        if (yDerivRoot > 0 && yDerivRoot < 1) {
-          fixY(bezierAt(prevY, command.y1, command.y2, command.y, yDerivRoot))
+      const yDerivRoots = bezierRoot(prevYAbs, c.y1, c.y2, c.y);
+
+      for(const derivRoot of yDerivRoots) {
+        if(0 < derivRoot && 1 > derivRoot) {
+          fixY(bezierAt(prevYAbs, c.y1, c.y2, c.y, derivRoot));
         }
       }
     }
-    return command
+    if(c.type & SVGPathData.ARC) {
+      // add start and end points
+      fixX(c.x);
+      fixY(c.y);
+      annotateArcCommand(c, prevXAbs, prevYAbs);
+      // p = cos(phi) * xv + sin(phi) * yv
+      // dp = -sin(phi) * xv + cos(phi) * yv = 0
+      const xRotRad = c.xRot / 180 * Math.PI;
+      // points on ellipse for phi = 0° and phi = 90°
+      const x0 = Math.cos(xRotRad) * c.rX;
+      const y0 = Math.sin(xRotRad) * c.rX;
+      const x90 = -Math.sin(xRotRad) * c.rY;
+      const y90 = Math.cos(xRotRad) * c.rY;
+
+      // annotateArcCommand returns phi1 and phi2 such that -180° < phi1 < 180° and phi2 is smaller or greater
+      // depending on the sweep flag. Calculate phiMin, phiMax such that -180° < phiMin < 180° and phiMin < phiMax
+      const [phiMin, phiMax] = c.phi1 < c.phi2 ?
+        [c.phi1, c.phi2] :
+        (-180 > c.phi2 ? [c.phi2 + 360, c.phi1 + 360] : [c.phi2, c.phi1]);
+// eslint-disable-next-line func-style
+      const normalizeXiEta = ([xi, eta]) => {
+        const phiRad = Math.atan2(eta, xi);
+        const phi = phiRad * 180 / Math.PI;
+
+        return phi < phiMin ? phi + 360 : phi;
+      };
+      // xi = cos(phi), eta = sin(phi)
+
+      const xDerivRoots = intersectionUnitCircleLine(x90, -x0, 0).map(normalizeXiEta);
+      for(const derivRoot of xDerivRoots) {
+        if(derivRoot > phiMin && derivRoot < phiMax) {
+          fixX(arcAt(c.cX, x0, x90, derivRoot));
+        }
+      }
+
+      const yDerivRoots = intersectionUnitCircleLine(y90, -y0, 0).map(normalizeXiEta);
+      for(const derivRoot of yDerivRoots) {
+        if(derivRoot > phiMin && derivRoot < phiMax) {
+          fixY(arcAt(c.cY, y0, y90, derivRoot));
+        }
+      }
+    }
+    return c;
   });
-  f.minX = Infinity
-  f.maxX = -Infinity
-  f.minY = Infinity
-  f.maxY = -Infinity
+
+  f.minX = Infinity;
+  f.maxX = -Infinity;
+  f.minY = Infinity;
+  f.maxY = -Infinity;
+  return f;
 };
 
 module.exports = SVGPathDataTransformer;
