@@ -39,7 +39,7 @@ function annotateArcCommand(c, x1, y1) {
   const c_ScaleTemp = (Math.pow(rX, 2) * Math.pow(y1_, 2) + Math.pow(rY, 2) * Math.pow(x1_, 2))
   const c_Scale =
     (c.lArcFlag != c.sweepFlag ? 1 : -1) * Math.sqrt(Math.max(0, (Math.pow(rX, 2) * Math.pow(rY, 2) - c_ScaleTemp) / c_ScaleTemp))
-  const cx_ = rY * y1_ / rY * c_Scale
+  const cx_ = rX * y1_ / rY * c_Scale
   const cy_ = -rY * x1_ / rX * c_Scale
   const cRot = rotate([cx_, cy_], c.xRot / 180 * Math.PI)
   c.cX = cRot[0] + (x1 + x) / 2
