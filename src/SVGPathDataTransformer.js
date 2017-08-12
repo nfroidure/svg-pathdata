@@ -256,10 +256,10 @@ SVGPathDataTransformer.QT_TO_C = function qtToCGenerator() {
       const y1 = command.y1;
 
       command.type = SVGPathData.CURVE_TO;
-      command.x1 = ((command.relative ? 0 : prevX) * 2 + x1) / 3;
-      command.y1 = ((command.relative ? 0 : prevY) * 2 + y1) / 3;
-      command.x2 = (command.x * 2 + x1) / 3;
-      command.y2 = (command.y * 2 + y1) / 3;
+      command.x1 = ((command.relative ? 0 : prevX) + x1 * 2) / 3;
+      command.y1 = ((command.relative ? 0 : prevY) + y1 * 2) / 3;
+      command.x2 = (command.x + x1 * 2) / 3;
+      command.y2 = (command.y + y1 * 2) / 3;
     } else {
       prevQuadX1 = NaN;
       prevQuadY1 = NaN;
