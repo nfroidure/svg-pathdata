@@ -15,9 +15,9 @@ Finally scroll down if you asking for a feature ;)
 -->
 
 I'm a gentledev i:
-[ ] fully read the README recently
-[ ] searched for existing issues
-[ ] checked i'm up to date with the latest version of the project
+- [ ] fully read the README recently
+- [ ] searched for existing issues
+- [ ] checked i'm up to date with the latest version of the project
 
 ### Expected behavior
 
@@ -56,4 +56,4 @@ If you think a feature need to be added, your suggestions
 
 ### Use cases
 
-[ ] I will do it
+- [ ] I will/have implement the feature
