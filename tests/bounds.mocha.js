@@ -1,7 +1,9 @@
 /* eslint max-len:0 */
 'use strict';
-
-const assert = require('chai').assert;
+const chai = require('chai');
+const chaiStats = require('chai-stats');
+chai.use(chaiStats);
+const assert = chai.assert;
 const SVGPathData = require('../src/SVGPathData.js');
 
 // eslint-disable-next-line
@@ -9,10 +11,10 @@ function testBounds(svgString, minX, minY, maxX, maxY) {
   const path = new SVGPathData(svgString);
   const bounds = path.getBounds();
 
-  assert.equal(bounds.minX, minX);
-  assert.equal(bounds.minY, minY);
-  assert.equal(bounds.maxX, maxX);
-  assert.equal(bounds.maxY, maxY);
+  assert.almostEqual(bounds.minX, minX, 1e-4);
+  assert.almostEqual(bounds.minY, minY, 1e-4);
+  assert.almostEqual(bounds.maxX, maxX, 1e-4);
+  assert.almostEqual(bounds.maxY, maxY, 1e-4);
 }
 // eslint-disable-next-line no-unused-vars
 function drawWithBounds(svgString) {
