@@ -45,4 +45,12 @@ describe('Calculating bounds', () => {
     testBounds('M100,100L150,100a50,25 0 0,0 150,100q100,-50 70,-170Z', 100, 30, 376.9230769230769, 212.5);
   });
 
+  it('shouldn\'t change the original commands', () => {
+    const path = new SVGPathData('M100,100L150,100a50,25 0 0,0 150,100q100,-50 70,-170Z');
+    const originalPath = path.encode();
+    path.getBounds();
+    const afterPath = path.encode();
+    assert.equal(afterPath, originalPath);
+  });
+
 });

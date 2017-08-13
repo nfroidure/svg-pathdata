@@ -668,7 +668,7 @@ SVGPathDataTransformer.CALCULATE_BOUNDS = function() {
         }
       }
     }
-    return c;
+    return command;
   });
 
   f.minX = Infinity;
