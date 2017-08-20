@@ -2,9 +2,10 @@
 'use strict';
 const chai = require('chai');
 const chaiStats = require('chai-stats');
+
 chai.use(chaiStats);
 const assert = chai.assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 // eslint-disable-next-line
 function testBounds(svgString, minX, minY, maxX, maxY) {
@@ -48,8 +49,10 @@ describe('Calculating bounds', () => {
   it('shouldn\'t change the original commands', () => {
     const path = new SVGPathData('M100,100L150,100a50,25 0 0,0 150,100q100,-50 70,-170Z');
     const originalPath = path.encode();
+
     path.getBounds();
     const afterPath = path.encode();
+
     assert.equal(afterPath, originalPath);
   });
 

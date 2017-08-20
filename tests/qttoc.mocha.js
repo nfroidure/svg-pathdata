@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 describe('qt to c', () => {
 
@@ -10,7 +10,7 @@ describe('qt to c', () => {
     assert.equal(new SVGPathData(`M0 0
     Q0,9 9,9
     T9,18`).qtToC().encode(),
-      new SVGPathData(`M0 0
+    new SVGPathData(`M0 0
     C0,6 3,9 9,9
     C15,9 15,12 9,18`).encode());
   });
@@ -19,7 +19,7 @@ describe('qt to c', () => {
     assert.equal(new SVGPathData(`M9 18
     q0,9 9,9
     t9,18`).qtToC().encode(),
-      new SVGPathData(`M9 18
+    new SVGPathData(`M9 18
     c0,6 3,9 9,9
     c6,0 9,6 9,18`).encode());
   });

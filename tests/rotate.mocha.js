@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 describe('Positive rotate from the origin', () => {
 
@@ -18,28 +18,28 @@ describe('Positive rotate from the origin', () => {
     assert.equal(new SVGPathData(
       'm10 0l60 0z'
     ).rotate(Math.PI).round(6).encode(),
-      'm-10 0l-60 0z');
+    'm-10 0l-60 0z');
   });
 
   it('should work with relative vertical path', () => {
     assert.equal(new SVGPathData(
       'm0 10l0 60z'
     ).rotate(Math.PI).round(6).encode(),
-      'm0 -10l0 -60z');
+    'm0 -10l0 -60z');
   });
 
   it('should work with relative path', () => {
     assert.equal(new SVGPathData(
       'm75 100l0 -50z'
     ).rotate(Math.PI).round(6).encode(),
-      'm-75 -100l0 50z');
+    'm-75 -100l0 50z');
   });
 
   it('should work with absolute path', () => {
     assert.equal(new SVGPathData(
       'M75,100L75,50z'
     ).rotate(Math.PI).round(6).encode(),
-      'M-75 -100L-75 -50z');
+    'M-75 -100L-75 -50z');
   });
 
 });
@@ -50,28 +50,28 @@ describe('Positive rotate', () => {
     assert.equal(new SVGPathData(
       'm100 100l100 100z'
     ).rotate(Math.PI, 150, 150).round(6).encode(),
-      'm200 200l-100 -100z');
+    'm200 200l-100 -100z');
   });
 
   it('should work with relative path (Math.PI/2)', () => {
     assert.equal(new SVGPathData(
       'm100 100l100 100z'
     ).rotate(Math.PI / 2, 150, 150).round(6).encode(),
-      'm200 100l-100 100z');
+    'm200 100l-100 100z');
   });
 
   it('should work with relative path', () => {
     assert.equal(new SVGPathData(
       'm75 100l0 -50z'
     ).rotate(Math.PI, 75, 75).round(6).encode(),
-      'm75 50l0 50z');
+    'm75 50l0 50z');
   });
 
   it('should work with absolute path', () => {
     assert.equal(new SVGPathData(
       'M75,100L75,50z'
     ).rotate(Math.PI, 75, 75).round(6).encode(),
-      'M75 50L75 100z');
+    'M75 50L75 100z');
   });
 
 });
@@ -82,14 +82,14 @@ describe('360° Positive rotate', () => {
     assert.equal(new SVGPathData(
       'm100 75l-50 -45l0 90z'
     ).rotate(2 * Math.PI, 75, 75).round(6).encode(),
-      'm100 75l-50 -45l0 90z');
+    'm100 75l-50 -45l0 90z');
   });
 
   it('should work with absolute path', () => {
     assert.equal(new SVGPathData(
       'M 100,75L50,30L50,120 z'
     ).rotate(2 * Math.PI, 75, 75).round(6).encode(),
-      'M100 75L50 30L50 120z');
+    'M100 75L50 30L50 120z');
   });
 
 });

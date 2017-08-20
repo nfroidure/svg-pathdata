@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 describe('Parsing move to commands', () => {
 
@@ -129,16 +129,16 @@ describe('Encoding move to commands', () => {
 
   it('should work with one command', () => {
     assert.equal(
-        new SVGPathData('M-50.0032e-5 -60.0032e-5').encode(),
-        'M-0.000500032 -0.000600032'
-      );
+      new SVGPathData('M-50.0032e-5 -60.0032e-5').encode(),
+      'M-0.000500032 -0.000600032'
+    );
   });
 
   it('should work with several commands', () => {
     assert.equal(
-        new SVGPathData('M-50.0032e-5 -60.0032e-5M-50.0032e-5 -60.0032e-5M-50.0032e-5 -60.0032e-5').encode(),
-        'M-0.000500032 -0.000600032M-0.000500032 -0.000600032M-0.000500032 -0.000600032'
-      );
+      new SVGPathData('M-50.0032e-5 -60.0032e-5M-50.0032e-5 -60.0032e-5M-50.0032e-5 -60.0032e-5').encode(),
+      'M-0.000500032 -0.000600032M-0.000500032 -0.000600032M-0.000500032 -0.000600032'
+    );
   });
 
 });

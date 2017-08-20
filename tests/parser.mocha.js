@@ -2,19 +2,19 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathDataParser } = require('..');
 
 describe('SVGPathDataParser', () => {
 
   it('should still work when the new operator is forgotten', () => {
     assert.doesNotThrow(() => {
-      new SVGPathData.Parser();
+      new SVGPathDataParser();
     });
   });
 
   it('should fail when a bad command is given', () => {
     assert.throws(() => {
-      const parser = new SVGPathData.Parser();
+      const parser = new SVGPathDataParser();
 
       parser.write('b80,20');
       parser.end();

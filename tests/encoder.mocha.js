@@ -2,19 +2,19 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathDataEncoder } = require('..');
 
 describe('SVGPathDataEncoder', () => {
 
   it('should still work when the new operator is forgotten', () => {
     assert.doesNotThrow(() => {
-      new SVGPathData.Encoder();
+      new SVGPathDataEncoder();
     });
   });
 
   it('should fail when a bad command is given', () => {
     assert.throws(() => {
-      const encoder = new SVGPathData.Encoder();
+      const encoder = new SVGPathDataEncoder();
 
       encoder.write({
         type: 'plop',

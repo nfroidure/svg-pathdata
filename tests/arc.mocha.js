@@ -3,7 +3,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 describe('Parsing eliptical arc commands', () => {
 
@@ -194,6 +194,7 @@ describe('Encoding eliptical arc commands', () => {
 
 describe('Transforming elliptical arc commands', () => {
 
+// eslint-disable-next-line complexity
   function assertDeepCloseTo(x, y, delta) {
     if('number' === typeof x && 'number' === typeof y) {
       assert.closeTo(x, y, delta);

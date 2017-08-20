@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 describe('Parsing quadratic bezier curve to commands', () => {
 

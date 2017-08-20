@@ -3,7 +3,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 describe('toRel', () => {
 
@@ -60,7 +60,7 @@ describe('toRel', () => {
       S200,200 200,200
       S300,300 300,300
       S400,400 400,400`).toRel().encode(),
-      new SVGPathData(`
+    new SVGPathData(`
       m0,0
       s100,100 100,100
       s100,100 100,100
@@ -74,7 +74,7 @@ describe('toRel', () => {
     Q-200,200 -200,200
     Q-300,300 -300,300
     Q-400,400 -400,400`).toRel().encode(),
-      new SVGPathData(`m0,0
+    new SVGPathData(`m0,0
     q-100,100 -100,100
     q-100,100 -100,100
     q-100,100 -100,100
@@ -95,7 +95,7 @@ describe('toRel', () => {
       A20,20 180 1 0 -200,200
       A20,20 180 1 0 -300,300
       A20,20 180 1 0 -400,400`).toRel().encode(),
-      new SVGPathData(`
+    new SVGPathData(`
       m0,0
       a20,20 180 1 0 -100,100
       a20,20 180 1 0 -100,100
@@ -111,7 +111,7 @@ describe('toRel', () => {
       V110
       L-80,120
       C-70,130 -60,140 20,220`).toRel().encode(),
-      new SVGPathData(`m0 0
+    new SVGPathData(`m0 0
       a20,20 180 1 0 -100,100
       h10
       v10
@@ -146,7 +146,7 @@ describe('toAbs', () => {
       v10
       l10,10
       c10,10 20,20 100,100`).toAbs().encode(),
-      new SVGPathData(`M0 0
+    new SVGPathData(`M0 0
       A20,20 180 1 0 -100,100
       H-90
       V110
@@ -159,7 +159,7 @@ describe('toAbs', () => {
       a20,20 180 1 0 -100,100
       a20,20 180 1 0 -100,100
       a20,20 180 1 0 -100,100`).toAbs().encode(),
-      new SVGPathData(`M0 0
+    new SVGPathData(`M0 0
       A20,20 180 1 0 -100,100
       A20,20 180 1 0 -200,200
       A20,20 180 1 0 -300,300
@@ -186,7 +186,7 @@ describe('toAbs', () => {
       c100,100 100,100 100,100
       c100,100 100,100 100,100
       c100,100 100,100 100,100`).toAbs().encode(),
-      new SVGPathData(`M 0 0 
+    new SVGPathData(`M 0 0 
       C100,100 100,100 100,100
       C200,200 200,200 200,200
       C300,300 300,300 300,300
@@ -199,7 +199,7 @@ describe('toAbs', () => {
       s100,100 100,100
       s100,100 100,100
       s100,100 100,100`).toAbs().encode(),
-      new SVGPathData(`M 0 0 
+    new SVGPathData(`M 0 0 
       S100,100 100,100
       S200,200 200,200
       S300,300 300,300
@@ -212,7 +212,7 @@ describe('toAbs', () => {
       q-100,100 -100,100
       q-100,100 -100,100
       q-100,100 -100,100`).toAbs().encode(),
-      new SVGPathData(`M0 0
+    new SVGPathData(`M0 0
       Q-100,100 -100,100
       Q-200,200 -200,200
       Q-300,300 -300,300

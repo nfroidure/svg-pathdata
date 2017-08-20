@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 describe('Parsing close path commands', () => {
 
@@ -48,16 +48,16 @@ describe('Encoding close path commands', () => {
 
   it('should work with one command', () => {
     assert.equal(
-        new SVGPathData('z').encode(),
-        'z'
-      );
+      new SVGPathData('z').encode(),
+      'z'
+    );
   });
 
   it('should work with several commands', () => {
     assert.equal(
-        new SVGPathData('zzzz').encode(),
-        'zzzz'
-      );
+      new SVGPathData('zzzz').encode(),
+      'zzzz'
+    );
   });
 
 });

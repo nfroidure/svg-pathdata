@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData } = require('..');
 
 // Sample paths from MDN
 // https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths

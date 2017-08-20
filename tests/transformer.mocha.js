@@ -3,24 +3,18 @@
 'use strict';
 
 const assert = require('chai').assert;
-const SVGPathData = require('../src/SVGPathData.js');
+const { SVGPathData, SVGPathDataTransformer } = require('..');
 
 describe('SVGPathDataTransformer', () => {
 
   it('should fail with bad args', () => {
     assert.throws(() => {
-      new SVGPathData.Transformer();
+      new SVGPathDataTransformer();
     }, 'Please provide a transform callback to receive commands.');
   });
 
-  it('should still work when the new operator is forgotten', () => {
-    assert.doesNotThrow(() => {
-      new SVGPathData.Transformer(SVGPathData.Transformer.SCALE, 1, 1);
-    });
-  });
-
   it('should work in streaming mode', () => {
-    const encoder = new SVGPathData.Transformer(SVGPathData.Transformer.SCALE(1, 1));
+    const encoder = new SVGPathDataTransformer(SVGPathDataTransformer.SCALE(1, 1));
 
     encoder.write({
       type: SVGPathData.MOVE_TO,
