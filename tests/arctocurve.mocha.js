@@ -43,4 +43,12 @@ describe('Converting elliptical arc commands to curves', () => {
     );
   });
 
+  it('should work sweepFlag on 0 and largeArcFlag on 0 with relative arc', () => {
+    assert.equal(
+      new SVGPathData('M80 80 a 45 45, 0, 0, 0, 125 125 L 125 80 Z').aToC()
+        .round().encode(),
+      'M80 80C80 104.8528137423857 100.1471862576143 125 125 125L125 80z'
+    );
+  });
+
 });
