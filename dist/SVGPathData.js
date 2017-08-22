@@ -1127,10 +1127,12 @@ exports.SVGPathDataTransformer = SVGPathDataTransformer;
             var x = "undefined" !== typeof command.x ? command.x : (comRel ? 0 : prevX);
             var y = "undefined" !== typeof command.y ? command.y : (comRel ? 0 : prevY);
             if (command.type & SVGPathData_1.SVGPathData.HORIZ_LINE_TO && 0 !== b) {
-                throw new Error("Cannot rotate H");
+                command.type = SVGPathData_1.SVGPathData.LINE_TO;
+                command.y = command.relative ? 0 : prevY;
             }
             if (command.type & SVGPathData_1.SVGPathData.VERT_LINE_TO && 0 !== c) {
-                throw new Error("Cannot rotate V");
+                command.type = SVGPathData_1.SVGPathData.LINE_TO;
+                command.x = command.relative ? 0 : prevX;
             }
             if ("undefined" !== typeof command.x) {
                 command.x = (command.x * a) + (y * c) + (comRel ? 0 : e);

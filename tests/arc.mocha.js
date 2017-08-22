@@ -5,7 +5,7 @@
 const assert = require('chai').assert;
 const { SVGPathData } = require('..');
 
-describe('Parsing eliptical arc commands', () => {
+describe('Parsing elliptical arc commands', () => {
 
   it('should not work when badly declared', () => {
     assert.throw(() => {
