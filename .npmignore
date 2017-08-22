@@ -38,6 +38,3 @@ jspm_packages
 
 # Coveralls key
 .coveralls.yml
-
-# Compiled files
-lib
