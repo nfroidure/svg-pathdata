@@ -1,3 +1,8 @@
+<a name="4.0.1"></a>
+## [4.0.1](https://github.com/nfroidure/svg-pathdata/compare/v4.0.0...v4.0.1) (2017-08-22)
+
+
+
 <a name="4.0.0"></a>
 # [4.0.0](https://github.com/nfroidure/svg-pathdata/compare/v3.2.3...v4.0.0) (2017-08-22)
 
