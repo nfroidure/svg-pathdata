@@ -9,4 +9,8 @@
     "newline-per-chained-call": "off",
     "no-new": "off"
   },
+  env: {
+    "es6": true
+  }
 }
+
