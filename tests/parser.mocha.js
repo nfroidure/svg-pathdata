@@ -16,8 +16,7 @@ describe('SVGPathDataParser', () => {
     assert.throws(() => {
       const parser = new SVGPathDataParser();
 
-      parser.write('b80,20');
-      parser.end();
+      parser._transform('b80,20');
     }, 'Unexpected character "b" at index 0.');
   });
 

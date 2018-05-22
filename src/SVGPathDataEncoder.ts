@@ -1,27 +1,24 @@
 // Encode SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
-import { Transform } from "stream";
 import {SVGCommand, SVGPathData} from "./SVGPathData";
 
 // Private consts : Char groups
 const WSP = " ";
 
-export class SVGPathDataEncoder extends Transform {
-  constructor() {
-    super({objectMode: true, writableObjectMode: true, readableObjectMode: false});
+export class SVGPathDataEncoder {
+  emit(type: string, err: any) {
+    throw err;
   }
-
   // Read method
-  _transform(commands: SVGCommand | SVGCommand[], encoding: string, done: () => void) {
+  _transform(commands: SVGCommand | SVGCommand[]) {
     let str = "";
     let i;
-    let j;
 
     if (!Array.isArray(commands)) {
       commands = [commands];
     }
-    for (i = 0, j = commands.length; i < j; i++) {
+    for (i = 0; i < commands.length; i++) {
       const command = commands[i];
       if (command.type === SVGPathData.CLOSE_PATH) {
         str += "z";
@@ -65,7 +62,7 @@ export class SVGPathDataEncoder extends Transform {
           `Unexpected command type "${ (command as any).type}" at index ${i}.`));
       }
     }
-    this.push(new Buffer(str, "utf8"));
-    done();
+
+    return str;
   }
 }

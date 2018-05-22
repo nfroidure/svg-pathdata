@@ -16,7 +16,7 @@ describe('SVGPathDataEncoder', () => {
     assert.throws(() => {
       const encoder = new SVGPathDataEncoder();
 
-      encoder.write({
+      encoder._transform({
         type: 'plop',
         x: 0,
         y: 0,

@@ -12,7 +12,7 @@ describe('Parsing move to commands', () => {
     }, SyntaxError, 'Unterminated command at the path end.');
   });
 
-  it('should work with single complexer coordinate', () => {
+  it('should not work with single complexer coordinate', () => {
     assert.throw(() => {
       new SVGPathData('m-10e-5');
     }, SyntaxError, 'Unterminated command at the path end.');

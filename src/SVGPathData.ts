@@ -138,37 +138,13 @@ export class SVGPathData {
   }
 
   static encode(commands: SVGCommand[]) {
-    let content = "";
     const encoder = new SVGPathDataEncoder();
-
-    encoder.on("readable", () => {
-      let str;
-
-      while (null !== (str = encoder.read())) {
-        content += str;
-      }
-    });
-    encoder.write(commands);
-    encoder.end();
-    return content;
+    return encoder._transform(commands);
   }
 
   static parse(content: string) {
-    const commands: SVGCommand[] = [];
     const parser = new SVGPathDataParser();
-
-    parser.on("readable", () => {
-      let command;
-
-      while (null !== (command = parser.read())) {
-        commands.push(command);
-      }
-    });
-
-    parser.write(content);
-    parser.end();
-
-    return commands;
+    return parser._transform(content);
   }
 
   static readonly CLOSE_PATH: 1 = 1;
