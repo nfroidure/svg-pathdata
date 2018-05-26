@@ -6,17 +6,15 @@ const { SVGPathDataEncoder } = require('..');
 
 describe('SVGPathDataEncoder', () => {
 
-  it('should still work when the new operator is forgotten', () => {
-    assert.doesNotThrow(() => {
+  it('should not work when the command is forgotten', () => {
+    assert.throws(() => {
       new SVGPathDataEncoder();
     });
   });
 
   it('should fail when a bad command is given', () => {
     assert.throws(() => {
-      const encoder = new SVGPathDataEncoder();
-
-      encoder._transform({
+      new SVGPathDataEncoder({
         type: 'plop',
         x: 0,
         y: 0,

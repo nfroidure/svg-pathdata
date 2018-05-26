@@ -138,13 +138,11 @@ export class SVGPathData {
   }
 
   static encode(commands: SVGCommand[]) {
-    const encoder = new SVGPathDataEncoder();
-    return encoder._transform(commands);
+    return SVGPathDataEncoder(commands);
   }
 
   static parse(content: string) {
-    const parser = new SVGPathDataParser();
-    return parser._transform(content);
+    return SVGPathDataParser(content);
   }
 
   static readonly CLOSE_PATH: 1 = 1;

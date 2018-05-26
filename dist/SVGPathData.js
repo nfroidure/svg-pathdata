@@ -85,12 +85,10 @@ var SVGPathData = /** @class */ (function () {
         return this;
     };
     SVGPathData.encode = function (commands) {
-        var encoder = new SVGPathDataEncoder_1.SVGPathDataEncoder();
-        return encoder._transform(commands);
+        return SVGPathDataEncoder_1.SVGPathDataEncoder(commands);
     };
     SVGPathData.parse = function (content) {
-        var parser = new SVGPathDataParser_1.SVGPathDataParser();
-        return parser._transform(content);
+        return SVGPathDataParser_1.SVGPathDataParser(content);
     };
     SVGPathData.CLOSE_PATH = 1;
     SVGPathData.MOVE_TO = 2;
@@ -124,76 +122,67 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var SVGPathData_1 = require("./SVGPathData");
 // Private consts : Char groups
 var WSP = " ";
-var SVGPathDataEncoder = /** @class */ (function () {
-    function SVGPathDataEncoder() {
+function SVGPathDataEncoder(commands) {
+    var str = "";
+    var i;
+    if (!Array.isArray(commands)) {
+        commands = [commands];
     }
-    SVGPathDataEncoder.prototype.emit = function (type, err) {
-        throw err;
-    };
-    // Read method
-    SVGPathDataEncoder.prototype._transform = function (commands) {
-        var str = "";
-        var i;
-        if (!Array.isArray(commands)) {
-            commands = [commands];
+    for (i = 0; i < commands.length; i++) {
+        var command = commands[i];
+        if (command.type === SVGPathData_1.SVGPathData.CLOSE_PATH) {
+            str += "z";
         }
-        for (i = 0; i < commands.length; i++) {
-            var command = commands[i];
-            if (command.type === SVGPathData_1.SVGPathData.CLOSE_PATH) {
-                str += "z";
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.HORIZ_LINE_TO) {
-                str += (command.relative ? "h" : "H") +
-                    command.x;
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.VERT_LINE_TO) {
-                str += (command.relative ? "v" : "V") +
-                    command.y;
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.MOVE_TO) {
-                str += (command.relative ? "m" : "M") +
-                    command.x + WSP + command.y;
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.LINE_TO) {
-                str += (command.relative ? "l" : "L") +
-                    command.x + WSP + command.y;
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.CURVE_TO) {
-                str += (command.relative ? "c" : "C") +
-                    command.x1 + WSP + command.y1 +
-                    WSP + command.x2 + WSP + command.y2 +
-                    WSP + command.x + WSP + command.y;
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO) {
-                str += (command.relative ? "s" : "S") +
-                    command.x2 + WSP + command.y2 +
-                    WSP + command.x + WSP + command.y;
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.QUAD_TO) {
-                str += (command.relative ? "q" : "Q") +
-                    command.x1 + WSP + command.y1 +
-                    WSP + command.x + WSP + command.y;
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO) {
-                str += (command.relative ? "t" : "T") +
-                    command.x + WSP + command.y;
-            }
-            else if (command.type === SVGPathData_1.SVGPathData.ARC) {
-                str += (command.relative ? "a" : "A") +
-                    command.rX + WSP + command.rY +
-                    WSP + command.xRot +
-                    WSP + (+command.lArcFlag) + WSP + (+command.sweepFlag) +
-                    WSP + command.x + WSP + command.y;
-            }
-            else {
-                // Unknown command
-                this.emit("error", new Error("Unexpected command type \"" + command.type + "\" at index " + i + "."));
-            }
+        else if (command.type === SVGPathData_1.SVGPathData.HORIZ_LINE_TO) {
+            str += (command.relative ? "h" : "H") +
+                command.x;
         }
-        return str;
-    };
-    return SVGPathDataEncoder;
-}());
+        else if (command.type === SVGPathData_1.SVGPathData.VERT_LINE_TO) {
+            str += (command.relative ? "v" : "V") +
+                command.y;
+        }
+        else if (command.type === SVGPathData_1.SVGPathData.MOVE_TO) {
+            str += (command.relative ? "m" : "M") +
+                command.x + WSP + command.y;
+        }
+        else if (command.type === SVGPathData_1.SVGPathData.LINE_TO) {
+            str += (command.relative ? "l" : "L") +
+                command.x + WSP + command.y;
+        }
+        else if (command.type === SVGPathData_1.SVGPathData.CURVE_TO) {
+            str += (command.relative ? "c" : "C") +
+                command.x1 + WSP + command.y1 +
+                WSP + command.x2 + WSP + command.y2 +
+                WSP + command.x + WSP + command.y;
+        }
+        else if (command.type === SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO) {
+            str += (command.relative ? "s" : "S") +
+                command.x2 + WSP + command.y2 +
+                WSP + command.x + WSP + command.y;
+        }
+        else if (command.type === SVGPathData_1.SVGPathData.QUAD_TO) {
+            str += (command.relative ? "q" : "Q") +
+                command.x1 + WSP + command.y1 +
+                WSP + command.x + WSP + command.y;
+        }
+        else if (command.type === SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO) {
+            str += (command.relative ? "t" : "T") +
+                command.x + WSP + command.y;
+        }
+        else if (command.type === SVGPathData_1.SVGPathData.ARC) {
+            str += (command.relative ? "a" : "A") +
+                command.rX + WSP + command.rY +
+                WSP + command.xRot +
+                WSP + (+command.lArcFlag) + WSP + (+command.sweepFlag) +
+                WSP + command.x + WSP + command.y;
+        }
+        else {
+            // Unknown command
+            throw new Error("Unexpected command type \"" + command.type + "\" at index " + i + ".");
+        }
+    }
+    return str;
+}
 exports.SVGPathDataEncoder = SVGPathDataEncoder;
 
 },{"./SVGPathData":1}],3:[function(require,module,exports){
@@ -246,467 +235,459 @@ var STATE_COMMANDS_MASK = STATE_CLOSE_PATH | STATE_MOVE_TO |
     STATE_VERT_LINE_TO | STATE_CURVE_TO |
     STATE_SMOOTH_CURVE_TO | STATE_QUAD_TO |
     STATE_SMOOTH_QUAD_TO | STATE_ARC;
-var SVGPathDataParser = /** @class */ (function () {
-    function SVGPathDataParser() {
-        this.commands = [];
-        this.curCommand = null;
-        this.state = STATE_COMMAS_WSPS;
-        this.curNumber = "";
-    }
-    SVGPathDataParser.prototype.emit = function (type, err) {
-        throw err;
-    };
-    SVGPathDataParser.prototype._transform = function (str) {
-        var i;
-        str += " ";
-        for (i = 0; i < str.length; i++) {
-            // White spaces parsing
-            if (this.state & STATE_WSP ||
-                this.state & STATE_WSPS) {
-                if (-1 !== WSP.indexOf(str[i])) {
-                    this.state ^= this.state & STATE_WSP;
-                    // any space stops current number parsing
-                    if ("" !== this.curNumber) {
-                        this.state ^= this.state & STATE_NUMBER_MASK;
-                    }
-                    else {
-                        continue;
-                    }
+function SVGPathDataParser(str) {
+    var commands = [];
+    var curCommand = null;
+    var state = STATE_COMMAS_WSPS;
+    var curNumber = "";
+    var i;
+    str += " ";
+    for (i = 0; i < str.length; i++) {
+        // White spaces parsing
+        if (state & STATE_WSP ||
+            state & STATE_WSPS) {
+            if (-1 !== WSP.indexOf(str[i])) {
+                state ^= state & STATE_WSP;
+                // any space stops current number parsing
+                if ("" !== curNumber) {
+                    state ^= state & STATE_NUMBER_MASK;
                 }
-            }
-            // Commas parsing
-            if (this.state & STATE_COMMA ||
-                this.state & STATE_COMMAS) {
-                if (-1 !== COMMA.indexOf(str[i])) {
-                    this.state ^= this.state & STATE_COMMA;
-                    // any comma stops current number parsing
-                    if ("" !== this.curNumber) {
-                        this.state ^= this.state & STATE_NUMBER_MASK;
-                    }
-                    else {
-                        continue;
-                    }
-                }
-            }
-            // Numbers parsing : -125.25e-125
-            if (this.state & STATE_NUMBER) {
-                // Reading the sign
-                if ((this.state & STATE_NUMBER_MASK) ===
-                    STATE_NUMBER) {
-                    this.state |= STATE_NUMBER_INT |
-                        STATE_NUMBER_DIGITS;
-                    if (-1 !== SIGNS.indexOf(str[i])) {
-                        this.curNumber += str[i];
-                        continue;
-                    }
-                }
-                // Reading the exponent sign
-                if (this.state & STATE_NUMBER_EXPSIGN) {
-                    this.state ^= STATE_NUMBER_EXPSIGN;
-                    this.state |= STATE_NUMBER_DIGITS;
-                    if (-1 !== SIGNS.indexOf(str[i])) {
-                        this.curNumber += str[i];
-                        continue;
-                    }
-                }
-                // Reading digits
-                if (this.state & STATE_NUMBER_DIGITS) {
-                    if (-1 !== DIGITS.indexOf(str[i])) {
-                        this.curNumber += str[i];
-                        continue;
-                    }
-                    this.state ^= STATE_NUMBER_DIGITS;
-                }
-                // Ended reading left side digits
-                if (this.state & STATE_NUMBER_INT) {
-                    this.state ^= STATE_NUMBER_INT;
-                    // if got a point, reading right side digits
-                    if (-1 !== DECPOINT.indexOf(str[i])) {
-                        this.curNumber += str[i];
-                        this.state |= STATE_NUMBER_FLOAT |
-                            STATE_NUMBER_DIGITS;
-                        continue;
-                        // if got e/E, reading the exponent
-                    }
-                    else if (-1 !== EXPONENTS.indexOf(str[i])) {
-                        this.curNumber += str[i];
-                        this.state |= STATE_NUMBER_EXP |
-                            STATE_NUMBER_EXPSIGN;
-                        continue;
-                    }
-                    // else we"re done with that number
-                    this.state ^= this.state & STATE_NUMBER_MASK;
-                }
-                // Ended reading decimal digits
-                if (this.state & STATE_NUMBER_FLOAT) {
-                    this.state ^= STATE_NUMBER_FLOAT;
-                    // if got e/E, reading the exponent
-                    if (-1 !== EXPONENTS.indexOf(str[i])) {
-                        this.curNumber += str[i];
-                        this.state |= STATE_NUMBER_EXP |
-                            STATE_NUMBER_EXPSIGN;
-                        continue;
-                    }
-                    // else we"re done with that number
-                    this.state ^= this.state & STATE_NUMBER_MASK;
-                }
-                // Ended reading exponent digits
-                if (this.state & STATE_NUMBER_EXP) {
-                    // we"re done with that number
-                    this.state ^= this.state & STATE_NUMBER_MASK;
-                }
-            }
-            // New number
-            if (this.curNumber) {
-                // Horizontal move to command (x)
-                if (this.state & STATE_HORIZ_LINE_TO) {
-                    if (null === this.curCommand) {
-                        this.commands.push({
-                            type: SVGPathData_1.SVGPathData.HORIZ_LINE_TO,
-                            relative: !!(this.state & STATE_RELATIVE),
-                            x: Number(this.curNumber),
-                        });
-                    }
-                    else {
-                        this.curCommand.x = Number(this.curNumber);
-                        delete this.curCommand.invalid;
-                        this.commands.push(this.curCommand);
-                        this.curCommand = null;
-                    }
-                    this.state |= STATE_NUMBER;
-                    // Vertical move to command (y)
-                }
-                else if (this.state & STATE_VERT_LINE_TO) {
-                    if (null === this.curCommand) {
-                        this.commands.push({
-                            type: SVGPathData_1.SVGPathData.VERT_LINE_TO,
-                            relative: !!(this.state & STATE_RELATIVE),
-                            y: Number(this.curNumber),
-                        });
-                    }
-                    else {
-                        this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
-                        this.commands.push(this.curCommand);
-                        this.curCommand = null;
-                    }
-                    this.state |= STATE_NUMBER;
-                    // Move to / line to / smooth quadratic curve to commands (x, y)
-                }
-                else if (this.state & STATE_MOVE_TO ||
-                    this.state & STATE_LINE_TO ||
-                    this.state & STATE_SMOOTH_QUAD_TO) {
-                    if (null === this.curCommand) {
-                        this.curCommand = {
-                            type: (this.state & STATE_MOVE_TO ?
-                                SVGPathData_1.SVGPathData.MOVE_TO :
-                                (this.state & STATE_LINE_TO ?
-                                    SVGPathData_1.SVGPathData.LINE_TO : SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO)),
-                            relative: !!(this.state & STATE_RELATIVE),
-                            x: Number(this.curNumber),
-                        };
-                    }
-                    else if ("undefined" === typeof this.curCommand.x) {
-                        this.curCommand.x = Number(this.curNumber);
-                    }
-                    else {
-                        delete this.curCommand.invalid;
-                        this.curCommand.y = Number(this.curNumber);
-                        this.commands.push(this.curCommand);
-                        this.curCommand = null;
-                        // Switch to line to state
-                        if (this.state & STATE_MOVE_TO) {
-                            this.state ^= STATE_MOVE_TO;
-                            this.state |= STATE_LINE_TO;
-                        }
-                    }
-                    this.state |= STATE_NUMBER;
-                    // Curve to commands (x1, y1, x2, y2, x, y)
-                }
-                else if (this.state & STATE_CURVE_TO) {
-                    if (null === this.curCommand) {
-                        this.curCommand = {
-                            type: SVGPathData_1.SVGPathData.CURVE_TO,
-                            relative: !!(this.state & STATE_RELATIVE),
-                            invalid: true,
-                            x1: Number(this.curNumber),
-                        };
-                    }
-                    else if ("undefined" === typeof this.curCommand.x1) {
-                        this.curCommand.x1 = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.y1) {
-                        this.curCommand.y1 = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.x2) {
-                        this.curCommand.x2 = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.y2) {
-                        this.curCommand.y2 = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.x) {
-                        this.curCommand.x = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.y) {
-                        this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
-                        this.commands.push(this.curCommand);
-                        this.curCommand = null;
-                    }
-                    this.state |= STATE_NUMBER;
-                    // Smooth curve to commands (x1, y1, x, y)
-                }
-                else if (this.state & STATE_SMOOTH_CURVE_TO) {
-                    if (null === this.curCommand) {
-                        this.curCommand = {
-                            type: SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO,
-                            relative: !!(this.state & STATE_RELATIVE),
-                            invalid: true,
-                            x2: Number(this.curNumber),
-                        };
-                    }
-                    else if ("undefined" === typeof this.curCommand.x2) {
-                        this.curCommand.x2 = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.y2) {
-                        this.curCommand.y2 = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.x) {
-                        this.curCommand.x = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.y) {
-                        this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
-                        this.commands.push(this.curCommand);
-                        this.curCommand = null;
-                    }
-                    this.state |= STATE_NUMBER;
-                    // Quadratic bezier curve to commands (x1, y1, x, y)
-                }
-                else if (this.state & STATE_QUAD_TO) {
-                    if (null === this.curCommand) {
-                        this.curCommand = {
-                            type: SVGPathData_1.SVGPathData.QUAD_TO,
-                            relative: !!(this.state & STATE_RELATIVE),
-                            invalid: true,
-                            x1: Number(this.curNumber),
-                        };
-                    }
-                    else if ("undefined" === typeof this.curCommand.x1) {
-                        this.curCommand.x1 = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.y1) {
-                        this.curCommand.y1 = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.x) {
-                        this.curCommand.x = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.y) {
-                        this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
-                        this.commands.push(this.curCommand);
-                        this.curCommand = null;
-                    }
-                    this.state |= STATE_NUMBER;
-                    // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
-                }
-                else if (this.state & STATE_ARC) {
-                    if (null === this.curCommand) {
-                        this.curCommand = {
-                            type: SVGPathData_1.SVGPathData.ARC,
-                            relative: !!(this.state & STATE_RELATIVE),
-                            invalid: true,
-                            rX: Number(this.curNumber),
-                        };
-                    }
-                    else if ("undefined" === typeof this.curCommand.rX) {
-                        if (0 > Number(this.curNumber)) {
-                            this.emit("error", new SyntaxError("Expected positive number, got \"" + this.curNumber + "\" at index \"" + i + "\""));
-                        }
-                        this.curCommand.rX = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.rY) {
-                        if (0 > Number(this.curNumber)) {
-                            this.emit("error", new SyntaxError("Expected positive number, got \"" + this.curNumber + "\" at index \"" + i + "\""));
-                        }
-                        this.curCommand.rY = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.xRot) {
-                        this.curCommand.xRot = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.lArcFlag) {
-                        if (-1 === FLAGS.indexOf(this.curNumber)) {
-                            this.emit("error", new SyntaxError("Expected a flag, got \"" + this.curNumber + "\" at index \"" + i + "\""));
-                        }
-                        this.curCommand.lArcFlag = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.sweepFlag) {
-                        if ("0" !== this.curNumber && "1" !== this.curNumber) {
-                            this.emit("error", new SyntaxError("Expected a flag, got \"" + this.curNumber + "\" at index \"" + i + "\""));
-                        }
-                        this.curCommand.sweepFlag = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.x) {
-                        this.curCommand.x = Number(this.curNumber);
-                    }
-                    else if ("undefined" === typeof this.curCommand.y) {
-                        this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
-                        this.commands.push(this.curCommand);
-                        this.curCommand = null;
-                    }
-                    this.state |= STATE_NUMBER;
-                }
-                this.curNumber = "";
-                // Continue if a white space or a comma was detected
-                if (-1 !== WSP.indexOf(str[i]) || -1 !== COMMA.indexOf(str[i])) {
+                else {
                     continue;
                 }
-                // if a sign is detected, then parse the new number
+            }
+        }
+        // Commas parsing
+        if (state & STATE_COMMA ||
+            state & STATE_COMMAS) {
+            if (-1 !== COMMA.indexOf(str[i])) {
+                state ^= state & STATE_COMMA;
+                // any comma stops current number parsing
+                if ("" !== curNumber) {
+                    state ^= state & STATE_NUMBER_MASK;
+                }
+                else {
+                    continue;
+                }
+            }
+        }
+        // Numbers parsing : -125.25e-125
+        if (state & STATE_NUMBER) {
+            // Reading the sign
+            if ((state & STATE_NUMBER_MASK) ===
+                STATE_NUMBER) {
+                state |= STATE_NUMBER_INT |
+                    STATE_NUMBER_DIGITS;
                 if (-1 !== SIGNS.indexOf(str[i])) {
-                    this.curNumber = str[i];
-                    this.state |= STATE_NUMBER_INT |
-                        STATE_NUMBER_DIGITS;
+                    curNumber += str[i];
                     continue;
                 }
-                // if the decpoint is detected, then parse the new number
+            }
+            // Reading the exponent sign
+            if (state & STATE_NUMBER_EXPSIGN) {
+                state ^= STATE_NUMBER_EXPSIGN;
+                state |= STATE_NUMBER_DIGITS;
+                if (-1 !== SIGNS.indexOf(str[i])) {
+                    curNumber += str[i];
+                    continue;
+                }
+            }
+            // Reading digits
+            if (state & STATE_NUMBER_DIGITS) {
+                if (-1 !== DIGITS.indexOf(str[i])) {
+                    curNumber += str[i];
+                    continue;
+                }
+                state ^= STATE_NUMBER_DIGITS;
+            }
+            // Ended reading left side digits
+            if (state & STATE_NUMBER_INT) {
+                state ^= STATE_NUMBER_INT;
+                // if got a point, reading right side digits
                 if (-1 !== DECPOINT.indexOf(str[i])) {
-                    this.curNumber = str[i];
-                    this.state |= STATE_NUMBER_FLOAT |
+                    curNumber += str[i];
+                    state |= STATE_NUMBER_FLOAT |
                         STATE_NUMBER_DIGITS;
                     continue;
+                    // if got e/E, reading the exponent
                 }
+                else if (-1 !== EXPONENTS.indexOf(str[i])) {
+                    curNumber += str[i];
+                    state |= STATE_NUMBER_EXP |
+                        STATE_NUMBER_EXPSIGN;
+                    continue;
+                }
+                // else we"re done with that number
+                state ^= state & STATE_NUMBER_MASK;
             }
-            // End of a command
-            if (-1 !== COMMANDS.indexOf(str[i])) {
-                // Adding residual command
-                if (null !== this.curCommand) {
-                    if (this.curCommand.invalid) {
-                        this.emit("error", new SyntaxError("Unterminated command at index " + i + "."));
+            // Ended reading decimal digits
+            if (state & STATE_NUMBER_FLOAT) {
+                state ^= STATE_NUMBER_FLOAT;
+                // if got e/E, reading the exponent
+                if (-1 !== EXPONENTS.indexOf(str[i])) {
+                    curNumber += str[i];
+                    state |= STATE_NUMBER_EXP |
+                        STATE_NUMBER_EXPSIGN;
+                    continue;
+                }
+                // else we"re done with that number
+                state ^= state & STATE_NUMBER_MASK;
+            }
+            // Ended reading exponent digits
+            if (state & STATE_NUMBER_EXP) {
+                // we"re done with that number
+                state ^= state & STATE_NUMBER_MASK;
+            }
+        }
+        // New number
+        if (curNumber) {
+            // Horizontal move to command (x)
+            if (state & STATE_HORIZ_LINE_TO) {
+                if (null === curCommand) {
+                    commands.push({
+                        type: SVGPathData_1.SVGPathData.HORIZ_LINE_TO,
+                        relative: !!(state & STATE_RELATIVE),
+                        x: Number(curNumber),
+                    });
+                }
+                else {
+                    curCommand.x = Number(curNumber);
+                    delete curCommand.invalid;
+                    commands.push(curCommand);
+                    curCommand = null;
+                }
+                state |= STATE_NUMBER;
+                // Vertical move to command (y)
+            }
+            else if (state & STATE_VERT_LINE_TO) {
+                if (null === curCommand) {
+                    commands.push({
+                        type: SVGPathData_1.SVGPathData.VERT_LINE_TO,
+                        relative: !!(state & STATE_RELATIVE),
+                        y: Number(curNumber),
+                    });
+                }
+                else {
+                    curCommand.y = Number(curNumber);
+                    delete curCommand.invalid;
+                    commands.push(curCommand);
+                    curCommand = null;
+                }
+                state |= STATE_NUMBER;
+                // Move to / line to / smooth quadratic curve to commands (x, y)
+            }
+            else if (state & STATE_MOVE_TO ||
+                state & STATE_LINE_TO ||
+                state & STATE_SMOOTH_QUAD_TO) {
+                if (null === curCommand) {
+                    curCommand = {
+                        type: (state & STATE_MOVE_TO ?
+                            SVGPathData_1.SVGPathData.MOVE_TO :
+                            (state & STATE_LINE_TO ?
+                                SVGPathData_1.SVGPathData.LINE_TO : SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO)),
+                        relative: !!(state & STATE_RELATIVE),
+                        x: Number(curNumber),
+                    };
+                }
+                else if ("undefined" === typeof curCommand.x) {
+                    curCommand.x = Number(curNumber);
+                }
+                else {
+                    delete curCommand.invalid;
+                    curCommand.y = Number(curNumber);
+                    commands.push(curCommand);
+                    curCommand = null;
+                    // Switch to line to state
+                    if (state & STATE_MOVE_TO) {
+                        state ^= STATE_MOVE_TO;
+                        state |= STATE_LINE_TO;
                     }
-                    this.commands.push(this.curCommand);
-                    this.curCommand = null;
-                    this.state ^= this.state & STATE_COMMANDS_MASK;
                 }
+                state |= STATE_NUMBER;
+                // Curve to commands (x1, y1, x2, y2, x, y)
             }
-            // Detecting the next command
-            this.state ^= this.state & STATE_COMMANDS_MASK;
-            // Is the command relative
-            if (str[i] === str[i].toLowerCase()) {
-                this.state |= STATE_RELATIVE;
+            else if (state & STATE_CURVE_TO) {
+                if (null === curCommand) {
+                    curCommand = {
+                        type: SVGPathData_1.SVGPathData.CURVE_TO,
+                        relative: !!(state & STATE_RELATIVE),
+                        invalid: true,
+                        x1: Number(curNumber),
+                    };
+                }
+                else if ("undefined" === typeof curCommand.x1) {
+                    curCommand.x1 = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.y1) {
+                    curCommand.y1 = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.x2) {
+                    curCommand.x2 = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.y2) {
+                    curCommand.y2 = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.x) {
+                    curCommand.x = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.y) {
+                    curCommand.y = Number(curNumber);
+                    delete curCommand.invalid;
+                    commands.push(curCommand);
+                    curCommand = null;
+                }
+                state |= STATE_NUMBER;
+                // Smooth curve to commands (x1, y1, x, y)
             }
-            else {
-                this.state ^= this.state & STATE_RELATIVE;
+            else if (state & STATE_SMOOTH_CURVE_TO) {
+                if (null === curCommand) {
+                    curCommand = {
+                        type: SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO,
+                        relative: !!(state & STATE_RELATIVE),
+                        invalid: true,
+                        x2: Number(curNumber),
+                    };
+                }
+                else if ("undefined" === typeof curCommand.x2) {
+                    curCommand.x2 = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.y2) {
+                    curCommand.y2 = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.x) {
+                    curCommand.x = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.y) {
+                    curCommand.y = Number(curNumber);
+                    delete curCommand.invalid;
+                    commands.push(curCommand);
+                    curCommand = null;
+                }
+                state |= STATE_NUMBER;
+                // Quadratic bezier curve to commands (x1, y1, x, y)
             }
-            // Horizontal move to command
-            if ("z" === str[i].toLowerCase()) {
-                this.commands.push({
-                    type: SVGPathData_1.SVGPathData.CLOSE_PATH,
-                });
-                this.state = STATE_COMMAS_WSPS;
+            else if (state & STATE_QUAD_TO) {
+                if (null === curCommand) {
+                    curCommand = {
+                        type: SVGPathData_1.SVGPathData.QUAD_TO,
+                        relative: !!(state & STATE_RELATIVE),
+                        invalid: true,
+                        x1: Number(curNumber),
+                    };
+                }
+                else if ("undefined" === typeof curCommand.x1) {
+                    curCommand.x1 = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.y1) {
+                    curCommand.y1 = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.x) {
+                    curCommand.x = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.y) {
+                    curCommand.y = Number(curNumber);
+                    delete curCommand.invalid;
+                    commands.push(curCommand);
+                    curCommand = null;
+                }
+                state |= STATE_NUMBER;
+                // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
+            }
+            else if (state & STATE_ARC) {
+                if (null === curCommand) {
+                    curCommand = {
+                        type: SVGPathData_1.SVGPathData.ARC,
+                        relative: !!(state & STATE_RELATIVE),
+                        invalid: true,
+                        rX: Number(curNumber),
+                    };
+                }
+                else if ("undefined" === typeof curCommand.rX) {
+                    if (0 > Number(curNumber)) {
+                        throw new SyntaxError("Expected positive number, got \"" + curNumber + "\" at index \"" + i + "\"");
+                    }
+                    curCommand.rX = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.rY) {
+                    if (0 > Number(curNumber)) {
+                        throw new SyntaxError("Expected positive number, got \"" + curNumber + "\" at index \"" + i + "\"");
+                    }
+                    curCommand.rY = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.xRot) {
+                    curCommand.xRot = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.lArcFlag) {
+                    if (-1 === FLAGS.indexOf(curNumber)) {
+                        throw new SyntaxError("Expected a flag, got \"" + curNumber + "\" at index \"" + i + "\"");
+                    }
+                    curCommand.lArcFlag = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.sweepFlag) {
+                    if ("0" !== curNumber && "1" !== curNumber) {
+                        throw new SyntaxError("Expected a flag, got \"" + curNumber + "\" at index \"" + i + "\"");
+                    }
+                    curCommand.sweepFlag = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.x) {
+                    curCommand.x = Number(curNumber);
+                }
+                else if ("undefined" === typeof curCommand.y) {
+                    curCommand.y = Number(curNumber);
+                    delete curCommand.invalid;
+                    commands.push(curCommand);
+                    curCommand = null;
+                }
+                state |= STATE_NUMBER;
+            }
+            curNumber = "";
+            // Continue if a white space or a comma was detected
+            if (-1 !== WSP.indexOf(str[i]) || -1 !== COMMA.indexOf(str[i])) {
                 continue;
-                // Horizontal move to command
             }
-            else if ("h" === str[i].toLowerCase()) {
-                this.state |= STATE_HORIZ_LINE_TO;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.HORIZ_LINE_TO,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Vertical move to command
+            // if a sign is detected, then parse the new number
+            if (-1 !== SIGNS.indexOf(str[i])) {
+                curNumber = str[i];
+                state |= STATE_NUMBER_INT |
+                    STATE_NUMBER_DIGITS;
+                continue;
             }
-            else if ("v" === str[i].toLowerCase()) {
-                this.state |= STATE_VERT_LINE_TO;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.VERT_LINE_TO,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Move to command
+            // if the decpoint is detected, then parse the new number
+            if (-1 !== DECPOINT.indexOf(str[i])) {
+                curNumber = str[i];
+                state |= STATE_NUMBER_FLOAT |
+                    STATE_NUMBER_DIGITS;
+                continue;
             }
-            else if ("m" === str[i].toLowerCase()) {
-                this.state |= STATE_MOVE_TO;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.MOVE_TO,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Line to command
-            }
-            else if ("l" === str[i].toLowerCase()) {
-                this.state |= STATE_LINE_TO;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.LINE_TO,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Curve to command
-            }
-            else if ("c" === str[i].toLowerCase()) {
-                this.state |= STATE_CURVE_TO;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.CURVE_TO,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Smooth curve to command
-            }
-            else if ("s" === str[i].toLowerCase()) {
-                this.state |= STATE_SMOOTH_CURVE_TO;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Quadratic bezier curve to command
-            }
-            else if ("q" === str[i].toLowerCase()) {
-                this.state |= STATE_QUAD_TO;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.QUAD_TO,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Smooth quadratic bezier curve to command
-            }
-            else if ("t" === str[i].toLowerCase()) {
-                this.state |= STATE_SMOOTH_QUAD_TO;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Elliptic arc command
-            }
-            else if ("a" === str[i].toLowerCase()) {
-                this.state |= STATE_ARC;
-                this.curCommand = {
-                    type: SVGPathData_1.SVGPathData.ARC,
-                    relative: !!(this.state & STATE_RELATIVE),
-                    invalid: true,
-                };
-                // Unkown command
-            }
-            else {
-                this.emit("error", new SyntaxError("Unexpected character \"" + str[i] + "\" at index " + i + "."));
-            }
-            // White spaces can follow a command
-            this.state |= STATE_COMMAS_WSPS |
-                STATE_NUMBER;
         }
-        if (null !== this.curCommand) {
-            if (this.curCommand.invalid) {
-                this.emit("error", new SyntaxError("Unterminated command at the path end."));
+        // End of a command
+        if (-1 !== COMMANDS.indexOf(str[i])) {
+            // Adding residual command
+            if (null !== curCommand) {
+                if (curCommand.invalid) {
+                    throw new SyntaxError("Unterminated command at index " + i + ".");
+                }
+                commands.push(curCommand);
+                curCommand = null;
+                state ^= state & STATE_COMMANDS_MASK;
             }
-            this.commands.push(this.curCommand);
-            this.curCommand = null;
-            this.state ^= this.state & STATE_COMMANDS_MASK;
         }
-        return this.commands;
-    };
-    return SVGPathDataParser;
-}());
+        // Detecting the next command
+        state ^= state & STATE_COMMANDS_MASK;
+        // Is the command relative
+        if (str[i] === str[i].toLowerCase()) {
+            state |= STATE_RELATIVE;
+        }
+        else {
+            state ^= state & STATE_RELATIVE;
+        }
+        // Horizontal move to command
+        if ("z" === str[i].toLowerCase()) {
+            commands.push({
+                type: SVGPathData_1.SVGPathData.CLOSE_PATH,
+            });
+            state = STATE_COMMAS_WSPS;
+            continue;
+            // Horizontal move to command
+        }
+        else if ("h" === str[i].toLowerCase()) {
+            state |= STATE_HORIZ_LINE_TO;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.HORIZ_LINE_TO,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Vertical move to command
+        }
+        else if ("v" === str[i].toLowerCase()) {
+            state |= STATE_VERT_LINE_TO;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.VERT_LINE_TO,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Move to command
+        }
+        else if ("m" === str[i].toLowerCase()) {
+            state |= STATE_MOVE_TO;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.MOVE_TO,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Line to command
+        }
+        else if ("l" === str[i].toLowerCase()) {
+            state |= STATE_LINE_TO;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.LINE_TO,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Curve to command
+        }
+        else if ("c" === str[i].toLowerCase()) {
+            state |= STATE_CURVE_TO;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.CURVE_TO,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Smooth curve to command
+        }
+        else if ("s" === str[i].toLowerCase()) {
+            state |= STATE_SMOOTH_CURVE_TO;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Quadratic bezier curve to command
+        }
+        else if ("q" === str[i].toLowerCase()) {
+            state |= STATE_QUAD_TO;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.QUAD_TO,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Smooth quadratic bezier curve to command
+        }
+        else if ("t" === str[i].toLowerCase()) {
+            state |= STATE_SMOOTH_QUAD_TO;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Elliptic arc command
+        }
+        else if ("a" === str[i].toLowerCase()) {
+            state |= STATE_ARC;
+            curCommand = {
+                type: SVGPathData_1.SVGPathData.ARC,
+                relative: !!(state & STATE_RELATIVE),
+                invalid: true,
+            };
+            // Unkown command
+        }
+        else {
+            throw new SyntaxError("Unexpected character \"" + str[i] + "\" at index " + i + ".");
+        }
+        // White spaces can follow a command
+        state |= STATE_COMMAS_WSPS |
+            STATE_NUMBER;
+    }
+    if (null !== curCommand) {
+        if (curCommand.invalid) {
+            throw new SyntaxError("Unterminated command at the path end.");
+        }
+        commands.push(curCommand);
+        curCommand = null;
+        state ^= state & STATE_COMMANDS_MASK;
+    }
+    return commands;
+}
 exports.SVGPathDataParser = SVGPathDataParser;
 
 },{"./SVGPathData":1}],4:[function(require,module,exports){

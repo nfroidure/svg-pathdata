@@ -6,17 +6,15 @@ const { SVGPathDataParser } = require('..');
 
 describe('SVGPathDataParser', () => {
 
-  it('should still work when the new operator is forgotten', () => {
-    assert.doesNotThrow(() => {
+  it('should not work when the command is forgotten', () => {
+    assert.throw(() => {
       new SVGPathDataParser();
     });
   });
 
   it('should fail when a bad command is given', () => {
     assert.throws(() => {
-      const parser = new SVGPathDataParser();
-
-      parser._transform('b80,20');
+      new SVGPathDataParser('b80,20');
     }, 'Unexpected character "b" at index 0.');
   });
 
