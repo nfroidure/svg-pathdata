@@ -55,26 +55,18 @@ console.log(pathData.commands);
 
 ## Reading streamed PathData
 ```js
-const parser = new SVGPathDataParser();
-parser.on('data', console.log);
+let parser = new SVGPathDataParser('M 10 10');
+// [{ type: SVGPathData.MOVE_TO, relative: false, x: 10, y: 10 }]
 
-parser.write('   ');
-parser.write('M 10');
-parser.write(' 10');
-// {type: SVGPathData.MOVE_TO, relative: false, x: 10, y: 10 }
+let parser = new SVGPathDataParser('H 60');
+// [{ type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 }]
 
-parser.write('H 60');
-// {type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 }
+let parser = new SVGPathDataParser('V 60');
+// [{ type: SVGPathData.VERT_LINE_TO, relative: false, y: 60 }]
 
-parser.write('V');
-parser.write('60');
-// {type: SVGPathData.VERT_LINE_TO, relative: false, y: 60 }
-
-parser.write('L 10 60 \n  Z');
-// {type: SVGPathData.LINE_TO, relative: false, x: 10, y: 60 }
-// {type: SVGPathData.CLOSE_PATH }
-
-parser.end();
+let parser = new SVGPathDataParser('L 10 60 \n  Z');
+// [  { type: SVGPathData.LINE_TO, relative: false, x: 10, y: 60 },
+//    { type: SVGPathData.CLOSE_PATH }]
 ```
 
 ## Outputting PathData
@@ -93,27 +85,20 @@ console.log(pathData.encode());
 
 ## Streaming PathData out
 ```js
-const encoder = new SVGPathDataEncoder();
-encoder.setEncoding('utf8');
-
-encode.on('data', console.log(str));
-
-encoder.write({ type: SVGPathData.MOVE_TO,       relative: false, x: 10, y: 10 });
+let encoder = new SVGPathDataEncoder({ type: SVGPathData.MOVE_TO, relative: false, x: 10, y: 10 });
 // "M10 10"
 
-encoder.write({ type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 });
+let encoder = new SVGPathDataEncoder({ type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 });
 // "H60"
 
-encoder.write({ type: SVGPathData.VERT_LINE_TO,  relative: false,        y: 60 });
+let encoder = new SVGPathDataEncoder({ type: SVGPathData.VERT_LINE_TO, relative: false, y: 60 });
 // "V60"
 
-encoder.write({ type: SVGPathData.LINE_TO,       relative: false, x: 10, y: 60 });
+let encoder = new SVGPathDataEncoder({ type: SVGPathData.LINE_TO, relative: false, x: 10, y: 60 });
 // "L10 60"
 
-encoder.write({ type: SVGPathData.CLOSE_PATH});
+let encoder = new SVGPathDataEncoder({ type: SVGPathData.CLOSE_PATH });
 // "Z"
-
-encoder.end();
 ```
 
 ## Transforming PathData
@@ -135,19 +120,6 @@ console.log(
 // "M10,10 H70 V70 L80,130 Z"
 ```
 
-### The streaming/asynchronous way
-Here, we take SVGPathData from stdin and output it transformed to stdout.
-```js
-// stdin to parser
-process.stdin.pipe(new SVGPathDataParser())
-// parser to transformer to absolute
-  .pipe(new SVGPathDataTransformer(SVGPathData.Transformer.TO_ABS()))
-// transformer to encoder
-  .pipe(new SVGPathDataEncoder())
-// encoder to stdout
-  .pipe(process.stdout);
-```
-
 ## Supported transformations
 You can find all supported transformations in
  [src/SVGPathDataTransformer.js](https://github.com/nfroidure/SVGPathData/blob/master/src/SVGPathDataTransformer.js#L47).
@@ -164,12 +136,6 @@ function SET_X_TO(xValue = 10) {
 new SVGPathData('...')
   .transform(SET_X_TO(25))
   .encode();
-
-// Streaming usage
-process.stdin.pipe(new SVGPathDataParser())
-  .pipe(new SVGPathDataTransformer(SET_X_TO(25)))
-  .pipe(new SVGPathDataEncoder())
-  .pipe(process.stdout);
 ```
 
 
