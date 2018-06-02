@@ -3,8 +3,14 @@ export type CommandL = { relative: boolean, type: typeof SVGPathData.LINE_TO, x:
 export type CommandH = { relative: boolean, type: typeof SVGPathData.HORIZ_LINE_TO, x: number };
 export type CommandV = { relative: boolean, type: typeof SVGPathData.VERT_LINE_TO, y: number };
 export type CommandZ = { relative: boolean, type: typeof SVGPathData.CLOSE_PATH };
-export type CommandQ =
-    { relative: boolean, type: typeof SVGPathData.QUAD_TO, x1: number, y1: number, x: number, y: number };
+export type CommandQ = {
+  relative: boolean;
+  type: typeof SVGPathData.QUAD_TO;
+  x1: number;
+  y1: number;
+  x: number;
+  y: number;
+};
 export type CommandT = { relative: boolean, type: typeof SVGPathData.SMOOTH_QUAD_TO, x: number, y: number };
 export type CommandC = {
     relative: boolean,
@@ -12,8 +18,14 @@ export type CommandC = {
     x1: number, y1: number,
     x2: number, y2: number,
     x: number, y: number };
-export type CommandS =
-    { relative: boolean, type: typeof SVGPathData.SMOOTH_CURVE_TO, x2: number, y2: number, x: number, y: number };
+export type CommandS = {
+  relative: boolean;
+  type: typeof SVGPathData.SMOOTH_CURVE_TO;
+  x2: number;
+  y2: number;
+  x: number;
+  y: number;
+};
 export type CommandA = {
     relative: boolean,
     type: typeof SVGPathData.ARC,
