@@ -2,7 +2,8 @@
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
 import { Transform } from "stream";
-import { SVGPathData } from "./SVGPathData";
+import { SVGCommand, SVGPathData, TransformFunction } from "./SVGPathData";
+import { TransformableSVG } from "./TransformableSVG";
 
 // Private consts : Char groups
 const WSP = [" ", "\t", "\r", "\n"];
@@ -13,46 +14,58 @@ const DECPOINT = ["."];
 const FLAGS = ["0", "1"];
 const COMMA = [","];
 const COMMANDS = [
-  "m", "M", "z", "Z", "l", "L", "h", "H", "v", "V", "c", "C",
-  "s", "S", "q", "Q", "t", "T", "a", "A",
+  "m",
+  "M",
+  "z",
+  "Z",
+  "l",
+  "L",
+  "h",
+  "H",
+  "v",
+  "V",
+  "c",
+  "C",
+  "s",
+  "S",
+  "q",
+  "Q",
+  "t",
+  "T",
+  "a",
+  "A",
 ];
 
-export class SVGPathDataParser extends Transform {
-  curCommand: any;
-  state: number;
-  curNumber: any;
-  constructor() {
-    super({ objectMode: true, readableObjectMode: true, writableObjectMode: false });
+export class SVGPathDataParser extends TransformableSVG {
+  curCommand: any = undefined;
+  state: number = SVGPathDataParser.STATE_COMMAS_WSPS;
+  curNumber: string = "";
 
-    // Parsing vars
-    this.state = SVGPathDataParser.STATE_COMMAS_WSPS;
-    this.curNumber = "";
-    this.curCommand = null;
+  constructor() {
+    super();
   }
-  _flush(callback: () => void) {
-    this._transform(new Buffer(" "), "utf-8", () => undefined);
+
+  finish(commands: SVGCommand[] = []) {
+    const result = this.parse(" ", commands);
     // Adding residual command
-    if (null !== this.curCommand) {
+    if (undefined !== this.curCommand) {
       if (this.curCommand.invalid) {
-        this.emit("error",
-          new SyntaxError("Unterminated command at the path end."));
+        throw new SyntaxError("Unterminated command at the path end.");
       }
-      this.push(this.curCommand);
-      this.curCommand = null;
+      commands.push(this.curCommand);
+      this.curCommand = undefined;
       this.state ^= this.state & SVGPathDataParser.STATE_COMMANDS_MASK;
     }
-    callback();
+    return result;
   }
 
-  _transform(chunk: Buffer, encoding: string, callback: () => void) {
-    const str = chunk.toString("buffer" !== encoding ? encoding : "utf8");
-    let i;
-    let j;
-
-    for (i = 0, j = str.length; i < j; i++) {
+  parse(str: string, commands: SVGCommand[] = []) {
+    for (let i = 0; i < str.length; i++) {
       // White spaces parsing
-      if (this.state & SVGPathDataParser.STATE_WSP ||
-        this.state & SVGPathDataParser.STATE_WSPS) {
+      if (
+        this.state & SVGPathDataParser.STATE_WSP ||
+        this.state & SVGPathDataParser.STATE_WSPS
+      ) {
         if (-1 !== WSP.indexOf(str[i])) {
           this.state ^= this.state & SVGPathDataParser.STATE_WSP;
           // any space stops current number parsing
@@ -64,8 +77,10 @@ export class SVGPathDataParser extends Transform {
         }
       }
       // Commas parsing
-      if (this.state & SVGPathDataParser.STATE_COMMA ||
-        this.state & SVGPathDataParser.STATE_COMMAS) {
+      if (
+        this.state & SVGPathDataParser.STATE_COMMA ||
+        this.state & SVGPathDataParser.STATE_COMMAS
+      ) {
         if (-1 !== COMMA.indexOf(str[i])) {
           this.state ^= this.state & SVGPathDataParser.STATE_COMMA;
           // any comma stops current number parsing
@@ -79,9 +94,12 @@ export class SVGPathDataParser extends Transform {
       // Numbers parsing : -125.25e-125
       if (this.state & SVGPathDataParser.STATE_NUMBER) {
         // Reading the sign
-        if ((this.state & SVGPathDataParser.STATE_NUMBER_MASK) ===
-          SVGPathDataParser.STATE_NUMBER) {
-          this.state |= SVGPathDataParser.STATE_NUMBER_INT |
+        if (
+          (this.state & SVGPathDataParser.STATE_NUMBER_MASK) ===
+          SVGPathDataParser.STATE_NUMBER
+        ) {
+          this.state |=
+            SVGPathDataParser.STATE_NUMBER_INT |
             SVGPathDataParser.STATE_NUMBER_DIGITS;
           if (-1 !== SIGNS.indexOf(str[i])) {
             this.curNumber += str[i];
@@ -111,13 +129,15 @@ export class SVGPathDataParser extends Transform {
           // if got a point, reading right side digits
           if (-1 !== DECPOINT.indexOf(str[i])) {
             this.curNumber += str[i];
-            this.state |= SVGPathDataParser.STATE_NUMBER_FLOAT |
+            this.state |=
+              SVGPathDataParser.STATE_NUMBER_FLOAT |
               SVGPathDataParser.STATE_NUMBER_DIGITS;
             continue;
             // if got e/E, reading the exponent
           } else if (-1 !== EXPONENTS.indexOf(str[i])) {
             this.curNumber += str[i];
-            this.state |= SVGPathDataParser.STATE_NUMBER_EXP |
+            this.state |=
+              SVGPathDataParser.STATE_NUMBER_EXP |
               SVGPathDataParser.STATE_NUMBER_EXPSIGN;
             continue;
           }
@@ -130,7 +150,8 @@ export class SVGPathDataParser extends Transform {
           // if got e/E, reading the exponent
           if (-1 !== EXPONENTS.indexOf(str[i])) {
             this.curNumber += str[i];
-            this.state |= SVGPathDataParser.STATE_NUMBER_EXP |
+            this.state |=
+              SVGPathDataParser.STATE_NUMBER_EXP |
               SVGPathDataParser.STATE_NUMBER_EXPSIGN;
             continue;
           }
@@ -147,8 +168,8 @@ export class SVGPathDataParser extends Transform {
       if (this.curNumber) {
         // Horizontal move to command (x)
         if (this.state & SVGPathDataParser.STATE_HORIZ_LINE_TO) {
-          if (null === this.curCommand) {
-            this.push({
+          if (undefined === this.curCommand) {
+            commands.push({
               type: SVGPathData.HORIZ_LINE_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               x: Number(this.curNumber),
@@ -156,14 +177,14 @@ export class SVGPathDataParser extends Transform {
           } else {
             this.curCommand.x = Number(this.curNumber);
             delete this.curCommand.invalid;
-            this.push(this.curCommand);
-            this.curCommand = null;
+            commands.push(this.curCommand);
+            this.curCommand = undefined;
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
           // Vertical move to command (y)
         } else if (this.state & SVGPathDataParser.STATE_VERT_LINE_TO) {
-          if (null === this.curCommand) {
-            this.push({
+          if (undefined === this.curCommand) {
+            commands.push({
               type: SVGPathData.VERT_LINE_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               y: Number(this.curNumber),
@@ -171,32 +192,34 @@ export class SVGPathDataParser extends Transform {
           } else {
             this.curCommand.y = Number(this.curNumber);
             delete this.curCommand.invalid;
-            this.push(this.curCommand);
-            this.curCommand = null;
+            commands.push(this.curCommand);
+            this.curCommand = undefined;
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
           // Move to / line to / smooth quadratic curve to commands (x, y)
-        } else if (this.state & SVGPathDataParser.STATE_MOVE_TO ||
+        } else if (
+          this.state & SVGPathDataParser.STATE_MOVE_TO ||
           this.state & SVGPathDataParser.STATE_LINE_TO ||
-          this.state & SVGPathDataParser.STATE_SMOOTH_QUAD_TO) {
-          if (null === this.curCommand) {
+          this.state & SVGPathDataParser.STATE_SMOOTH_QUAD_TO
+        ) {
+          if (undefined === this.curCommand) {
             this.curCommand = {
-              type: (this.state & SVGPathDataParser.STATE_MOVE_TO ?
-                SVGPathData.MOVE_TO :
-                (this.state & SVGPathDataParser.STATE_LINE_TO ?
-                  SVGPathData.LINE_TO : SVGPathData.SMOOTH_QUAD_TO
-                )
-              ),
+              type:
+                this.state & SVGPathDataParser.STATE_MOVE_TO
+                  ? SVGPathData.MOVE_TO
+                  : this.state & SVGPathDataParser.STATE_LINE_TO
+                    ? SVGPathData.LINE_TO
+                    : SVGPathData.SMOOTH_QUAD_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               x: Number(this.curNumber),
             };
-          } else if ("undefined" === typeof this.curCommand.x) {
+          } else if (undefined === this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
           } else {
             delete this.curCommand.invalid;
             this.curCommand.y = Number(this.curNumber);
-            this.push(this.curCommand);
-            this.curCommand = null;
+            commands.push(this.curCommand);
+            this.curCommand = undefined;
             // Switch to line to state
             if (this.state & SVGPathDataParser.STATE_MOVE_TO) {
               this.state ^= SVGPathDataParser.STATE_MOVE_TO;
@@ -206,116 +229,124 @@ export class SVGPathDataParser extends Transform {
           this.state |= SVGPathDataParser.STATE_NUMBER;
           // Curve to commands (x1, y1, x2, y2, x, y)
         } else if (this.state & SVGPathDataParser.STATE_CURVE_TO) {
-          if (null === this.curCommand) {
+          if (undefined === this.curCommand) {
             this.curCommand = {
               type: SVGPathData.CURVE_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
               x1: Number(this.curNumber),
             };
-          } else if ("undefined" === typeof this.curCommand.x1) {
+          } else if (undefined === this.curCommand.x1) {
             this.curCommand.x1 = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.y1) {
+          } else if (undefined === this.curCommand.y1) {
             this.curCommand.y1 = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.x2) {
+          } else if (undefined === this.curCommand.x2) {
             this.curCommand.x2 = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.y2) {
+          } else if (undefined === this.curCommand.y2) {
             this.curCommand.y2 = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.x) {
+          } else if (undefined === this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.y) {
+          } else if (undefined === this.curCommand.y) {
             this.curCommand.y = Number(this.curNumber);
             delete this.curCommand.invalid;
-            this.push(this.curCommand);
-            this.curCommand = null;
+            commands.push(this.curCommand);
+            this.curCommand = undefined;
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
           // Smooth curve to commands (x1, y1, x, y)
         } else if (this.state & SVGPathDataParser.STATE_SMOOTH_CURVE_TO) {
-          if (null === this.curCommand) {
+          if (undefined === this.curCommand) {
             this.curCommand = {
               type: SVGPathData.SMOOTH_CURVE_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
               x2: Number(this.curNumber),
             };
-          } else if ("undefined" === typeof this.curCommand.x2) {
+          } else if (undefined === this.curCommand.x2) {
             this.curCommand.x2 = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.y2) {
+          } else if (undefined === this.curCommand.y2) {
             this.curCommand.y2 = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.x) {
+          } else if (undefined === this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.y) {
+          } else if (undefined === this.curCommand.y) {
             this.curCommand.y = Number(this.curNumber);
             delete this.curCommand.invalid;
-            this.push(this.curCommand);
-            this.curCommand = null;
+            commands.push(this.curCommand);
+            this.curCommand = undefined;
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
           // Quadratic bezier curve to commands (x1, y1, x, y)
         } else if (this.state & SVGPathDataParser.STATE_QUAD_TO) {
-          if (null === this.curCommand) {
+          if (undefined === this.curCommand) {
             this.curCommand = {
               type: SVGPathData.QUAD_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
               x1: Number(this.curNumber),
             };
-          } else if ("undefined" === typeof this.curCommand.x1) {
+          } else if (undefined === this.curCommand.x1) {
             this.curCommand.x1 = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.y1) {
+          } else if (undefined === this.curCommand.y1) {
             this.curCommand.y1 = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.x) {
+          } else if (undefined === this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.y) {
+          } else if (undefined === this.curCommand.y) {
             this.curCommand.y = Number(this.curNumber);
             delete this.curCommand.invalid;
-            this.push(this.curCommand);
-            this.curCommand = null;
+            commands.push(this.curCommand);
+            this.curCommand = undefined;
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
           // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
         } else if (this.state & SVGPathDataParser.STATE_ARC) {
-          if (null === this.curCommand) {
+          if (undefined === this.curCommand) {
             this.curCommand = {
               type: SVGPathData.ARC,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
               invalid: true,
               rX: Number(this.curNumber),
             };
-          } else if ("undefined" === typeof this.curCommand.rX) {
+          } else if (undefined === this.curCommand.rX) {
             if (0 > Number(this.curNumber)) {
-              this.emit("error", new SyntaxError(
-                  `Expected positive number, got "${this.curNumber}" at index "${i}"`));
+              throw new SyntaxError(
+                `Expected positive number, got "${
+                  this.curNumber
+                }" at index "${i}"`,
+              );
             }
             this.curCommand.rX = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.rY) {
+          } else if (undefined === this.curCommand.rY) {
             if (0 > Number(this.curNumber)) {
-              this.emit("error", new SyntaxError(
-                  `Expected positive number, got "${this.curNumber}" at index "${i}"`));
+              throw new SyntaxError(
+                `Expected positive number, got "${
+                  this.curNumber
+                }" at index "${i}"`,
+              );
             }
             this.curCommand.rY = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.xRot) {
+          } else if (undefined === this.curCommand.xRot) {
             this.curCommand.xRot = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.lArcFlag) {
+          } else if (undefined === this.curCommand.lArcFlag) {
             if (-1 === FLAGS.indexOf(this.curNumber)) {
-              this.emit("error", new SyntaxError(
-                  `Expected a flag, got "${this.curNumber}" at index "${i}"`));
+              throw new SyntaxError(
+                `Expected a flag, got "${this.curNumber}" at index "${i}"`,
+              );
             }
             this.curCommand.lArcFlag = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.sweepFlag) {
+          } else if (undefined === this.curCommand.sweepFlag) {
             if ("0" !== this.curNumber && "1" !== this.curNumber) {
-              this.emit("error", new SyntaxError(
-                  `Expected a flag, got "${this.curNumber}" at index "${i}"`));
+              throw new SyntaxError(
+                `Expected a flag, got "${this.curNumber}" at index "${i}"`,
+              );
             }
             this.curCommand.sweepFlag = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.x) {
+          } else if (undefined === this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
-          } else if ("undefined" === typeof this.curCommand.y) {
+          } else if (undefined === this.curCommand.y) {
             this.curCommand.y = Number(this.curNumber);
             delete this.curCommand.invalid;
-            this.push(this.curCommand);
-            this.curCommand = null;
+            commands.push(this.curCommand);
+            this.curCommand = undefined;
           }
           this.state |= SVGPathDataParser.STATE_NUMBER;
         }
@@ -327,14 +358,16 @@ export class SVGPathDataParser extends Transform {
         // if a sign is detected, then parse the new number
         if (-1 !== SIGNS.indexOf(str[i])) {
           this.curNumber = str[i];
-          this.state |= SVGPathDataParser.STATE_NUMBER_INT |
+          this.state |=
+            SVGPathDataParser.STATE_NUMBER_INT |
             SVGPathDataParser.STATE_NUMBER_DIGITS;
           continue;
         }
         // if the decpoint is detected, then parse the new number
         if (-1 !== DECPOINT.indexOf(str[i])) {
           this.curNumber = str[i];
-          this.state |= SVGPathDataParser.STATE_NUMBER_FLOAT |
+          this.state |=
+            SVGPathDataParser.STATE_NUMBER_FLOAT |
             SVGPathDataParser.STATE_NUMBER_DIGITS;
           continue;
         }
@@ -342,13 +375,12 @@ export class SVGPathDataParser extends Transform {
       // End of a command
       if (-1 !== COMMANDS.indexOf(str[i])) {
         // Adding residual command
-        if (null !== this.curCommand) {
+        if (undefined !== this.curCommand) {
           if (this.curCommand.invalid) {
-            this.emit("error",
-              new SyntaxError(`Unterminated command at index ${i}.`));
+            throw new SyntaxError(`Unterminated command at index ${i}.`);
           }
-          this.push(this.curCommand);
-          this.curCommand = null;
+          commands.push(this.curCommand);
+          this.curCommand = undefined;
           this.state ^= this.state & SVGPathDataParser.STATE_COMMANDS_MASK;
         }
       }
@@ -362,7 +394,7 @@ export class SVGPathDataParser extends Transform {
       }
       // Horizontal move to command
       if ("z" === str[i].toLowerCase()) {
-        this.push({
+        commands.push({
           type: SVGPathData.CLOSE_PATH,
         });
         this.state = SVGPathDataParser.STATE_COMMAS_WSPS;
@@ -441,14 +473,38 @@ export class SVGPathDataParser extends Transform {
         };
         // Unkown command
       } else {
-        this.emit("error", new SyntaxError(`Unexpected character "${str[i]
-          }" at index ${i}.`));
+        throw new SyntaxError(
+          `Unexpected character "${str[i]}" at index ${i}.`,
+        );
       }
       // White spaces can follow a command
-      this.state |= SVGPathDataParser.STATE_COMMAS_WSPS |
-        SVGPathDataParser.STATE_NUMBER;
+      this.state |=
+        SVGPathDataParser.STATE_COMMAS_WSPS | SVGPathDataParser.STATE_NUMBER;
     }
-    callback();
+    return commands;
+  }
+
+    /**
+     * Return a wrapper around this parser which applies the transformation on parsed commands.
+     */
+  transform(transform: TransformFunction) {
+    const result = Object.create(this, {
+      parse: {
+        value(chunk: string, commands: SVGCommand[] = []) {
+          const parsedCommands = Object.getPrototypeOf(this).parse.call(this, chunk);
+          for (const c of parsedCommands) {
+            const cT = transform(c);
+            if (Array.isArray(cT)) {
+              commands.push(...cT);
+            } else {
+              commands.push(cT);
+            }
+          }
+          return commands;
+        },
+      },
+    });
+    return result as this;
   }
 
   // Parsing states
@@ -456,9 +512,10 @@ export class SVGPathDataParser extends Transform {
   static readonly STATE_WSPS = 2;
   static readonly STATE_COMMA = 4;
   static readonly STATE_COMMAS = 8;
-  static readonly STATE_COMMAS_WSPS =
-  SVGPathDataParser.STATE_WSP | SVGPathDataParser.STATE_WSPS |
-  SVGPathDataParser.STATE_COMMA | SVGPathDataParser.STATE_COMMAS;
+  static readonly STATE_COMMAS_WSPS = SVGPathDataParser.STATE_WSP |
+  SVGPathDataParser.STATE_WSPS |
+  SVGPathDataParser.STATE_COMMA |
+  SVGPathDataParser.STATE_COMMAS;
   static readonly STATE_NUMBER = 16;
   static readonly STATE_NUMBER_DIGITS = 32;
   static readonly STATE_NUMBER_INT = 64;
@@ -466,8 +523,10 @@ export class SVGPathDataParser extends Transform {
   static readonly STATE_NUMBER_EXP = 256;
   static readonly STATE_NUMBER_EXPSIGN = 512;
   static readonly STATE_NUMBER_MASK = SVGPathDataParser.STATE_NUMBER |
-  SVGPathDataParser.STATE_NUMBER_DIGITS | SVGPathDataParser.STATE_NUMBER_INT |
-  SVGPathDataParser.STATE_NUMBER_EXP | SVGPathDataParser.STATE_NUMBER_FLOAT;
+  SVGPathDataParser.STATE_NUMBER_DIGITS |
+  SVGPathDataParser.STATE_NUMBER_INT |
+  SVGPathDataParser.STATE_NUMBER_EXP |
+  SVGPathDataParser.STATE_NUMBER_FLOAT;
   static readonly STATE_RELATIVE = 1024;
   static readonly STATE_CLOSE_PATH = 2048; // Close path command (z/Z)
   static readonly STATE_MOVE_TO = 4096; // Move to command (m/M)
@@ -479,10 +538,14 @@ export class SVGPathDataParser extends Transform {
   static readonly STATE_QUAD_TO = 262144; // Quadratic bezier curve to command (q/Q)
   static readonly STATE_SMOOTH_QUAD_TO = 524288; // Smooth quadratic bezier curve to command (t/T)
   static readonly STATE_ARC = 1048576; // Elliptic arc command (a/A)
-  static readonly STATE_COMMANDS_MASK =
-  SVGPathDataParser.STATE_CLOSE_PATH | SVGPathDataParser.STATE_MOVE_TO |
-  SVGPathDataParser.STATE_LINE_TO | SVGPathDataParser.STATE_HORIZ_LINE_TO |
-  SVGPathDataParser.STATE_VERT_LINE_TO | SVGPathDataParser.STATE_CURVE_TO |
-  SVGPathDataParser.STATE_SMOOTH_CURVE_TO | SVGPathDataParser.STATE_QUAD_TO |
-  SVGPathDataParser.STATE_SMOOTH_QUAD_TO | SVGPathDataParser.STATE_ARC;
+  static readonly STATE_COMMANDS_MASK = SVGPathDataParser.STATE_CLOSE_PATH |
+  SVGPathDataParser.STATE_MOVE_TO |
+  SVGPathDataParser.STATE_LINE_TO |
+  SVGPathDataParser.STATE_HORIZ_LINE_TO |
+  SVGPathDataParser.STATE_VERT_LINE_TO |
+  SVGPathDataParser.STATE_CURVE_TO |
+  SVGPathDataParser.STATE_SMOOTH_CURVE_TO |
+  SVGPathDataParser.STATE_QUAD_TO |
+  SVGPathDataParser.STATE_SMOOTH_QUAD_TO |
+  SVGPathDataParser.STATE_ARC;
 }
