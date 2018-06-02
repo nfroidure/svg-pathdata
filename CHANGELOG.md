@@ -1,3 +1,8 @@
+<a name="5.0.0"></a>
+# [5.0.0](https://github.com/nfroidure/svg-pathdata/compare/v4.0.0...v5.0.0) (2018-06-02)
+
+
+
 <a name="4.0.1"></a>
 ## [4.0.1](https://github.com/nfroidure/svg-pathdata/compare/v4.0.0...v4.0.1) (2017-08-22)
 
