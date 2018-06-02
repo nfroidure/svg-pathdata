@@ -6,14 +6,13 @@ import {SVGCommand, SVGPathData} from "./SVGPathData";
 // Private consts : Char groups
 const WSP = " ";
 
-export function SVGPathDataEncoder(commands: SVGCommand | SVGCommand[]) {
+export function encodeSVGPath(commands: SVGCommand | SVGCommand[]) {
   let str = "";
-  let i;
 
   if (!Array.isArray(commands)) {
     commands = [commands];
   }
-  for (i = 0; i < commands.length; i++) {
+  for (let i = 0; i < commands.length; i++) {
     const command = commands[i];
     if (command.type === SVGPathData.CLOSE_PATH) {
       str += "z";

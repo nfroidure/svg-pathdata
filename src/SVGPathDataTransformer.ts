@@ -1,35 +1,10 @@
 // Transform SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
-import { Transform } from "stream";
 import { a2c, annotateArcCommand, arcAt, assertNumbers, bezierAt, bezierRoot,
   intersectionUnitCircleLine } from "./mathUtils.js";
 import { SVGCommand, SVGPathData, TransformFunction } from "./SVGPathData";
 
-export class SVGPathDataTransformer extends Transform {
-  private _transformer: TransformFunction;
-
-  constructor(transformFunction: TransformFunction) {
-    super({ objectMode: true });
-
-    // Transform function needed
-    if ("function" !== typeof transformFunction) {
-      throw new Error("Please provide a transform callback to receive commands.");
-    }
-    this._transformer = transformFunction;
-  }
-
-  _transform(commands: SVGCommand | SVGCommand[], encoding: string, done: () => void) {
-
-    if (!(commands instanceof Array)) {
-      commands = [commands];
-    }
-    for (const command of commands) {
-      this.push(this._transformer(command));
-    }
-    done();
-  }
-}
 export namespace SVGPathDataTransformer {
   // Predefined transforming functions
   // Rounds commands values

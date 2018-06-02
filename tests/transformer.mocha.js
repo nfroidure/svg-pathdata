@@ -3,31 +3,17 @@
 'use strict';
 
 const assert = require('chai').assert;
-const { SVGPathData, SVGPathDataTransformer } = require('..');
+const { SVGPathData, SVGPathDataParser } = require('..');
 
 describe('SVGPathDataTransformer', () => {
 
-  it('should fail with bad args', () => {
-    assert.throws(() => {
-      new SVGPathDataTransformer();
-    }, 'Please provide a transform callback to receive commands.');
-  });
+  it('should be possible to transform the parser', () => {
+    const parser = new SVGPathDataParser().toAbs();
 
-  it('should work in streaming mode', () => {
-    const encoder = new SVGPathDataTransformer(SVGPathDataTransformer.SCALE(1, 1));
-
-    encoder.write({
-      type: SVGPathData.MOVE_TO,
-      relative: false,
-      x: 0,
-      y: 0,
-    }, {
-      type: SVGPathData.LINE_TO,
-      relative: true,
-      x: 10,
-      y: 10,
-    });
-    encoder.end();
+    assert.equal(SVGPathData.encode(parser.parse('m 0')), '');
+    assert.equal(SVGPathData.encode(parser.parse(' 0 l')), 'M0 0');
+    assert.equal(SVGPathData.encode(parser.parse('2 3')), '');
+    assert.equal(SVGPathData.encode(parser.finish()), 'L2 3');
   });
 
 });

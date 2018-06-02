@@ -53,20 +53,25 @@ console.log(pathData.commands);
 //    {type: SVGPathData.CLOSE_PATH}]
 ```
 
-## Reading streamed PathData
+## Reading PathData in chunks
 ```js
-let parser = new SVGPathDataParser('M 10 10');
-// [{ type: SVGPathData.MOVE_TO, relative: false, x: 10, y: 10 }]
+const parser = new SVGPathDataParser();
 
-let parser = new SVGPathDataParser('H 60');
-// [{ type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 }]
+parser.parse('   '); // returns []
+parser.parse('M 10'); // returns []
+parser.parse(' 10'); // returns [{type: SVGPathData.MOVE_TO, relative: false, x: 10, y: 10 }]
 
-let parser = new SVGPathDataParser('V 60');
-// [{ type: SVGPathData.VERT_LINE_TO, relative: false, y: 60 }]
+parser.write('H 60'); // returns [{type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 }]
 
-let parser = new SVGPathDataParser('L 10 60 \n  Z');
-// [  { type: SVGPathData.LINE_TO, relative: false, x: 10, y: 60 },
-//    { type: SVGPathData.CLOSE_PATH }]
+parser.write('V'); // returns []
+parser.write('60'); // returns [{type: SVGPathData.VERT_LINE_TO, relative: false, y: 60 }]
+
+parser.write('L 10 60 \n  Z');
+// returns [
+//   {type: SVGPathData.LINE_TO, relative: false, x: 10, y: 60 },
+//   {type: SVGPathData.CLOSE_PATH }]
+
+parser.finish(); // tell parser there is no more data: will throw if there are unfinished commands.
 ```
 
 ## Outputting PathData
@@ -77,37 +82,28 @@ const pathData = new SVGPathData (`
   V 60
   L 10 60
   Z`);
+// returns "M10 10H60V60L10 60Z"
 
-console.log(pathData.encode());
-// "M10 10H60V60L10 60Z"
-```
+encodeSVGPath({ type: SVGPathData.MOVE_TO,       relative: false, x: 10, y: 10 });
+// returns "M10 10"
 
+encodeSVGPath({ type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 });
+// returns "H60"
 
-## Streaming PathData out
-```js
-let encoder = new SVGPathDataEncoder({ type: SVGPathData.MOVE_TO, relative: false, x: 10, y: 10 });
-// "M10 10"
+encodeSVGPath([
+  { type: SVGPathData.VERT_LINE_TO,  relative: false,        y: 60 },
+  { type: SVGPathData.LINE_TO,       relative: false, x: 10, y: 60 },
+  { type: SVGPathData.CLOSE_PATH}])
+// returns "V60L10 60Z"
 
-let encoder = new SVGPathDataEncoder({ type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 });
-// "H60"
-
-let encoder = new SVGPathDataEncoder({ type: SVGPathData.VERT_LINE_TO, relative: false, y: 60 });
-// "V60"
-
-let encoder = new SVGPathDataEncoder({ type: SVGPathData.LINE_TO, relative: false, x: 10, y: 60 });
-// "L10 60"
-
-let encoder = new SVGPathDataEncoder({ type: SVGPathData.CLOSE_PATH });
-// "Z"
 ```
 
 ## Transforming PathData
-This library was made to live decoding/transform/encoding SVG PathData. Here is
+This library can perform transformations on SVG paths. Here is
  [an example of that kind of use](https://github.com/nfroidure/svgicons2svgfont/blob/aa6df0211419e9d61c417c63bcc353f0cb2ea0c8/src/index.js#L192).
 
-### The synchronous way
+### Transforming entire paths
 ```js
-console.log(
   new SVGPathData (`
    m 10,10
    h 60
@@ -115,16 +111,25 @@ console.log(
    l 10,60
    z`)
   .toAbs()
-  .encode()
-);
-// "M10,10 H70 V70 L80,130 Z"
+  .encode();
+// return s"M10,10 H70 V70 L80,130 Z"
+```
+
+### Transforming partial data
+Here, we take SVGPathData from stdin and output it transformed to stdout.
+```js
+const transformingParser = new SVGPathDataParser().toAbs().scale(2, 2);
+transformingParser.parse('m 0 0') // returns [{ type: SVGPathData.MOVE_TO,       relative: false, x: 0, y: 0 }]
+transformingParser.parse('l 2 3') // returns [{ type: SVGPathData.LINE_TO,       relative: false, x: 4, y: 6 }]
 ```
 
 ## Supported transformations
 You can find all supported transformations in
- [src/SVGPathDataTransformer.js](https://github.com/nfroidure/SVGPathData/blob/master/src/SVGPathDataTransformer.js#L47).
- Additionally, you can create your own using this format:
+ [src/SVGPathDataTransformer.ts](https://github.com/nfroidure/SVGPathData/blob/master/src/SVGPathDataTransformer.ts#L47).
+ Additionally, you can create your own by writing a function with the following signature:
 ```js
+type TransformFunction = (command: SVGCommand) => SVGCommand | SVGCommand[];
+
 function SET_X_TO(xValue = 10) {
   return function(command) {
     command.x = xValue; // transform command objects and return them
@@ -136,6 +141,9 @@ function SET_X_TO(xValue = 10) {
 new SVGPathData('...')
   .transform(SET_X_TO(25))
   .encode();
+
+// Chunk usage
+new SVGPathDataParser().transform(SET_X_TO(25));
 ```
 
 

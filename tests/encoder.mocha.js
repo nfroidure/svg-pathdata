@@ -2,7 +2,7 @@
 'use strict';
 
 const assert = require('chai').assert;
-const { SVGPathDataEncoder } = require('..');
+const { encodeSVGPath, SVGPathDataEncoder } = require('..');
 
 describe('SVGPathDataEncoder', () => {
 
@@ -14,7 +14,7 @@ describe('SVGPathDataEncoder', () => {
 
   it('should fail when a bad command is given', () => {
     assert.throws(() => {
-      new SVGPathDataEncoder({
+      encodeSVGPath({
         type: 'plop',
         x: 0,
         y: 0,

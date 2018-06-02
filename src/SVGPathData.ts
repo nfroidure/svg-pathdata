@@ -1,8 +1,9 @@
+import {TransformableSVG} from "./TransformableSVG";
 export type CommandM = { relative: boolean, type: typeof SVGPathData.MOVE_TO, x: number, y: number };
 export type CommandL = { relative: boolean, type: typeof SVGPathData.LINE_TO, x: number, y: number };
 export type CommandH = { relative: boolean, type: typeof SVGPathData.HORIZ_LINE_TO, x: number };
 export type CommandV = { relative: boolean, type: typeof SVGPathData.VERT_LINE_TO, y: number };
-export type CommandZ = { relative: boolean, type: typeof SVGPathData.CLOSE_PATH };
+export type CommandZ = { type: typeof SVGPathData.CLOSE_PATH };
 export type CommandQ = {
     relative: boolean,
     type: typeof SVGPathData.QUAD_TO,
@@ -32,9 +33,10 @@ export type SVGCommand = CommandM | CommandL | CommandH | CommandV | CommandZ | 
 
 export type TransformFunction = (input: SVGCommand) => SVGCommand | SVGCommand[];
 
-export class SVGPathData {
+export class SVGPathData extends TransformableSVG {
   commands: SVGCommand[];
   constructor(content: string | SVGCommand[]) {
+    super();
     if ("string" === typeof content) {
       this.commands = SVGPathData.parse(content);
     } else {
@@ -46,74 +48,6 @@ export class SVGPathData {
     return SVGPathData.encode(this.commands);
   }
 
-  round(x?: number) {
-    return this.transform(SVGPathDataTransformer.ROUND(x));
-  }
-
-  toAbs() {
-    return this.transform(SVGPathDataTransformer.TO_ABS());
-  }
-
-  toRel() {
-    return this.transform(SVGPathDataTransformer.TO_REL());
-  }
-
-  normalizeHVZ(a?: boolean, b?: boolean, c?: boolean) {
-    return this.transform(SVGPathDataTransformer.NORMALIZE_HVZ(a, b, c));
-  }
-
-  normalizeST() {
-    return this.transform(SVGPathDataTransformer.NORMALIZE_ST());
-  }
-
-  qtToC() {
-    return this.transform(SVGPathDataTransformer.QT_TO_C());
-  }
-
-  aToC() {
-    return this.transform(SVGPathDataTransformer.A_TO_C());
-  }
-
-  sanitize(eps?: number) {
-    return this.transform(SVGPathDataTransformer.SANITIZE(eps));
-  }
-
-  translate(x: number, y?: number) {
-    return this.transform(SVGPathDataTransformer.TRANSLATE(x, y));
-  }
-
-  scale(x: number, y?: number) {
-    return this.transform(SVGPathDataTransformer.SCALE(x, y));
-  }
-
-  rotate(a: number, x?: number, y?: number) {
-    return this.transform(SVGPathDataTransformer.ROTATE(a, x, y));
-  }
-
-  matrix(a: number, b: number, c: number, d: number, e: number, f: number) {
-    return this.transform(SVGPathDataTransformer.MATRIX(a, b, c, d, e, f));
-  }
-
-  skewX(a: number) {
-    return this.transform(SVGPathDataTransformer.SKEW_X(a));
-  }
-
-  skewY(a: number) {
-    return this.transform(SVGPathDataTransformer.SKEW_Y(a));
-  }
-
-  xSymmetry(xOffset?: number) {
-    return this.transform(SVGPathDataTransformer.X_AXIS_SYMMETRY(xOffset));
-  }
-
-  ySymmetry(yOffset?: number) {
-    return this.transform(SVGPathDataTransformer.Y_AXIS_SYMMETRY(yOffset));
-  }
-
-  annotateArcs() {
-    return this.transform(SVGPathDataTransformer.ANNOTATE_ARCS());
-  }
-
   getBounds() {
     const boundsTransform = SVGPathDataTransformer.CALCULATE_BOUNDS();
 
@@ -121,13 +55,15 @@ export class SVGPathData {
     return boundsTransform;
   }
 
-  transform(transformFunction: (input: SVGCommand) => SVGCommand | SVGCommand[]) {
+  transform(
+    transformFunction: (input: SVGCommand) => SVGCommand | SVGCommand[],
+  ) {
     const newCommands = [];
 
     for (const command of this.commands) {
       const transformedCommand = transformFunction(command);
 
-      if (transformedCommand instanceof Array) {
+      if (Array.isArray(transformedCommand)) {
         newCommands.push(...transformedCommand);
       } else {
         newCommands.push(transformedCommand);
@@ -138,11 +74,15 @@ export class SVGPathData {
   }
 
   static encode(commands: SVGCommand[]) {
-    return SVGPathDataEncoder(commands);
+    return encodeSVGPath(commands);
   }
 
-  static parse(content: string) {
-    return SVGPathDataParser(content);
+  static parse(path: string) {
+    const parser = new SVGPathDataParser();
+    const commands: SVGCommand[] = [];
+    parser.parse(path, commands);
+    parser.finish(commands);
+    return commands;
   }
 
   static readonly CLOSE_PATH: 1 = 1;
@@ -161,7 +101,7 @@ export class SVGPathData {
   SVGPathData.SMOOTH_QUAD_TO | SVGPathData.ARC;
 }
 
-import {SVGPathDataEncoder} from "./SVGPathDataEncoder";
-import {SVGPathDataParser} from "./SVGPathDataParser";
-import {SVGPathDataTransformer} from "./SVGPathDataTransformer";
-export { SVGPathDataEncoder, SVGPathDataParser, SVGPathDataTransformer } ;
+import { encodeSVGPath } from "./SVGPathDataEncoder";
+import { SVGPathDataParser } from "./SVGPathDataParser";
+import { SVGPathDataTransformer } from "./SVGPathDataTransformer";
+export { encodeSVGPath, SVGPathDataParser, SVGPathDataTransformer };
