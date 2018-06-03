@@ -36,26 +36,26 @@ describe('Parsing elliptical arc commands', () => {
 
   it('should not work with bad rX value', () => {
     assert.throw(() => {
-      new SVGPathData('A,-30,50,0,0,1,162.55,162.45');
-    }, SyntaxError, 'Expected positive number, got "-30" at index "5"');
+      new SVGPathData('A-30,50,0,0,1,162.55,162.45');
+    }, SyntaxError, 'Expected positive number, got "-30" at index "4"');
   });
 
   it('should not work with bad rY value', () => {
     assert.throw(() => {
-      new SVGPathData('A,30,-50,0,0,1,162.55,162.45');
-    }, SyntaxError, 'Expected positive number, got "-50" at index "8"');
+      new SVGPathData('A30,-50,0,0,1,162.55,162.45');
+    }, SyntaxError, 'Expected positive number, got "-50" at index "7"');
   });
 
   it('should not work with bad lArcFlag value', () => {
     assert.throw(() => {
-      new SVGPathData('A,30,50,0,15,1,162.55,162.45');
-    }, SyntaxError, 'Expected a flag, got "15" at index "12"');
+      new SVGPathData('A30,50,0,15,1,162.55,162.45');
+    }, SyntaxError, 'Expected a flag, got "15" at index "11"');
   });
 
   it('should not work with bad sweepFlag value', () => {
     assert.throw(() => {
-      new SVGPathData('A,30,50,0,0,15,162.55,162.45');
-    }, SyntaxError, 'Expected a flag, got "15" at index "14"');
+      new SVGPathData('A30,50,0,0,15,162.55,162.45');
+    }, SyntaxError, 'Expected a flag, got "15" at index "13"');
   });
 
   it('should work with comma separated coordinates', () => {

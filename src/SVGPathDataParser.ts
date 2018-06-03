@@ -1,21 +1,22 @@
 // Parse SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
-import { Transform } from "stream";
 import { SVGCommand, SVGPathData, TransformFunction } from "./SVGPathData";
 import { TransformableSVG } from "./TransformableSVG";
 // Private consts : Char groups
-const WSP = " \t\r\n";
+const isWhiteSpace = (c: string) => " " === c || "\t" === c || "\r" === c || "\n" === c;
 const isDigit = (c: string) =>
   "0".charCodeAt(0) <= c.charCodeAt(0) && c.charCodeAt(0) <= "9".charCodeAt(0);
-const FLAGS = ["0", "1"];
 const COMMANDS = "mMzZlLhHvVcCsSqQtTaA";
 
 export class SVGPathDataParser extends TransformableSVG {
-  curCommand: any = undefined;
-  curNumber: string = "";
-  curCommandType: number = -1;
-  curCommandRelative = false;
-  atLeastOneCommandOutput = true;
+  private curCommand: any = undefined;
+  private curNumber: string = "";
+  private curCommandType: number = -1;
+  private curCommandRelative = false;
+  private canParseCommandOrComma = true;
+  private curNumberHasExp = false;
+  private curNumberHasExpDigits = false;
+  private curNumberHasDecimal = false;
 
   constructor() {
     super();
@@ -24,7 +25,7 @@ export class SVGPathDataParser extends TransformableSVG {
   finish(commands: SVGCommand[] = []) {
     this.parse(" ", commands);
     // Adding residual command
-    if (this.curCommand || !this.atLeastOneCommandOutput) {
+    if (this.curCommand || !this.canParseCommandOrComma) {
       throw new SyntaxError("Unterminated command at the path end.");
     }
     return commands;
@@ -34,38 +35,36 @@ export class SVGPathDataParser extends TransformableSVG {
     const finishCommand = (command = this.curCommand) => {
       commands.push(command);
       this.curCommand = undefined;
-      this.atLeastOneCommandOutput = true;
+      this.canParseCommandOrComma = true;
     };
 
     for (let i = 0; i < str.length; i++) {
       const c = str[i];
       // White spaces parsing
 
-      if (isDigit(c) || "e" === c || "E" === c) {
+      if (isDigit(c)) {
+        this.curNumber += c;
+        this.curNumberHasExpDigits = this.curNumberHasExp;
+        continue;
+      }
+      if ("e" === c || "E" === c) {
+        this.curNumber += c;
+        this.curNumberHasExp = true;
+        continue;
+      }
+      if (("-" === c || "+" === c) && this.curNumberHasExp && !this.curNumberHasExpDigits) {
         this.curNumber += c;
         continue;
       }
-      if (("-" === c || "+" === c) && this.curNumber.length > 0) {
-        const lastChar = this.curNumber.charAt(this.curNumber.length - 1);
-        if (lastChar.toLowerCase() === "e") {
-          this.curNumber += c;
-          continue;
-        }
+      // if we already have a ".", it means we are starting a new number
+      if ("." === c && !this.curNumberHasExp && !this.curNumberHasDecimal) {
+        this.curNumber += c;
+        this.curNumberHasDecimal = true;
+        continue;
       }
-      if ("." === c) {
-        const lastChar = this.curNumber.charAt(this.curNumber.length - 1);
-        // if there is no "e" and no "." in it, the "." does not start a new number.
-        if (
-          -1 === this.curNumber.indexOf("e") &&
-          -1 === this.curNumber.indexOf("E") &&
-          -1 === this.curNumber.toLowerCase().indexOf(".")
-        ) {
-          this.curNumber += c;
-          continue;
-        }
-      }
+
       // New number
-      if (this.curNumber) {
+      if (this.curNumber && -1 !== this.curCommandType) {
         const val = Number(this.curNumber);
         if (isNaN(val)) {
           throw new SyntaxError(`Invalid number ending at ${i}`);
@@ -175,7 +174,7 @@ export class SVGPathDataParser extends TransformableSVG {
           } else if (undefined === this.curCommand.xRot) {
             this.curCommand.xRot = val;
           } else if (undefined === this.curCommand.lArcFlag) {
-            if (-1 === FLAGS.indexOf(this.curNumber)) {
+            if ("0" !== this.curNumber && "1" !== this.curNumber) {
               throw new SyntaxError(`Expected a flag, got "${this.curNumber}" at index "${i}"`);
             }
             this.curCommand.lArcFlag = val;
@@ -192,37 +191,42 @@ export class SVGPathDataParser extends TransformableSVG {
           }
         }
         this.curNumber = "";
+        this.curNumberHasExpDigits = false;
+        this.curNumberHasExp = false;
+        this.curNumberHasDecimal = false;
+        this.canParseCommandOrComma = true;
       }
       // Continue if a white space or a comma was detected
-      if (-1 !== WSP.indexOf(c) || "," === c) {
+      if (isWhiteSpace(c)) {
+        continue;
+      }
+      if ("," === c && this.canParseCommandOrComma) {
+        // L 0,0, H is not valid:
+        this.canParseCommandOrComma = false;
         continue;
       }
       // if a sign is detected, then parse the new number
-      if ("+" === c || "-" === c) {
+      if ("+" === c || "-" === c || "." === c) {
         this.curNumber = c;
-        continue;
-      }
-      // if the decpoint is detected, then parse the new number
-      if ("." === c) {
-        this.curNumber = c;
+        this.curNumberHasDecimal = "." === c;
         continue;
       }
 
-      // End of a command
-      if (-1 !== COMMANDS.indexOf(c)) {
-        // Adding residual command
-        if (undefined !== this.curCommand || !this.atLeastOneCommandOutput) {
-          throw new SyntaxError(`Unterminated command at index ${i}.`);
-        }
-        this.atLeastOneCommandOutput = false;
+      // Adding residual command
+      if (undefined !== this.curCommand) {
+        throw new SyntaxError(`Unterminated command at index ${i}.`);
       }
+      if (!this.canParseCommandOrComma) {
+        throw new SyntaxError(`Unexpected character "${c}" at index ${i}. Command cannot follow comma`);
+      }
+      this.canParseCommandOrComma = false;
       // Detecting the next command
-      // Horizontal move to command
       if ("z" === c || "Z" === c) {
         commands.push({
           type: SVGPathData.CLOSE_PATH,
         });
-        this.atLeastOneCommandOutput = true;
+        this.canParseCommandOrComma = true;
+        this.curCommandType = -1;
         continue;
         // Horizontal move to command
       } else if ("h" === c || "H" === c) {
@@ -260,7 +264,6 @@ export class SVGPathDataParser extends TransformableSVG {
       } else if ("a" === c || "A" === c) {
         this.curCommandType = SVGPathData.ARC;
         this.curCommandRelative = "a" === c;
-        // Unkown command
       } else {
         throw new SyntaxError(`Unexpected character "${c}" at index ${i}.`);
       }

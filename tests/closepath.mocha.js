@@ -25,19 +25,19 @@ describe('Parsing close path commands', () => {
   });
 
   it('should work before a command sequence', () => {
-    const commands = new SVGPathData(' Z M10,10 L10,10, H10, V10').commands;
+    const commands = new SVGPathData(' Z M10,10 L10,10 H10 V10').commands;
 
     assert.equal(commands[0].type, SVGPathData.CLOSE_PATH);
   });
 
   it('should work after a command sequence', () => {
-    const commands = new SVGPathData('M10,10 L10,10, H10, V10 Z').commands;
+    const commands = new SVGPathData('M10,10 L10,10 H10 V10 Z').commands;
 
     assert.equal(commands[4].type, SVGPathData.CLOSE_PATH);
   });
 
   it('should work in a command sequence', () => {
-    const commands = new SVGPathData('M10,10 L10,10, H10, V10 Z M10,10 L10,10, H10, V10').commands;
+    const commands = new SVGPathData('M10,10 L10,10 H10 V10 Z M10,10 L10,10 H10 V10').commands;
 
     assert.equal(commands[4].type, SVGPathData.CLOSE_PATH);
   });
