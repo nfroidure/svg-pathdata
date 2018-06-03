@@ -90,4 +90,9 @@ describe('Parsing commands with different numbers', () => {
     assert.equal(commands[1].y, 0.123e-123);
   });
 
+
+  it('should fail with eE', () => {
+    assert.throws(() => new SVGPathData('H1ee2'));
+  });
+
 });

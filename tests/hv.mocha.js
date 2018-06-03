@@ -218,7 +218,7 @@ describe('Parsing nested vertical/horizontal commands', () => {
 
   it('should work', () => {
     const commands = new SVGPathData(
-      'V100H100v0.12h0.12,V100,h100v-10e-5 H-10e-5').commands;
+      'V100H100v0.12h0.12V100h100v-10e-5 H-10e-5').commands;
 
     assert.equal(commands[0].type, SVGPathData.VERT_LINE_TO);
     assert.equal(commands[0].relative, false);
