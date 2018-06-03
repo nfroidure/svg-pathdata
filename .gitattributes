@@ -1,2 +1,3 @@
 * text eol=lf
 *.js text eol=lf
+dist/* linguist-generated=true
