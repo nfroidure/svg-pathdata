@@ -164,31 +164,49 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+var _a;
+// Parse SVG PathData
+// http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 var SVGPathData_1 = require("./SVGPathData");
 var TransformableSVG_1 = require("./TransformableSVG");
 // Private consts : Char groups
-var WSP = " \t\r\n";
+var isWhiteSpace = function (c) { return " " === c || "\t" === c || "\r" === c || "\n" === c; };
 var isDigit = function (c) {
     return "0".charCodeAt(0) <= c.charCodeAt(0) && c.charCodeAt(0) <= "9".charCodeAt(0);
 };
-var FLAGS = ["0", "1"];
 var COMMANDS = "mMzZlLhHvVcCsSqQtTaA";
+// @ts-ignore
+var COMMAND_ARG_COUNTS = (_a = {},
+    _a[SVGPathData_1.SVGPathData.MOVE_TO] = 2,
+    _a[SVGPathData_1.SVGPathData.LINE_TO] = 2,
+    _a[SVGPathData_1.SVGPathData.HORIZ_LINE_TO] = 1,
+    _a[SVGPathData_1.SVGPathData.VERT_LINE_TO] = 1,
+    _a[SVGPathData_1.SVGPathData.CLOSE_PATH] = 0,
+    _a[SVGPathData_1.SVGPathData.QUAD_TO] = 4,
+    _a[SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO] = 2,
+    _a[SVGPathData_1.SVGPathData.CURVE_TO] = 6,
+    _a[SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO] = 4,
+    _a[SVGPathData_1.SVGPathData.ARC] = 7,
+    _a);
 var SVGPathDataParser = /** @class */ (function (_super) {
     __extends(SVGPathDataParser, _super);
     function SVGPathDataParser() {
         var _this = _super.call(this) || this;
-        _this.curCommand = undefined;
         _this.curNumber = "";
         _this.curCommandType = -1;
         _this.curCommandRelative = false;
-        _this.atLeastOneCommandOutput = true;
+        _this.canParseCommandOrComma = true;
+        _this.curNumberHasExp = false;
+        _this.curNumberHasExpDigits = false;
+        _this.curNumberHasDecimal = false;
+        _this.curArgs = [];
         return _this;
     }
     SVGPathDataParser.prototype.finish = function (commands) {
         if (commands === void 0) { commands = []; }
         this.parse(" ", commands);
         // Adding residual command
-        if (this.curCommand || !this.atLeastOneCommandOutput) {
+        if (0 !== this.curArgs.length || !this.canParseCommandOrComma) {
             throw new SyntaxError("Unterminated command at the path end.");
         }
         return commands;
@@ -197,215 +215,164 @@ var SVGPathDataParser = /** @class */ (function (_super) {
         var _this = this;
         if (commands === void 0) { commands = []; }
         var finishCommand = function (command) {
-            if (command === void 0) { command = _this.curCommand; }
             commands.push(command);
-            _this.curCommand = undefined;
-            _this.atLeastOneCommandOutput = true;
+            _this.curArgs.length = 0;
+            _this.canParseCommandOrComma = true;
         };
         for (var i = 0; i < str.length; i++) {
             var c = str[i];
             // White spaces parsing
-            if (isDigit(c) || "e" === c || "E" === c) {
+            if (isDigit(c)) {
+                this.curNumber += c;
+                this.curNumberHasExpDigits = this.curNumberHasExp;
+                continue;
+            }
+            if ("e" === c || "E" === c) {
+                this.curNumber += c;
+                this.curNumberHasExp = true;
+                continue;
+            }
+            if (("-" === c || "+" === c) && this.curNumberHasExp && !this.curNumberHasExpDigits) {
                 this.curNumber += c;
                 continue;
             }
-            if (("-" === c || "+" === c) && this.curNumber.length > 0) {
-                var lastChar = this.curNumber.charAt(this.curNumber.length - 1);
-                if (lastChar.toLowerCase() === "e") {
-                    this.curNumber += c;
-                    continue;
-                }
-            }
-            if ("." === c) {
-                var lastChar = this.curNumber.charAt(this.curNumber.length - 1);
-                // if there is no "e" and no "." in it, the "." does not start a new number.
-                if (-1 === this.curNumber.indexOf("e") &&
-                    -1 === this.curNumber.indexOf("E") &&
-                    -1 === this.curNumber.toLowerCase().indexOf(".")) {
-                    this.curNumber += c;
-                    continue;
-                }
+            // if we already have a ".", it means we are starting a new number
+            if ("." === c && !this.curNumberHasExp && !this.curNumberHasDecimal) {
+                this.curNumber += c;
+                this.curNumberHasDecimal = true;
+                continue;
             }
             // New number
-            if (this.curNumber) {
+            if (this.curNumber && -1 !== this.curCommandType) {
                 var val = Number(this.curNumber);
                 if (isNaN(val)) {
                     throw new SyntaxError("Invalid number ending at " + i);
                 }
-                // Horizontal move to command (x)
-                if (this.curCommandType === SVGPathData_1.SVGPathData.HORIZ_LINE_TO) {
-                    finishCommand({
-                        type: SVGPathData_1.SVGPathData.HORIZ_LINE_TO,
-                        relative: this.curCommandRelative,
-                        x: val,
-                    });
-                    // Vertical move to command (y)
+                if (this.curCommandType === SVGPathData_1.SVGPathData.ARC) {
+                    if (0 === this.curArgs.length || 1 === this.curArgs.length) {
+                        if (0 > val) {
+                            throw new SyntaxError("Expected positive number, got \"" + val + "\" at index \"" + i + "\"");
+                        }
+                    }
+                    else if (3 === this.curArgs.length || 4 === this.curArgs.length) {
+                        if ("0" !== this.curNumber && "1" !== this.curNumber) {
+                            throw new SyntaxError("Expected a flag, got \"" + this.curNumber + "\" at index \"" + i + "\"");
+                        }
+                    }
                 }
-                else if (this.curCommandType === SVGPathData_1.SVGPathData.VERT_LINE_TO) {
-                    finishCommand({
-                        type: SVGPathData_1.SVGPathData.VERT_LINE_TO,
-                        relative: this.curCommandRelative,
-                        y: val,
-                    });
-                    // Move to / line to / smooth quadratic curve to commands (x, y)
-                }
-                else if (this.curCommandType === SVGPathData_1.SVGPathData.MOVE_TO ||
-                    this.curCommandType === SVGPathData_1.SVGPathData.LINE_TO ||
-                    this.curCommandType === SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO) {
-                    if (undefined === this.curCommand) {
-                        this.curCommand = {
-                            type: this.curCommandType,
+                this.curArgs.push(val);
+                if (this.curArgs.length === COMMAND_ARG_COUNTS[this.curCommandType]) {
+                    if (SVGPathData_1.SVGPathData.HORIZ_LINE_TO === this.curCommandType) {
+                        finishCommand({
+                            type: SVGPathData_1.SVGPathData.HORIZ_LINE_TO,
                             relative: this.curCommandRelative,
                             x: val,
-                        };
+                        });
                     }
-                    else {
-                        this.curCommand.y = val;
-                        finishCommand();
+                    else if (SVGPathData_1.SVGPathData.VERT_LINE_TO === this.curCommandType) {
+                        finishCommand({
+                            type: SVGPathData_1.SVGPathData.VERT_LINE_TO,
+                            relative: this.curCommandRelative,
+                            y: val,
+                        });
+                        // Move to / line to / smooth quadratic curve to commands (x, y)
+                    }
+                    else if (this.curCommandType === SVGPathData_1.SVGPathData.MOVE_TO ||
+                        this.curCommandType === SVGPathData_1.SVGPathData.LINE_TO ||
+                        this.curCommandType === SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO) {
+                        finishCommand({
+                            type: this.curCommandType,
+                            relative: this.curCommandRelative,
+                            x: this.curArgs[0],
+                            y: this.curArgs[1],
+                        });
                         // Switch to line to state
                         if (SVGPathData_1.SVGPathData.MOVE_TO === this.curCommandType) {
                             this.curCommandType = SVGPathData_1.SVGPathData.LINE_TO;
                         }
                     }
-                    // Curve to commands (x1, y1, x2, y2, x, y)
-                }
-                else if (this.curCommandType === SVGPathData_1.SVGPathData.CURVE_TO) {
-                    if (undefined === this.curCommand) {
-                        this.curCommand = {
+                    else if (this.curCommandType === SVGPathData_1.SVGPathData.CURVE_TO) {
+                        finishCommand({
                             type: SVGPathData_1.SVGPathData.CURVE_TO,
                             relative: this.curCommandRelative,
-                            x1: val,
-                        };
+                            x1: this.curArgs[0],
+                            y1: this.curArgs[1],
+                            x2: this.curArgs[2],
+                            y2: this.curArgs[3],
+                            x: this.curArgs[4],
+                            y: this.curArgs[5],
+                        });
                     }
-                    else if (undefined === this.curCommand.y1) {
-                        this.curCommand.y1 = val;
-                    }
-                    else if (undefined === this.curCommand.x2) {
-                        this.curCommand.x2 = val;
-                    }
-                    else if (undefined === this.curCommand.y2) {
-                        this.curCommand.y2 = val;
-                    }
-                    else if (undefined === this.curCommand.x) {
-                        this.curCommand.x = val;
-                    }
-                    else if (undefined === this.curCommand.y) {
-                        this.curCommand.y = val;
-                        finishCommand();
-                    }
-                    // Smooth curve to commands (x1, y1, x, y)
-                }
-                else if (this.curCommandType === SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO) {
-                    if (undefined === this.curCommand) {
-                        this.curCommand = {
+                    else if (this.curCommandType === SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO) {
+                        finishCommand({
                             type: SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO,
                             relative: this.curCommandRelative,
-                            x2: val,
-                        };
+                            x2: this.curArgs[0],
+                            y2: this.curArgs[1],
+                            x: this.curArgs[2],
+                            y: this.curArgs[3],
+                        });
                     }
-                    else if (undefined === this.curCommand.y2) {
-                        this.curCommand.y2 = val;
-                    }
-                    else if (undefined === this.curCommand.x) {
-                        this.curCommand.x = val;
-                    }
-                    else if (undefined === this.curCommand.y) {
-                        this.curCommand.y = val;
-                        finishCommand();
-                    }
-                    // Quadratic bezier curve to commands (x1, y1, x, y)
-                }
-                else if (this.curCommandType === SVGPathData_1.SVGPathData.QUAD_TO) {
-                    if (undefined === this.curCommand) {
-                        this.curCommand = {
+                    else if (this.curCommandType === SVGPathData_1.SVGPathData.QUAD_TO) {
+                        finishCommand({
                             type: SVGPathData_1.SVGPathData.QUAD_TO,
                             relative: this.curCommandRelative,
-                            x1: val,
-                        };
+                            x1: this.curArgs[0],
+                            y1: this.curArgs[1],
+                            x: this.curArgs[2],
+                            y: this.curArgs[3],
+                        });
                     }
-                    else if (undefined === this.curCommand.y1) {
-                        this.curCommand.y1 = val;
-                    }
-                    else if (undefined === this.curCommand.x) {
-                        this.curCommand.x = val;
-                    }
-                    else if (undefined === this.curCommand.y) {
-                        this.curCommand.y = val;
-                        finishCommand();
-                    }
-                    // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
-                }
-                else if (this.curCommandType === SVGPathData_1.SVGPathData.ARC) {
-                    if (undefined === this.curCommand) {
-                        if (0 > val) {
-                            throw new SyntaxError("Expected positive number, got \"" + val + "\" at index \"" + i + "\"");
-                        }
-                        this.curCommand = {
+                    else if (this.curCommandType === SVGPathData_1.SVGPathData.ARC) {
+                        finishCommand({
                             type: SVGPathData_1.SVGPathData.ARC,
                             relative: this.curCommandRelative,
-                            rX: val,
-                        };
-                    }
-                    else if (undefined === this.curCommand.rY) {
-                        if (0 > val) {
-                            throw new SyntaxError("Expected positive number, got \"" + val + "\" at index \"" + i + "\"");
-                        }
-                        this.curCommand.rY = val;
-                    }
-                    else if (undefined === this.curCommand.xRot) {
-                        this.curCommand.xRot = val;
-                    }
-                    else if (undefined === this.curCommand.lArcFlag) {
-                        if (-1 === FLAGS.indexOf(this.curNumber)) {
-                            throw new SyntaxError("Expected a flag, got \"" + this.curNumber + "\" at index \"" + i + "\"");
-                        }
-                        this.curCommand.lArcFlag = val;
-                    }
-                    else if (undefined === this.curCommand.sweepFlag) {
-                        if ("0" !== this.curNumber && "1" !== this.curNumber) {
-                            throw new SyntaxError("Expected a flag, got \"" + this.curNumber + "\" at index \"" + i + "\"");
-                        }
-                        this.curCommand.sweepFlag = val;
-                    }
-                    else if (undefined === this.curCommand.x) {
-                        this.curCommand.x = val;
-                    }
-                    else if (undefined === this.curCommand.y) {
-                        this.curCommand.y = val;
-                        finishCommand();
+                            rX: this.curArgs[0],
+                            rY: this.curArgs[1],
+                            xRot: this.curArgs[2],
+                            lArcFlag: this.curArgs[3],
+                            sweepFlag: this.curArgs[4],
+                            x: this.curArgs[5],
+                            y: this.curArgs[6],
+                        });
                     }
                 }
                 this.curNumber = "";
+                this.curNumberHasExpDigits = false;
+                this.curNumberHasExp = false;
+                this.curNumberHasDecimal = false;
+                this.canParseCommandOrComma = true;
             }
             // Continue if a white space or a comma was detected
-            if (-1 !== WSP.indexOf(c) || "," === c) {
+            if (isWhiteSpace(c)) {
+                continue;
+            }
+            if ("," === c && this.canParseCommandOrComma) {
+                // L 0,0, H is not valid:
+                this.canParseCommandOrComma = false;
                 continue;
             }
             // if a sign is detected, then parse the new number
-            if ("+" === c || "-" === c) {
+            if ("+" === c || "-" === c || "." === c) {
                 this.curNumber = c;
+                this.curNumberHasDecimal = "." === c;
                 continue;
             }
-            // if the decpoint is detected, then parse the new number
-            if ("." === c) {
-                this.curNumber = c;
-                continue;
+            // Adding residual command
+            if (0 !== this.curArgs.length) {
+                throw new SyntaxError("Unterminated command at index " + i + ".");
             }
-            // End of a command
-            if (-1 !== COMMANDS.indexOf(c)) {
-                // Adding residual command
-                if (undefined !== this.curCommand || !this.atLeastOneCommandOutput) {
-                    throw new SyntaxError("Unterminated command at index " + i + ".");
-                }
-                this.atLeastOneCommandOutput = false;
+            if (!this.canParseCommandOrComma) {
+                throw new SyntaxError("Unexpected character \"" + c + "\" at index " + i + ". Command cannot follow comma");
             }
+            this.canParseCommandOrComma = false;
             // Detecting the next command
-            // Horizontal move to command
             if ("z" === c || "Z" === c) {
                 commands.push({
                     type: SVGPathData_1.SVGPathData.CLOSE_PATH,
                 });
-                this.atLeastOneCommandOutput = true;
+                this.canParseCommandOrComma = true;
+                this.curCommandType = -1;
                 continue;
                 // Horizontal move to command
             }
@@ -452,7 +419,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
             else if ("a" === c || "A" === c) {
                 this.curCommandType = SVGPathData_1.SVGPathData.ARC;
                 this.curCommandRelative = "a" === c;
-                // Unkown command
             }
             else {
                 throw new SyntaxError("Unexpected character \"" + c + "\" at index " + i + ".");

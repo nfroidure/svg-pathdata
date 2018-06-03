@@ -7,16 +7,29 @@ const isWhiteSpace = (c: string) => " " === c || "\t" === c || "\r" === c || "\n
 const isDigit = (c: string) =>
   "0".charCodeAt(0) <= c.charCodeAt(0) && c.charCodeAt(0) <= "9".charCodeAt(0);
 const COMMANDS = "mMzZlLhHvVcCsSqQtTaA";
+// @ts-ignore
+const COMMAND_ARG_COUNTS = {
+  [SVGPathData.MOVE_TO]: 2,
+  [SVGPathData.LINE_TO]: 2,
+  [SVGPathData.HORIZ_LINE_TO]: 1,
+  [SVGPathData.VERT_LINE_TO]: 1,
+  [SVGPathData.CLOSE_PATH]: 0,
+  [SVGPathData.QUAD_TO]: 4,
+  [SVGPathData.SMOOTH_QUAD_TO]: 2,
+  [SVGPathData.CURVE_TO]: 6,
+  [SVGPathData.SMOOTH_CURVE_TO]: 4,
+  [SVGPathData.ARC]: 7,
+};
 
 export class SVGPathDataParser extends TransformableSVG {
-  private curCommand: any = undefined;
   private curNumber: string = "";
-  private curCommandType: number = -1;
+  private curCommandType: SVGCommand["type"] | -1 = -1;
   private curCommandRelative = false;
   private canParseCommandOrComma = true;
   private curNumberHasExp = false;
   private curNumberHasExpDigits = false;
   private curNumberHasDecimal = false;
+  private curArgs: number[] = [];
 
   constructor() {
     super();
@@ -25,16 +38,16 @@ export class SVGPathDataParser extends TransformableSVG {
   finish(commands: SVGCommand[] = []) {
     this.parse(" ", commands);
     // Adding residual command
-    if (this.curCommand || !this.canParseCommandOrComma) {
+    if (0 !== this.curArgs.length || !this.canParseCommandOrComma) {
       throw new SyntaxError("Unterminated command at the path end.");
     }
     return commands;
   }
 
   parse(str: string, commands: SVGCommand[] = []) {
-    const finishCommand = (command = this.curCommand) => {
+    const finishCommand = (command: SVGCommand) => {
       commands.push(command);
-      this.curCommand = undefined;
+      this.curArgs.length = 0;
       this.canParseCommandOrComma = true;
     };
 
@@ -69,125 +82,88 @@ export class SVGPathDataParser extends TransformableSVG {
         if (isNaN(val)) {
           throw new SyntaxError(`Invalid number ending at ${i}`);
         }
-        // Horizontal move to command (x)
-        if (this.curCommandType === SVGPathData.HORIZ_LINE_TO) {
-          finishCommand({
-            type: SVGPathData.HORIZ_LINE_TO,
-            relative: this.curCommandRelative,
-            x: val,
-          });
-          // Vertical move to command (y)
-        } else if (this.curCommandType === SVGPathData.VERT_LINE_TO) {
-          finishCommand({
-            type: SVGPathData.VERT_LINE_TO,
-            relative: this.curCommandRelative,
-            y: val,
-          });
-          // Move to / line to / smooth quadratic curve to commands (x, y)
-        } else if (
-          this.curCommandType === SVGPathData.MOVE_TO ||
-          this.curCommandType === SVGPathData.LINE_TO ||
-          this.curCommandType === SVGPathData.SMOOTH_QUAD_TO
-        ) {
-          if (undefined === this.curCommand) {
-            this.curCommand = {
-              type: this.curCommandType,
+        if (this.curCommandType === SVGPathData.ARC) {
+          if (0 === this.curArgs.length || 1 === this.curArgs.length) {
+            if (0 > val) {
+              throw new SyntaxError(`Expected positive number, got "${val}" at index "${i}"`);
+            }
+          } else if (3 === this.curArgs.length || 4 === this.curArgs.length) {
+            if ("0" !== this.curNumber && "1" !== this.curNumber) {
+              throw new SyntaxError(`Expected a flag, got "${this.curNumber}" at index "${i}"`);
+            }
+          }
+        }
+        this.curArgs.push(val);
+        if (this.curArgs.length === COMMAND_ARG_COUNTS[this.curCommandType]) {
+          if (SVGPathData.HORIZ_LINE_TO === this.curCommandType) {
+            finishCommand({
+              type: SVGPathData.HORIZ_LINE_TO,
               relative: this.curCommandRelative,
               x: val,
-            };
-          } else {
-            this.curCommand.y = val;
-            finishCommand();
+            });
+          } else if (SVGPathData.VERT_LINE_TO === this.curCommandType) {
+            finishCommand({
+              type: SVGPathData.VERT_LINE_TO,
+              relative: this.curCommandRelative,
+              y: val,
+            });
+            // Move to / line to / smooth quadratic curve to commands (x, y)
+          } else if (
+            this.curCommandType === SVGPathData.MOVE_TO ||
+            this.curCommandType === SVGPathData.LINE_TO ||
+            this.curCommandType === SVGPathData.SMOOTH_QUAD_TO
+          ) {
+            finishCommand({
+              type: this.curCommandType,
+              relative: this.curCommandRelative,
+              x: this.curArgs[0],
+              y: this.curArgs[1],
+            } as SVGCommand);
             // Switch to line to state
             if (SVGPathData.MOVE_TO === this.curCommandType) {
               this.curCommandType = SVGPathData.LINE_TO;
             }
-          }
-          // Curve to commands (x1, y1, x2, y2, x, y)
-        } else if (this.curCommandType === SVGPathData.CURVE_TO) {
-          if (undefined === this.curCommand) {
-            this.curCommand = {
+          } else if (this.curCommandType === SVGPathData.CURVE_TO) {
+            finishCommand({
               type: SVGPathData.CURVE_TO,
               relative: this.curCommandRelative,
-              x1: val,
-            };
-          } else if (undefined === this.curCommand.y1) {
-            this.curCommand.y1 = val;
-          } else if (undefined === this.curCommand.x2) {
-            this.curCommand.x2 = val;
-          } else if (undefined === this.curCommand.y2) {
-            this.curCommand.y2 = val;
-          } else if (undefined === this.curCommand.x) {
-            this.curCommand.x = val;
-          } else if (undefined === this.curCommand.y) {
-            this.curCommand.y = val;
-            finishCommand();
-          }
-          // Smooth curve to commands (x1, y1, x, y)
-        } else if (this.curCommandType === SVGPathData.SMOOTH_CURVE_TO) {
-          if (undefined === this.curCommand) {
-            this.curCommand = {
+              x1: this.curArgs[0],
+              y1: this.curArgs[1],
+              x2: this.curArgs[2],
+              y2: this.curArgs[3],
+              x: this.curArgs[4],
+              y: this.curArgs[5],
+            });
+          } else if (this.curCommandType === SVGPathData.SMOOTH_CURVE_TO) {
+            finishCommand({
               type: SVGPathData.SMOOTH_CURVE_TO,
               relative: this.curCommandRelative,
-              x2: val,
-            };
-          } else if (undefined === this.curCommand.y2) {
-            this.curCommand.y2 = val;
-          } else if (undefined === this.curCommand.x) {
-            this.curCommand.x = val;
-          } else if (undefined === this.curCommand.y) {
-            this.curCommand.y = val;
-            finishCommand();
-          }
-          // Quadratic bezier curve to commands (x1, y1, x, y)
-        } else if (this.curCommandType === SVGPathData.QUAD_TO) {
-          if (undefined === this.curCommand) {
-            this.curCommand = {
+              x2: this.curArgs[0],
+              y2: this.curArgs[1],
+              x: this.curArgs[2],
+              y: this.curArgs[3],
+            });
+          } else if (this.curCommandType === SVGPathData.QUAD_TO) {
+            finishCommand({
               type: SVGPathData.QUAD_TO,
               relative: this.curCommandRelative,
-              x1: val,
-            };
-          } else if (undefined === this.curCommand.y1) {
-            this.curCommand.y1 = val;
-          } else if (undefined === this.curCommand.x) {
-            this.curCommand.x = val;
-          } else if (undefined === this.curCommand.y) {
-            this.curCommand.y = val;
-            finishCommand();
-          }
-          // Elliptic arc commands (rX, rY, xRot, lArcFlag, sweepFlag, x, y)
-        } else if (this.curCommandType === SVGPathData.ARC) {
-          if (undefined === this.curCommand) {
-            if (0 > val) {
-              throw new SyntaxError(`Expected positive number, got "${val}" at index "${i}"`);
-            }
-            this.curCommand = {
+              x1: this.curArgs[0],
+              y1: this.curArgs[1],
+              x: this.curArgs[2],
+              y: this.curArgs[3],
+            });
+          } else if (this.curCommandType === SVGPathData.ARC) {
+            finishCommand({
               type: SVGPathData.ARC,
               relative: this.curCommandRelative,
-              rX: val,
-            };
-          } else if (undefined === this.curCommand.rY) {
-            if (0 > val) {
-              throw new SyntaxError(`Expected positive number, got "${val}" at index "${i}"`);
-            }
-            this.curCommand.rY = val;
-          } else if (undefined === this.curCommand.xRot) {
-            this.curCommand.xRot = val;
-          } else if (undefined === this.curCommand.lArcFlag) {
-            if ("0" !== this.curNumber && "1" !== this.curNumber) {
-              throw new SyntaxError(`Expected a flag, got "${this.curNumber}" at index "${i}"`);
-            }
-            this.curCommand.lArcFlag = val;
-          } else if (undefined === this.curCommand.sweepFlag) {
-            if ("0" !== this.curNumber && "1" !== this.curNumber) {
-              throw new SyntaxError(`Expected a flag, got "${this.curNumber}" at index "${i}"`);
-            }
-            this.curCommand.sweepFlag = val;
-          } else if (undefined === this.curCommand.x) {
-            this.curCommand.x = val;
-          } else if (undefined === this.curCommand.y) {
-            this.curCommand.y = val;
-            finishCommand();
+              rX: this.curArgs[0],
+              rY: this.curArgs[1],
+              xRot: this.curArgs[2],
+              lArcFlag: this.curArgs[3] as 0 | 1,
+              sweepFlag: this.curArgs[4] as 0 | 1,
+              x: this.curArgs[5],
+              y: this.curArgs[6],
+            });
           }
         }
         this.curNumber = "";
@@ -213,7 +189,7 @@ export class SVGPathDataParser extends TransformableSVG {
       }
 
       // Adding residual command
-      if (undefined !== this.curCommand) {
+      if (0 !== this.curArgs.length) {
         throw new SyntaxError(`Unterminated command at index ${i}.`);
       }
       if (!this.canParseCommandOrComma) {
@@ -270,7 +246,6 @@ export class SVGPathDataParser extends TransformableSVG {
     }
     return commands;
   }
-
   /**
    * Return a wrapper around this parser which applies the transformation on parsed commands.
    */
