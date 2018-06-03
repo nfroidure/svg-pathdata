@@ -1,10 +1,8 @@
 // Parse SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
-
 import { Transform } from "stream";
 import { SVGCommand, SVGPathData, TransformFunction } from "./SVGPathData";
 import { TransformableSVG } from "./TransformableSVG";
-
 // Private consts : Char groups
 const WSP = [" ", "\t", "\r", "\n"];
 const DIGITS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
@@ -35,30 +33,21 @@ const COMMANDS = [
   "a",
   "A",
 ];
-
 export class SVGPathDataParser extends TransformableSVG {
   curCommand: any = undefined;
   state: number = SVGPathDataParser.STATE_COMMAS_WSPS;
   curNumber: string = "";
-
   constructor() {
     super();
   }
-
   finish(commands: SVGCommand[] = []) {
-    const result = this.parse(" ", commands);
+    this.parse(" ", commands);
     // Adding residual command
-    if (undefined !== this.curCommand) {
-      if (this.curCommand.invalid) {
-        throw new SyntaxError("Unterminated command at the path end.");
-      }
-      commands.push(this.curCommand);
-      this.curCommand = undefined;
-      this.state ^= this.state & SVGPathDataParser.STATE_COMMANDS_MASK;
+    if (this.curCommand) {
+      throw new SyntaxError("Unterminated command at the path end.");
     }
-    return result;
+    return commands;
   }
-
   parse(str: string, commands: SVGCommand[] = []) {
     for (let i = 0; i < str.length; i++) {
       // White spaces parsing
@@ -176,7 +165,6 @@ export class SVGPathDataParser extends TransformableSVG {
             });
           } else {
             this.curCommand.x = Number(this.curNumber);
-            delete this.curCommand.invalid;
             commands.push(this.curCommand);
             this.curCommand = undefined;
           }
@@ -191,7 +179,6 @@ export class SVGPathDataParser extends TransformableSVG {
             });
           } else {
             this.curCommand.y = Number(this.curNumber);
-            delete this.curCommand.invalid;
             commands.push(this.curCommand);
             this.curCommand = undefined;
           }
@@ -216,7 +203,6 @@ export class SVGPathDataParser extends TransformableSVG {
           } else if (undefined === this.curCommand.x) {
             this.curCommand.x = Number(this.curNumber);
           } else {
-            delete this.curCommand.invalid;
             this.curCommand.y = Number(this.curNumber);
             commands.push(this.curCommand);
             this.curCommand = undefined;
@@ -233,7 +219,6 @@ export class SVGPathDataParser extends TransformableSVG {
             this.curCommand = {
               type: SVGPathData.CURVE_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-              invalid: true,
               x1: Number(this.curNumber),
             };
           } else if (undefined === this.curCommand.x1) {
@@ -248,7 +233,6 @@ export class SVGPathDataParser extends TransformableSVG {
             this.curCommand.x = Number(this.curNumber);
           } else if (undefined === this.curCommand.y) {
             this.curCommand.y = Number(this.curNumber);
-            delete this.curCommand.invalid;
             commands.push(this.curCommand);
             this.curCommand = undefined;
           }
@@ -259,7 +243,6 @@ export class SVGPathDataParser extends TransformableSVG {
             this.curCommand = {
               type: SVGPathData.SMOOTH_CURVE_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-              invalid: true,
               x2: Number(this.curNumber),
             };
           } else if (undefined === this.curCommand.x2) {
@@ -270,7 +253,6 @@ export class SVGPathDataParser extends TransformableSVG {
             this.curCommand.x = Number(this.curNumber);
           } else if (undefined === this.curCommand.y) {
             this.curCommand.y = Number(this.curNumber);
-            delete this.curCommand.invalid;
             commands.push(this.curCommand);
             this.curCommand = undefined;
           }
@@ -281,7 +263,6 @@ export class SVGPathDataParser extends TransformableSVG {
             this.curCommand = {
               type: SVGPathData.QUAD_TO,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-              invalid: true,
               x1: Number(this.curNumber),
             };
           } else if (undefined === this.curCommand.x1) {
@@ -292,7 +273,6 @@ export class SVGPathDataParser extends TransformableSVG {
             this.curCommand.x = Number(this.curNumber);
           } else if (undefined === this.curCommand.y) {
             this.curCommand.y = Number(this.curNumber);
-            delete this.curCommand.invalid;
             commands.push(this.curCommand);
             this.curCommand = undefined;
           }
@@ -303,7 +283,6 @@ export class SVGPathDataParser extends TransformableSVG {
             this.curCommand = {
               type: SVGPathData.ARC,
               relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-              invalid: true,
               rX: Number(this.curNumber),
             };
           } else if (undefined === this.curCommand.rX) {
@@ -344,7 +323,6 @@ export class SVGPathDataParser extends TransformableSVG {
             this.curCommand.x = Number(this.curNumber);
           } else if (undefined === this.curCommand.y) {
             this.curCommand.y = Number(this.curNumber);
-            delete this.curCommand.invalid;
             commands.push(this.curCommand);
             this.curCommand = undefined;
           }
@@ -376,7 +354,7 @@ export class SVGPathDataParser extends TransformableSVG {
       if (-1 !== COMMANDS.indexOf(str[i])) {
         // Adding residual command
         if (undefined !== this.curCommand) {
-          if (this.curCommand.invalid) {
+          if (this.curCommand) {
             throw new SyntaxError(`Unterminated command at index ${i}.`);
           }
           commands.push(this.curCommand);
@@ -405,7 +383,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.HORIZ_LINE_TO,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Vertical move to command
       } else if ("v" === str[i].toLowerCase()) {
@@ -413,7 +390,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.VERT_LINE_TO,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Move to command
       } else if ("m" === str[i].toLowerCase()) {
@@ -421,7 +397,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.MOVE_TO,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Line to command
       } else if ("l" === str[i].toLowerCase()) {
@@ -429,7 +404,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.LINE_TO,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Curve to command
       } else if ("c" === str[i].toLowerCase()) {
@@ -437,7 +411,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.CURVE_TO,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Smooth curve to command
       } else if ("s" === str[i].toLowerCase()) {
@@ -445,7 +418,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.SMOOTH_CURVE_TO,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Quadratic bezier curve to command
       } else if ("q" === str[i].toLowerCase()) {
@@ -453,7 +425,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.QUAD_TO,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Smooth quadratic bezier curve to command
       } else if ("t" === str[i].toLowerCase()) {
@@ -461,7 +432,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.SMOOTH_QUAD_TO,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Elliptic arc command
       } else if ("a" === str[i].toLowerCase()) {
@@ -469,7 +439,6 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommand = {
           type: SVGPathData.ARC,
           relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-          invalid: true,
         };
         // Unkown command
       } else {

@@ -153,8 +153,6 @@ exports.encodeSVGPath = encodeSVGPath;
 
 },{"./SVGPathData":1}],3:[function(require,module,exports){
 "use strict";
-// Parse SVG PathData
-// http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -209,17 +207,12 @@ var SVGPathDataParser = /** @class */ (function (_super) {
     }
     SVGPathDataParser.prototype.finish = function (commands) {
         if (commands === void 0) { commands = []; }
-        var result = this.parse(" ", commands);
+        this.parse(" ", commands);
         // Adding residual command
-        if (undefined !== this.curCommand) {
-            if (this.curCommand.invalid) {
-                throw new SyntaxError("Unterminated command at the path end.");
-            }
-            commands.push(this.curCommand);
-            this.curCommand = undefined;
-            this.state ^= this.state & SVGPathDataParser.STATE_COMMANDS_MASK;
+        if (this.curCommand) {
+            throw new SyntaxError("Unterminated command at the path end.");
         }
-        return result;
+        return commands;
     };
     SVGPathDataParser.prototype.parse = function (str, commands) {
         if (commands === void 0) { commands = []; }
@@ -337,7 +330,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                     }
                     else {
                         this.curCommand.x = Number(this.curNumber);
-                        delete this.curCommand.invalid;
                         commands.push(this.curCommand);
                         this.curCommand = undefined;
                     }
@@ -354,7 +346,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                     }
                     else {
                         this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
                         commands.push(this.curCommand);
                         this.curCommand = undefined;
                     }
@@ -379,7 +370,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                         this.curCommand.x = Number(this.curNumber);
                     }
                     else {
-                        delete this.curCommand.invalid;
                         this.curCommand.y = Number(this.curNumber);
                         commands.push(this.curCommand);
                         this.curCommand = undefined;
@@ -397,7 +387,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                         this.curCommand = {
                             type: SVGPathData_1.SVGPathData.CURVE_TO,
                             relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                            invalid: true,
                             x1: Number(this.curNumber),
                         };
                     }
@@ -418,7 +407,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                     }
                     else if (undefined === this.curCommand.y) {
                         this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
                         commands.push(this.curCommand);
                         this.curCommand = undefined;
                     }
@@ -430,7 +418,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                         this.curCommand = {
                             type: SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO,
                             relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                            invalid: true,
                             x2: Number(this.curNumber),
                         };
                     }
@@ -445,7 +432,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                     }
                     else if (undefined === this.curCommand.y) {
                         this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
                         commands.push(this.curCommand);
                         this.curCommand = undefined;
                     }
@@ -457,7 +443,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                         this.curCommand = {
                             type: SVGPathData_1.SVGPathData.QUAD_TO,
                             relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                            invalid: true,
                             x1: Number(this.curNumber),
                         };
                     }
@@ -472,7 +457,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                     }
                     else if (undefined === this.curCommand.y) {
                         this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
                         commands.push(this.curCommand);
                         this.curCommand = undefined;
                     }
@@ -484,7 +468,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                         this.curCommand = {
                             type: SVGPathData_1.SVGPathData.ARC,
                             relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                            invalid: true,
                             rX: Number(this.curNumber),
                         };
                     }
@@ -520,7 +503,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                     }
                     else if (undefined === this.curCommand.y) {
                         this.curCommand.y = Number(this.curNumber);
-                        delete this.curCommand.invalid;
                         commands.push(this.curCommand);
                         this.curCommand = undefined;
                     }
@@ -552,7 +534,7 @@ var SVGPathDataParser = /** @class */ (function (_super) {
             if (-1 !== COMMANDS.indexOf(str[i])) {
                 // Adding residual command
                 if (undefined !== this.curCommand) {
-                    if (this.curCommand.invalid) {
+                    if (this.curCommand) {
                         throw new SyntaxError("Unterminated command at index " + i + ".");
                     }
                     commands.push(this.curCommand);
@@ -583,7 +565,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.HORIZ_LINE_TO,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Vertical move to command
             }
@@ -592,7 +573,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.VERT_LINE_TO,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Move to command
             }
@@ -601,7 +581,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.MOVE_TO,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Line to command
             }
@@ -610,7 +589,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.LINE_TO,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Curve to command
             }
@@ -619,7 +597,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.CURVE_TO,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Smooth curve to command
             }
@@ -628,7 +605,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.SMOOTH_CURVE_TO,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Quadratic bezier curve to command
             }
@@ -637,7 +613,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.QUAD_TO,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Smooth quadratic bezier curve to command
             }
@@ -646,7 +621,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.SMOOTH_QUAD_TO,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Elliptic arc command
             }
@@ -655,7 +629,6 @@ var SVGPathDataParser = /** @class */ (function (_super) {
                 this.curCommand = {
                     type: SVGPathData_1.SVGPathData.ARC,
                     relative: !!(this.state & SVGPathDataParser.STATE_RELATIVE),
-                    invalid: true,
                 };
                 // Unkown command
             }
