@@ -38,3 +38,6 @@ jspm_packages
 
 # Coveralls key
 .coveralls.yml
+
+# tsc generated files
+out

@@ -15,7 +15,7 @@ Install the module:
 ```sh
 npm install --save svg-pathdata
 ```
-or add the [bundle](https://github.com/nfroidure/svg-pathdata/blob/master/dist/SVGPathData.js) to a script in your HTML.
+or add the [bundle](https://github.com/nfroidure/svg-pathdata/blob/master/lib/SVGPathData.js) to a script in your HTML.
 
 Then in your JavaScript files:
 ```js

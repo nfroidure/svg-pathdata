@@ -39,5 +39,9 @@ jspm_packages
 # Coveralls key
 .coveralls.yml
 
-# Compiled files
-lib
+# tsc generated files
+out
+
+# generated .d.ts files
+lib/*.d.ts
+lib/*.js.map

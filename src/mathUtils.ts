@@ -1,4 +1,5 @@
-import {CommandA, CommandC, SVGPathData} from "./SVGPathData";
+import { SVGPathData } from "./SVGPathData";
+import { CommandA, CommandC } from "./types";
 
 export function rotate([x, y]: [number, number], rad: number) {
   return [

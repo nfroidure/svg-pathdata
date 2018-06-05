@@ -2,8 +2,9 @@
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
 
 import { a2c, annotateArcCommand, arcAt, assertNumbers, bezierAt, bezierRoot,
-  intersectionUnitCircleLine } from "./mathUtils.js";
-import { SVGCommand, SVGPathData, TransformFunction } from "./SVGPathData";
+  intersectionUnitCircleLine } from "./mathUtils";
+import { SVGPathData } from "./SVGPathData";
+import { SVGCommand, TransformFunction } from "./types";
 
 export namespace SVGPathDataTransformer {
   // Predefined transforming functions

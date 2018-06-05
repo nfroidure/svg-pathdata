@@ -1,7 +1,8 @@
+import { SVGPathData } from "./SVGPathData";
+import { SVGCommand } from "./types";
+
 // Encode SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
-
-import {SVGCommand, SVGPathData} from "./SVGPathData";
 
 // Private consts : Char groups
 const WSP = " ";
