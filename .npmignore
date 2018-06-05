@@ -41,3 +41,5 @@ jspm_packages
 
 # tsc generated files
 out
+
+.*

@@ -85,6 +85,6 @@ export const COMMAND_ARG_COUNTS = {
     [SVGPathData.ARC]: 7,
 };
 
-export {encodeSVGPath} from "./SVGPathDataEncoder"
-export {SVGPathDataParser} from "./SVGPathDataParser"
-export {SVGPathDataTransformer} from "./SVGPathDataTransformer"
+export {encodeSVGPath} from "./SVGPathDataEncoder";
+export {SVGPathDataParser} from "./SVGPathDataParser";
+export {SVGPathDataTransformer} from "./SVGPathDataTransformer";
