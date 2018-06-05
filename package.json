@@ -1,6 +1,6 @@
 {
   "name": "svg-pathdata",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "Manipulate SVG path data (path[d] attribute content) simply and efficiently.",
   "main": "lib/SVGPathData.js",
   "module": "lib/SVGPathData.module.js",
@@ -17,7 +17,7 @@
     "version": "npm run changelog && git add CHANGELOG.md",
     "test:ci": "npm run build && npm run test",
     "build": "rollup -c rollup.config.js",
-	"watch": "rollup -c rollup.config.js -w"
+    "watch": "rollup -c rollup.config.js -w"
   },
   "repository": {
     "type": "git",
