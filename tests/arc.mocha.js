@@ -49,13 +49,13 @@ describe('Parsing elliptical arc commands', () => {
   it('should not work with bad lArcFlag value', () => {
     assert.throw(() => {
       new SVGPathData('A30,50,0,15,1,162.55,162.45');
-    }, SyntaxError, 'Expected a flag, got "15" at index "11"');
+    }, SyntaxError, 'Expected a flag, got "5" at index "11"');
   });
 
   it('should not work with bad sweepFlag value', () => {
     assert.throw(() => {
       new SVGPathData('A30,50,0,0,15,162.55,162.45');
-    }, SyntaxError, 'Expected a flag, got "15" at index "13"');
+    }, SyntaxError, 'Unterminated command at the path end.');
   });
 
   it('should work with comma separated coordinates', () => {

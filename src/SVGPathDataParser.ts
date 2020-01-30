@@ -4,7 +4,8 @@ import { COMMAND_ARG_COUNTS, SVGPathData } from "./SVGPathData";
 import { TransformableSVG } from "./TransformableSVG";
 import { SVGCommand, TransformFunction } from "./types";
 // Private consts : Char groups
-const isWhiteSpace = (c: string) => " " === c || "\t" === c || "\r" === c || "\n" === c;
+const isWhiteSpace = (c: string) =>
+  " " === c || "\t" === c || "\r" === c || "\n" === c;
 const isDigit = (c: string) =>
   "0".charCodeAt(0) <= c.charCodeAt(0) && c.charCodeAt(0) <= "9".charCodeAt(0);
 const COMMANDS = "mMzZlLhHvVcCsSqQtTaA";
@@ -42,8 +43,19 @@ export class SVGPathDataParser extends TransformableSVG {
     for (let i = 0; i < str.length; i++) {
       const c = str[i];
       // White spaces parsing
+      const isAArcFlag = this.curCommandType === SVGPathData.ARC &&
+        (this.curArgs.length === 3 || this.curArgs.length === 4) &&
+        this.curNumber.length === 1 && 
+        (this.curNumber === "0" || this.curNumber === "1");
+      const isEndingDigit = isDigit(c) && (
+        (this.curNumber === "0" && c === "0") ||
+        isAArcFlag
+      );
 
-      if (isDigit(c)) {
+      if (
+        isDigit(c) &&
+        !isEndingDigit
+      ) {
         this.curNumber += c;
         this.curNumberHasExpDigits = this.curNumberHasExp;
         continue;
@@ -53,12 +65,16 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curNumberHasExp = true;
         continue;
       }
-      if (("-" === c || "+" === c) && this.curNumberHasExp && !this.curNumberHasExpDigits) {
+      if (
+        ("-" === c || "+" === c) &&
+        this.curNumberHasExp &&
+        !this.curNumberHasExpDigits
+      ) {
         this.curNumber += c;
         continue;
       }
       // if we already have a ".", it means we are starting a new number
-      if ("." === c && !this.curNumberHasExp && !this.curNumberHasDecimal) {
+      if ("." === c && !this.curNumberHasExp && !this.curNumberHasDecimal && !isAArcFlag) {
         this.curNumber += c;
         this.curNumberHasDecimal = true;
         continue;
@@ -73,11 +89,15 @@ export class SVGPathDataParser extends TransformableSVG {
         if (this.curCommandType === SVGPathData.ARC) {
           if (0 === this.curArgs.length || 1 === this.curArgs.length) {
             if (0 > val) {
-              throw new SyntaxError(`Expected positive number, got "${val}" at index "${i}"`);
+              throw new SyntaxError(
+                `Expected positive number, got "${val}" at index "${i}"`,
+              );
             }
           } else if (3 === this.curArgs.length || 4 === this.curArgs.length) {
             if ("0" !== this.curNumber && "1" !== this.curNumber) {
-              throw new SyntaxError(`Expected a flag, got "${this.curNumber}" at index "${i}"`);
+              throw new SyntaxError(
+                `Expected a flag, got "${this.curNumber}" at index "${i}"`,
+              );
             }
           }
         }
@@ -175,13 +195,21 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curNumberHasDecimal = "." === c;
         continue;
       }
+      // if a 0 is detected, then parse the new number
+      if (isEndingDigit) {
+        this.curNumber = c;
+        this.curNumberHasDecimal = false;
+        continue;
+      }
 
       // Adding residual command
       if (0 !== this.curArgs.length) {
         throw new SyntaxError(`Unterminated command at index ${i}.`);
       }
       if (!this.canParseCommandOrComma) {
-        throw new SyntaxError(`Unexpected character "${c}" at index ${i}. Command cannot follow comma`);
+        throw new SyntaxError(
+          `Unexpected character "${c}" at index ${i}. Command cannot follow comma`,
+        );
       }
       this.canParseCommandOrComma = false;
       // Detecting the next command
