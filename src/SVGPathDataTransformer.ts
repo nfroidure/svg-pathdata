@@ -17,7 +17,7 @@ export namespace SVGPathDataTransformer {
       let rl = roundable.length;
       
       for(let i = 0; i < rl; i++){
-        let cmd = rl[i];
+        let cmd = roundable[i];
         if ("undefined" !== typeof command[cmd]) {
           command[cmd] = rf(command[cmd]);
         }
