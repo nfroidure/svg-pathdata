@@ -13,25 +13,14 @@ export namespace SVGPathDataTransformer {
     assertNumbers(roundVal);
     function rf(val: number) { return Math.round(val * roundVal) / roundVal; }
     return function round(command: any) {
-      if ("undefined" !== typeof command.x1) {
-        command.x1 = rf(command.x1);
-      }
-      if ("undefined" !== typeof command.y1) {
-        command.y1 = rf(command.y1);
-      }
-
-      if ("undefined" !== typeof command.x2) {
-        command.x2 = rf(command.x2);
-      }
-      if ("undefined" !== typeof command.y2) {
-        command.y2 = rf(command.y2);
-      }
-
-      if ("undefined" !== typeof command.x) {
-        command.x = rf(command.x);
-      }
-      if ("undefined" !== typeof command.y) {
-        command.y = rf(command.y);
+      let roundable = ["x1","y1","x2","y2","x","y","rX","rY"];
+      let rl = roundable.length;
+      
+      for(let i = 0; i < rl; i++){
+        let cmd = rl[i];
+        if ("undefined" !== typeof command[cmd]) {
+          command[cmd] = rf(command[cmd]);
+        }
       }
 
       return command;
