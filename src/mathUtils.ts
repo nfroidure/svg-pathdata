@@ -78,7 +78,7 @@ export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
  *      => x² b² + c² - 2 c a x + a² x² = b²
  *      => (a² + b²) x² - 2 a c x + (c² - b²) = 0
  */
-export function intersectionUnitCircleLine(a: number, b: number, c: number): Array<[number, number]> {
+export function intersectionUnitCircleLine(a: number, b: number, c: number): [number, number][] {
   assertNumbers(a, b, c);
   // cf. pqFormula
   const termSqr = a * a + b * b - c * c;

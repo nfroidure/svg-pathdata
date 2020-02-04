@@ -199,9 +199,9 @@ describe('Transforming elliptical arc commands', () => {
 
   // eslint-disable-next-line complexity
   function assertDeepCloseTo(x, y, delta) {
-    if ('number' === typeof x && 'number' === typeof y) {
+    if (typeof x === 'number' && typeof y === 'number') {
       assert.closeTo(x, y, delta);
-    } else if ('object' === typeof x && 'object' === typeof y) {
+    } else if (typeof x === 'object' && typeof y === 'object') {
       const keys = Object.getOwnPropertyNames(x);
 
       assert.sameMembers(keys, Object.getOwnPropertyNames(y));
