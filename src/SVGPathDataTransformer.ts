@@ -34,6 +34,13 @@ export namespace SVGPathDataTransformer {
         command.y = rf(command.y);
       }
 
+      if ("undefined" !== typeof command.rX) {
+        command.rX = rf(command.rX);
+      }
+      if ("undefined" !== typeof command.rY) {
+        command.rY = rf(command.rY);
+      }
+
       return command;
     };
   }
