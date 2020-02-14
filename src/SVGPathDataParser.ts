@@ -45,7 +45,7 @@ export class SVGPathDataParser extends TransformableSVG {
       // White spaces parsing
       const isAArcFlag = this.curCommandType === SVGPathData.ARC &&
         (this.curArgs.length === 3 || this.curArgs.length === 4) &&
-        this.curNumber.length === 1 && 
+        this.curNumber.length === 1 &&
         (this.curNumber === "0" || this.curNumber === "1");
       const isEndingDigit = isDigit(c) && (
         (this.curNumber === "0" && c === "0") ||
