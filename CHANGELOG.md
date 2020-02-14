@@ -1,3 +1,12 @@
+## [5.0.4](https://github.com/nfroidure/svg-pathdata/compare/v4.0.0...v5.0.4) (2020-02-14)
+
+
+### Bug Fixes
+
+* **parser:** fix parsing merged numbers with arc flags ([d55d9f0](https://github.com/nfroidure/svg-pathdata/commit/d55d9f0db00c1bb341eecaea786ca05dd2c51e95))
+
+
+
 ## [5.0.3](https://github.com/nfroidure/svg-pathdata/compare/v4.0.0...v5.0.3) (2020-02-04)
 
 
