@@ -1,3 +1,7 @@
+## [5.0.5](https://github.com/nfroidure/svg-pathdata/compare/v5.0.4...v5.0.5) (2020-06-06)
+
+
+
 ## [5.0.4](https://github.com/nfroidure/svg-pathdata/compare/v4.0.0...v5.0.4) (2020-02-14)
 
 
