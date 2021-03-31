@@ -1,6 +1,6 @@
 // import sourcemaps from 'rollup-plugin-sourcemaps'
 import { terser } from "rollup-plugin-terser";
-import typescriptPlugin from "rollup-plugin-typescript2";
+import typescriptPlugin from "@rollup/plugin-typescript";
 import * as typescript from "typescript";
 
 export default {
