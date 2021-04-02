@@ -47,7 +47,7 @@
     "url": "https://github.com/nfroidure/SVGPathData/issues"
   },
   "engines": {
-    "node": ">=6.9.5"
+    "node": ">=12.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.2.1",
