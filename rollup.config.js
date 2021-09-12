@@ -8,7 +8,7 @@ export default {
   output: [
     {
       format: "umd",
-      file: "lib/SVGPathData.js",
+      file: "lib/SVGPathData.cjs",
       sourcemap: true,
       name: "svgpathdata"
     },
