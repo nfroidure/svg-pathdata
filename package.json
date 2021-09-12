@@ -2,11 +2,11 @@
   "name": "svg-pathdata",
   "version": "6.0.0",
   "description": "Manipulate SVG path data (path[d] attribute content) simply and efficiently.",
-  "main": "lib/SVGPathData.js",
+  "main": "lib/SVGPathData.cjs",
   "module": "lib/SVGPathData.module.js",
   "exports": {
     "import": "./lib/SVGPathData.module.js",
-    "require": "./lib/SVGPathData.js"
+    "require": "./lib/SVGPathData.cjs"
   },
   "type": "module",
   "types": "lib/SVGPathData.d.ts",
