@@ -20,6 +20,7 @@ export default {
   ],
   plugins: [
     typescriptPlugin({
+      tsconfig: './tsconfig.json',
       typescript
     }),
     terser()
