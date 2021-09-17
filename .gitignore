@@ -44,4 +44,5 @@ out
 
 # generated .d.ts files
 lib/*.d.ts
+lib/*.cjs.map
 lib/*.js.map
