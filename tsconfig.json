@@ -12,6 +12,7 @@
     "declaration": true,
     /* Generates corresponding '.d.ts' file. */
     "sourceMap": true,
+    "sourceRoot": "./",
     /* Generates corresponding '.map' file. */
     // "outFile": "./",                       /* Concatenate and emit output to single file. */
     "outDir": "./",
