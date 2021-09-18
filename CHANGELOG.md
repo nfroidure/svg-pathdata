@@ -1,3 +1,7 @@
+## [6.0.3](https://github.com/nfroidure/svg-pathdata/compare/v6.0.2...v6.0.3) (2021-09-18)
+
+
+
 # [6.0.2](https://github.com/nfroidure/svg-pathdata/compare/v6.0.1...v6.0.2) (2021-09-17)
 
 
