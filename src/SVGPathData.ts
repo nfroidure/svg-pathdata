@@ -1,8 +1,8 @@
-import { encodeSVGPath } from "./SVGPathDataEncoder";
-import { SVGPathDataParser } from "./SVGPathDataParser";
-import { SVGPathDataTransformer } from "./SVGPathDataTransformer";
-import { TransformableSVG } from "./TransformableSVG";
-import { SVGCommand } from "./types";
+import { encodeSVGPath } from "./SVGPathDataEncoder.js";
+import { SVGPathDataParser } from "./SVGPathDataParser.js";
+import { SVGPathDataTransformer } from "./SVGPathDataTransformer.js";
+import { TransformableSVG } from "./TransformableSVG.js";
+import { SVGCommand } from "./types.js";
 
 export class SVGPathData extends TransformableSVG {
   commands: SVGCommand[];
@@ -85,6 +85,7 @@ export const COMMAND_ARG_COUNTS = {
     [SVGPathData.ARC]: 7,
 };
 
-export {encodeSVGPath} from "./SVGPathDataEncoder";
-export {SVGPathDataParser} from "./SVGPathDataParser";
-export {SVGPathDataTransformer} from "./SVGPathDataTransformer";
+export {encodeSVGPath} from "./SVGPathDataEncoder.js";
+export {SVGPathDataParser} from "./SVGPathDataParser.js";
+export {SVGPathDataTransformer} from "./SVGPathDataTransformer.js";
+export * from "./types.js";

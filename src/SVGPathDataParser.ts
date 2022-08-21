@@ -1,8 +1,8 @@
 // Parse SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
-import { COMMAND_ARG_COUNTS, SVGPathData } from "./SVGPathData";
-import { TransformableSVG } from "./TransformableSVG";
-import { SVGCommand, TransformFunction } from "./types";
+import { COMMAND_ARG_COUNTS, SVGPathData } from "./SVGPathData.js";
+import { TransformableSVG } from "./TransformableSVG.js";
+import { SVGCommand, TransformFunction } from "./types.js";
 // Private consts : Char groups
 const isWhiteSpace = (c: string) =>
   " " === c || "\t" === c || "\r" === c || "\n" === c;
