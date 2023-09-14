@@ -5,11 +5,17 @@
   "main": "lib/SVGPathData.cjs",
   "module": "lib/SVGPathData.module.js",
   "exports": {
-    "import": "./lib/SVGPathData.module.js",
-    "require": "./lib/SVGPathData.cjs"
+    ".": {
+      "import": "./lib/SVGPathData.module.js",
+      "require": "./lib/SVGPathData.cjs",
+      "types": "./lib/SVGPathData.d.ts"
+    },
+    "./lib/types": {
+      "types": "./lib/types.d.ts"
+    }
   },
   "type": "module",
-  "types": "lib/SVGPathData.d.ts",
+  "types": "./lib/SVGPathData.d.ts",
   "scripts": {
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "cli": "env NODE_ENV=${NODE_ENV:-cli}",
