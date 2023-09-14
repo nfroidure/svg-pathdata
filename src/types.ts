@@ -1,4 +1,4 @@
-import { SVGPathData } from "./SVGPathData";
+import { SVGPathData } from "./SVGPathData.js";
 
 export type CommandM = { relative: boolean, type: typeof SVGPathData.MOVE_TO, x: number, y: number };
 export type CommandL = { relative: boolean, type: typeof SVGPathData.LINE_TO, x: number, y: number };
