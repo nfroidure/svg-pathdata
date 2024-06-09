@@ -5,8 +5,16 @@
   "main": "lib/SVGPathData.cjs",
   "module": "lib/SVGPathData.module.js",
   "exports": {
-    "import": "./lib/SVGPathData.module.js",
-    "require": "./lib/SVGPathData.cjs"
+    ".": {
+      "import": {
+        "types": "./lib/SVGPathData.d.ts",
+        "default": "./lib/SVGPathData.module.js"
+      },
+      "require": {
+        "types": "./lib/SVGPathData.d.ts",
+        "default": "./lib/SVGPathData.cjs"
+      }
+    }
   },
   "type": "module",
   "types": "lib/SVGPathData.d.ts",

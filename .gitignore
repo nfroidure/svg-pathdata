@@ -46,3 +46,6 @@ out
 lib/*.d.ts
 lib/*.cjs.map
 lib/*.js.map
+
+# IDEs and editors
+.idea/
