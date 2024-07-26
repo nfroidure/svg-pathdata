@@ -1,18 +1,17 @@
 // Parse SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF
-import { COMMAND_ARG_COUNTS, SVGPathData } from "./SVGPathData";
-import { TransformableSVG } from "./TransformableSVG";
-import { SVGCommand, TransformFunction } from "./types";
+import { COMMAND_ARG_COUNTS, SVGPathData } from './SVGPathData.js';
+import { TransformableSVG } from './TransformableSVG.js';
+import { SVGCommand, TransformFunction } from './types.js';
 // Private consts : Char groups
 const isWhiteSpace = (c: string) =>
-  " " === c || "\t" === c || "\r" === c || "\n" === c;
+  ' ' === c || '\t' === c || '\r' === c || '\n' === c;
 const isDigit = (c: string) =>
-  "0".charCodeAt(0) <= c.charCodeAt(0) && c.charCodeAt(0) <= "9".charCodeAt(0);
-const COMMANDS = "mMzZlLhHvVcCsSqQtTaA";
+  '0'.charCodeAt(0) <= c.charCodeAt(0) && c.charCodeAt(0) <= '9'.charCodeAt(0);
 
 export class SVGPathDataParser extends TransformableSVG {
-  private curNumber: string = "";
-  private curCommandType: SVGCommand["type"] | -1 = -1;
+  private curNumber: string = '';
+  private curCommandType: SVGCommand['type'] | -1 = -1;
   private curCommandRelative = false;
   private canParseCommandOrComma = true;
   private curNumberHasExp = false;
@@ -25,10 +24,10 @@ export class SVGPathDataParser extends TransformableSVG {
   }
 
   finish(commands: SVGCommand[] = []) {
-    this.parse(" ", commands);
+    this.parse(' ', commands);
     // Adding residual command
     if (0 !== this.curArgs.length || !this.canParseCommandOrComma) {
-      throw new SyntaxError("Unterminated command at the path end.");
+      throw new SyntaxError('Unterminated command at the path end.');
     }
     return commands;
   }
@@ -43,30 +42,26 @@ export class SVGPathDataParser extends TransformableSVG {
     for (let i = 0; i < str.length; i++) {
       const c = str[i];
       // White spaces parsing
-      const isAArcFlag = this.curCommandType === SVGPathData.ARC &&
+      const isAArcFlag =
+        this.curCommandType === SVGPathData.ARC &&
         (this.curArgs.length === 3 || this.curArgs.length === 4) &&
         this.curNumber.length === 1 &&
-        (this.curNumber === "0" || this.curNumber === "1");
-      const isEndingDigit = isDigit(c) && (
-        (this.curNumber === "0" && c === "0") ||
-        isAArcFlag
-      );
+        (this.curNumber === '0' || this.curNumber === '1');
+      const isEndingDigit =
+        isDigit(c) && ((this.curNumber === '0' && c === '0') || isAArcFlag);
 
-      if (
-        isDigit(c) &&
-        !isEndingDigit
-      ) {
+      if (isDigit(c) && !isEndingDigit) {
         this.curNumber += c;
         this.curNumberHasExpDigits = this.curNumberHasExp;
         continue;
       }
-      if ("e" === c || "E" === c) {
+      if ('e' === c || 'E' === c) {
         this.curNumber += c;
         this.curNumberHasExp = true;
         continue;
       }
       if (
-        ("-" === c || "+" === c) &&
+        ('-' === c || '+' === c) &&
         this.curNumberHasExp &&
         !this.curNumberHasExpDigits
       ) {
@@ -74,7 +69,12 @@ export class SVGPathDataParser extends TransformableSVG {
         continue;
       }
       // if we already have a ".", it means we are starting a new number
-      if ("." === c && !this.curNumberHasExp && !this.curNumberHasDecimal && !isAArcFlag) {
+      if (
+        '.' === c &&
+        !this.curNumberHasExp &&
+        !this.curNumberHasDecimal &&
+        !isAArcFlag
+      ) {
         this.curNumber += c;
         this.curNumberHasDecimal = true;
         continue;
@@ -94,7 +94,7 @@ export class SVGPathDataParser extends TransformableSVG {
               );
             }
           } else if (3 === this.curArgs.length || 4 === this.curArgs.length) {
-            if ("0" !== this.curNumber && "1" !== this.curNumber) {
+            if ('0' !== this.curNumber && '1' !== this.curNumber) {
               throw new SyntaxError(
                 `Expected a flag, got "${this.curNumber}" at index "${i}"`,
               );
@@ -174,7 +174,7 @@ export class SVGPathDataParser extends TransformableSVG {
             });
           }
         }
-        this.curNumber = "";
+        this.curNumber = '';
         this.curNumberHasExpDigits = false;
         this.curNumberHasExp = false;
         this.curNumberHasDecimal = false;
@@ -184,15 +184,15 @@ export class SVGPathDataParser extends TransformableSVG {
       if (isWhiteSpace(c)) {
         continue;
       }
-      if ("," === c && this.canParseCommandOrComma) {
+      if (',' === c && this.canParseCommandOrComma) {
         // L 0,0, H is not valid:
         this.canParseCommandOrComma = false;
         continue;
       }
       // if a sign is detected, then parse the new number
-      if ("+" === c || "-" === c || "." === c) {
+      if ('+' === c || '-' === c || '.' === c) {
         this.curNumber = c;
-        this.curNumberHasDecimal = "." === c;
+        this.curNumberHasDecimal = '.' === c;
         continue;
       }
       // if a 0 is detected, then parse the new number
@@ -213,7 +213,7 @@ export class SVGPathDataParser extends TransformableSVG {
       }
       this.canParseCommandOrComma = false;
       // Detecting the next command
-      if ("z" === c || "Z" === c) {
+      if ('z' === c || 'Z' === c) {
         commands.push({
           type: SVGPathData.CLOSE_PATH,
         });
@@ -221,41 +221,41 @@ export class SVGPathDataParser extends TransformableSVG {
         this.curCommandType = -1;
         continue;
         // Horizontal move to command
-      } else if ("h" === c || "H" === c) {
+      } else if ('h' === c || 'H' === c) {
         this.curCommandType = SVGPathData.HORIZ_LINE_TO;
-        this.curCommandRelative = "h" === c;
+        this.curCommandRelative = 'h' === c;
         // Vertical move to command
-      } else if ("v" === c || "V" === c) {
+      } else if ('v' === c || 'V' === c) {
         this.curCommandType = SVGPathData.VERT_LINE_TO;
-        this.curCommandRelative = "v" === c;
+        this.curCommandRelative = 'v' === c;
         // Move to command
-      } else if ("m" === c || "M" === c) {
+      } else if ('m' === c || 'M' === c) {
         this.curCommandType = SVGPathData.MOVE_TO;
-        this.curCommandRelative = "m" === c;
+        this.curCommandRelative = 'm' === c;
         // Line to command
-      } else if ("l" === c || "L" === c) {
+      } else if ('l' === c || 'L' === c) {
         this.curCommandType = SVGPathData.LINE_TO;
-        this.curCommandRelative = "l" === c;
+        this.curCommandRelative = 'l' === c;
         // Curve to command
-      } else if ("c" === c || "C" === c) {
+      } else if ('c' === c || 'C' === c) {
         this.curCommandType = SVGPathData.CURVE_TO;
-        this.curCommandRelative = "c" === c;
+        this.curCommandRelative = 'c' === c;
         // Smooth curve to command
-      } else if ("s" === c || "S" === c) {
+      } else if ('s' === c || 'S' === c) {
         this.curCommandType = SVGPathData.SMOOTH_CURVE_TO;
-        this.curCommandRelative = "s" === c;
+        this.curCommandRelative = 's' === c;
         // Quadratic bezier curve to command
-      } else if ("q" === c || "Q" === c) {
+      } else if ('q' === c || 'Q' === c) {
         this.curCommandType = SVGPathData.QUAD_TO;
-        this.curCommandRelative = "q" === c;
+        this.curCommandRelative = 'q' === c;
         // Smooth quadratic bezier curve to command
-      } else if ("t" === c || "T" === c) {
+      } else if ('t' === c || 'T' === c) {
         this.curCommandType = SVGPathData.SMOOTH_QUAD_TO;
-        this.curCommandRelative = "t" === c;
+        this.curCommandRelative = 't' === c;
         // Elliptic arc command
-      } else if ("a" === c || "A" === c) {
+      } else if ('a' === c || 'A' === c) {
         this.curCommandType = SVGPathData.ARC;
-        this.curCommandRelative = "a" === c;
+        this.curCommandRelative = 'a' === c;
       } else {
         throw new SyntaxError(`Unexpected character "${c}" at index ${i}.`);
       }

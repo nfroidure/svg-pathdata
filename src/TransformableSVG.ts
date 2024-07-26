@@ -1,5 +1,5 @@
-import { SVGPathDataTransformer } from "./SVGPathDataTransformer";
-import { TransformFunction } from "./types";
+import { SVGPathDataTransformer } from './SVGPathDataTransformer.js';
+import { TransformFunction } from './types.js';
 
 export abstract class TransformableSVG {
   round(x?: number) {

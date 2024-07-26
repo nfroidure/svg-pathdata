@@ -1,5 +1,5 @@
-import { SVGPathData } from "./SVGPathData";
-import { CommandA, CommandC } from "./types";
+import { SVGPathData } from './SVGPathData.js';
+import { type CommandA, type CommandC } from './types.js';
 
 export function rotate([x, y]: [number, number], rad: number) {
   return [
@@ -12,9 +12,10 @@ const DEBUG_CHECK_NUMBERS = true;
 export function assertNumbers(...numbers: number[]) {
   if (DEBUG_CHECK_NUMBERS) {
     for (let i = 0; i < numbers.length; i++) {
-      if ("number" !== typeof numbers[i]) {
+      if ('number' !== typeof numbers[i]) {
         throw new Error(
-          `assertNumbers arguments[${i}] is not a number. ${typeof numbers[i]} == typeof ${numbers[i]}`);
+          `assertNumbers arguments[${i}] is not a number. ${typeof numbers[i]} == typeof ${numbers[i]}`,
+        );
       }
     }
   }
@@ -31,15 +32,17 @@ const PI = Math.PI;
  * Adds start and end arc parameters (in degrees): command.phi1, command.phi2; phi1 < phi2 iff. c.sweepFlag == true
  */
 export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
-  c.lArcFlag = (0 === c.lArcFlag) ? 0 : 1;
-  c.sweepFlag = (0 === c.sweepFlag) ? 0 : 1;
+  c.lArcFlag = 0 === c.lArcFlag ? 0 : 1;
+  c.sweepFlag = 0 === c.sweepFlag ? 0 : 1;
   // tslint:disable-next-line
-  let {rX, rY, x, y} = c;
+  let { rX, rY } = c;
+  const { x, y } = c;
 
   rX = Math.abs(c.rX);
   rY = Math.abs(c.rY);
-  const [x1_, y1_] = rotate([(x1 - x) / 2, (y1 - y) / 2], -c.xRot / 180 * PI);
-  const testValue = Math.pow(x1_, 2) / Math.pow(rX, 2) + Math.pow(y1_, 2) / Math.pow(rY, 2);
+  const [x1_, y1_] = rotate([(x1 - x) / 2, (y1 - y) / 2], (-c.xRot / 180) * PI);
+  const testValue =
+    Math.pow(x1_, 2) / Math.pow(rX, 2) + Math.pow(y1_, 2) / Math.pow(rY, 2);
 
   if (1 < testValue) {
     rX *= Math.sqrt(testValue);
@@ -47,12 +50,19 @@ export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
   }
   c.rX = rX;
   c.rY = rY;
-  const c_ScaleTemp = (Math.pow(rX, 2) * Math.pow(y1_, 2) + Math.pow(rY, 2) * Math.pow(x1_, 2));
-  const c_Scale = (c.lArcFlag !== c.sweepFlag ? 1 : -1) *
-    Math.sqrt(Math.max(0, (Math.pow(rX, 2) * Math.pow(rY, 2) - c_ScaleTemp) / c_ScaleTemp));
-  const cx_ = rX * y1_ / rY * c_Scale;
-  const cy_ = -rY * x1_ / rX * c_Scale;
-  const cRot = rotate([cx_, cy_], c.xRot / 180 * PI);
+  const c_ScaleTemp =
+    Math.pow(rX, 2) * Math.pow(y1_, 2) + Math.pow(rY, 2) * Math.pow(x1_, 2);
+  const c_Scale =
+    (c.lArcFlag !== c.sweepFlag ? 1 : -1) *
+    Math.sqrt(
+      Math.max(
+        0,
+        (Math.pow(rX, 2) * Math.pow(rY, 2) - c_ScaleTemp) / c_ScaleTemp,
+      ),
+    );
+  const cx_ = ((rX * y1_) / rY) * c_Scale;
+  const cy_ = ((-rY * x1_) / rX) * c_Scale;
+  const cRot = rotate([cx_, cy_], (c.xRot / 180) * PI);
 
   c.cX = cRot[0] + (x1 + x) / 2;
   c.cY = cRot[1] + (y1 + y) / 2;
@@ -78,7 +88,11 @@ export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
  *      => x² b² + c² - 2 c a x + a² x² = b²
  *      => (a² + b²) x² - 2 a c x + (c² - b²) = 0
  */
-export function intersectionUnitCircleLine(a: number, b: number, c: number): [number, number][] {
+export function intersectionUnitCircleLine(
+  a: number,
+  b: number,
+  c: number,
+): [number, number][] {
   assertNumbers(a, b, c);
   // cf. pqFormula
   const termSqr = a * a + b * b - c * c;
@@ -86,21 +100,20 @@ export function intersectionUnitCircleLine(a: number, b: number, c: number): [nu
   if (0 > termSqr) {
     return [];
   } else if (0 === termSqr) {
-    return [
-      [
-        (a * c) / (a * a + b * b),
-        (b * c) / (a * a + b * b)]];
+    return [[(a * c) / (a * a + b * b), (b * c) / (a * a + b * b)]];
   }
   const term = Math.sqrt(termSqr);
 
   return [
     [
       (a * c + b * term) / (a * a + b * b),
-      (b * c - a * term) / (a * a + b * b)],
+      (b * c - a * term) / (a * a + b * b),
+    ],
     [
       (a * c - b * term) / (a * a + b * b),
-      (b * c + a * term) / (a * a + b * b)]];
-
+      (b * c + a * term) / (a * a + b * b),
+    ],
+  ];
 }
 
 export const DEG = Math.PI / 180;
@@ -110,7 +123,9 @@ export function lerp(a: number, b: number, t: number) {
 }
 
 export function arcAt(c: number, x1: number, x2: number, phiDeg: number) {
-  return c + Math.cos(phiDeg / 180 * PI) * x1 + Math.sin(phiDeg / 180 * PI) * x2;
+  return (
+    c + Math.cos((phiDeg / 180) * PI) * x1 + Math.sin((phiDeg / 180) * PI) * x2
+  );
 }
 
 export function bezierRoot(x0: number, x1: number, x2: number, x3: number) {
@@ -128,10 +143,15 @@ export function bezierRoot(x0: number, x1: number, x2: number, x3: number) {
     return [-c / b];
   }
   return pqFormula(b / a, c / a, EPS);
-
 }
 
-export function bezierAt(x0: number, x1: number, x2: number, x3: number, t: number) {
+export function bezierAt(
+  x0: number,
+  x1: number,
+  x2: number,
+  x3: number,
+  t: number,
+) {
   // console.log(x0, y0, x1, y1, x2, y2, x3, y3, t)
   const s = 1 - t;
   const c0 = s * s * s;
@@ -144,7 +164,7 @@ export function bezierAt(x0: number, x1: number, x2: number, x3: number, t: numb
 
 function pqFormula(p: number, q: number, PRECISION = 1e-6) {
   // 4 times the discriminant:in
-  const discriminantX4 = p * p / 4 - q;
+  const discriminantX4 = (p * p) / 4 - q;
 
   if (discriminantX4 < -PRECISION) {
     return [];
@@ -154,7 +174,6 @@ function pqFormula(p: number, q: number, PRECISION = 1e-6) {
   const root = Math.sqrt(discriminantX4);
 
   return [-(p / 2) - root, -(p / 2) + root];
-
 }
 
 export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
@@ -162,39 +181,55 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
     annotateArcCommand(arc, x0, y0);
   }
 
-  const phiMin = Math.min(arc.phi1!, arc.phi2!), phiMax = Math.max(arc.phi1!, arc.phi2!), deltaPhi = phiMax - phiMin;
-  const partCount = Math.ceil(deltaPhi / 90 );
+  const phiMin = Math.min(arc.phi1!, arc.phi2!),
+    phiMax = Math.max(arc.phi1!, arc.phi2!),
+    deltaPhi = phiMax - phiMin;
+  const partCount = Math.ceil(deltaPhi / 90);
 
   const result: CommandC[] = new Array(partCount);
-  let prevX = x0, prevY = y0;
+  let prevX = x0,
+    prevY = y0;
   for (let i = 0; i < partCount; i++) {
     const phiStart = lerp(arc.phi1!, arc.phi2!, i / partCount);
     const phiEnd = lerp(arc.phi1!, arc.phi2!, (i + 1) / partCount);
     const deltaPhi = phiEnd - phiStart;
-    const f = 4 / 3 * Math.tan(deltaPhi * DEG / 4);
+    const f = (4 / 3) * Math.tan((deltaPhi * DEG) / 4);
     // x1/y1, x2/y2 and x/y coordinates on the unit circle for phiStart/phiEnd
     const [x1, y1] = [
       Math.cos(phiStart * DEG) - f * Math.sin(phiStart * DEG),
-      Math.sin(phiStart * DEG) + f * Math.cos(phiStart * DEG)];
+      Math.sin(phiStart * DEG) + f * Math.cos(phiStart * DEG),
+    ];
     const [x, y] = [Math.cos(phiEnd * DEG), Math.sin(phiEnd * DEG)];
-    const [x2, y2] = [x + f * Math.sin(phiEnd * DEG), y - f * Math.cos(phiEnd * DEG)];
-    result[i] = {relative: arc.relative, type: SVGPathData.CURVE_TO } as any;
+    const [x2, y2] = [
+      x + f * Math.sin(phiEnd * DEG),
+      y - f * Math.cos(phiEnd * DEG),
+    ];
+
+    const command: Partial<CommandC> = {
+      relative: arc.relative,
+      type: SVGPathData.CURVE_TO,
+    };
+
     const transform = (x: number, y: number) => {
       const [xTemp, yTemp] = rotate([x * arc.rX, y * arc.rY], arc.xRot);
       return [arc.cX! + xTemp, arc.cY! + yTemp];
     };
-    [result[i].x1, result[i].y1] = transform(x1, y1);
-    [result[i].x2, result[i].y2] = transform(x2, y2);
-    [result[i].x, result[i].y] = transform(x, y);
+
+    [command.x1, command.y1] = transform(x1, y1);
+    [command.x2, command.y2] = transform(x2, y2);
+    [command.x, command.y] = transform(x, y);
+
     if (arc.relative) {
-      result[i].x1 -= prevX;
-      result[i].y1 -= prevY;
-      result[i].x2 -= prevX;
-      result[i].y2 -= prevY;
-      result[i].x -= prevX;
-      result[i].y -= prevY;
+      command.x1 -= prevX;
+      command.y1 -= prevY;
+      command.x2 -= prevX;
+      command.y2 -= prevY;
+      command.x -= prevX;
+      command.y -= prevY;
     }
-    [prevX, prevY] = [result[i].x, result[i].y];
+    [prevX, prevY] = [command.x, command.y];
+
+    result[i] = command as CommandC;
   }
   return result;
 }

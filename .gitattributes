@@ -1,3 +1,2 @@
-* text eol=lf
-*.js text eol=lf
-lib/* linguist-generated=true
+# Enforce Unix newlines
+* text=auto eol=lf
