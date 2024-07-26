@@ -12,18 +12,6 @@
 
 [//]: # (::contents:start)
 
-# svg-pathdata
-
-> Manipulate SVG path data (path[d] attribute content) simply and efficiently.
-
-[![NPM version](https://badge.fury.io/js/svg-pathdata.svg)](https://npmjs.org/package/svg-pathdata)
-[![Run tests](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml/badge.svg)](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml)
-[![Dependency Status](https://david-dm.org/nfroidure/svg-pathdata.svg)](https://david-dm.org/nfroidure/svg-pathdata)
-[![devDependency Status](https://david-dm.org/nfroidure/svg-pathdata/dev-status.svg)](https://david-dm.org/nfroidure/svg-pathdata#info=devDependencies)
-[![Coverage Status](https://coveralls.io/repos/nfroidure/svg-pathdata/badge.svg?branch=master)](https://coveralls.io/r/nfroidure/svg-pathdata?branch=master)
-[![Code Climate](https://codeclimate.com/github/nfroidure/svg-pathdata.svg)](https://codeclimate.com/github/nfroidure/svg-pathdata)
-[![Dependency Status](https://dependencyci.com/github/nfroidure/svg-pathdata/badge)](https://dependencyci.com/github/nfroidure/svg-pathdata)
-
 ## Usage
 
 Install the module:
@@ -164,11 +152,6 @@ new SVGPathData('...')
 new SVGPathDataParser().transform(SET_X_TO(25));
 ```
 
-## Stats
-
-[![NPM](https://nodei.co/npm/svg-pathdata.png?downloads=true&stars=true)](https://nodei.co/npm/svg-pathdata/)
-[![NPM](https://nodei.co/npm-dl/svg-pathdata.png)](https://nodei.co/npm/svg-pathdata/)
-
 ## Contributing
 
 Clone this project, run:
@@ -176,10 +159,6 @@ Clone this project, run:
 ```sh
 npm install; npm test
 ```
-
-# License
-
-[MIT](https://github.com/nfroidure/svg-pathdata/blob/master/LICENSE)
 
 [//]: # (::contents:end)
 
