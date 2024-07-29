@@ -1,3 +1,23 @@
+# [7.0.0](https://github.com/nfroidure/svg-pathdata/compare/v6.0.3...v7.0.0) (2024-07-29)
+
+
+### Bug Fixes
+
+* **core:** remove unused files ([03cd8c0](https://github.com/nfroidure/svg-pathdata/commit/03cd8c08bdfbfa8bba662c1383557e3a77d44829))
+* **docs:** fix the readme layout ([69c7692](https://github.com/nfroidure/svg-pathdata/commit/69c76923c4e2583f9eb61e2a2c4923262eb53c2c))
+
+
+### chore
+
+* **dependencies:** update dependencies ([48905ff](https://github.com/nfroidure/svg-pathdata/commit/48905fff510a78aad2b692d078ba6466f292876b)), closes [#72](https://github.com/nfroidure/svg-pathdata/issues/72) [#74](https://github.com/nfroidure/svg-pathdata/issues/74)
+
+
+### BREAKING CHANGES
+
+* **dependencies:** Requires Node20+ and ESM support in your project.
+
+
+
 ## [6.0.3](https://github.com/nfroidure/svg-pathdata/compare/v6.0.2...v6.0.3) (2021-09-18)
 
 
