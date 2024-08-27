@@ -33,7 +33,7 @@ function ROUND(roundVal = 1e13) {
     if ('x2' in command && 'undefined' !== typeof command.x2) {
       command.x2 = rf(command.x2);
     }
-    if ('x2' in command && 'undefined' !== typeof command.y2) {
+    if ('y2' in command && 'undefined' !== typeof command.y2) {
       command.y2 = rf(command.y2);
     }
 
