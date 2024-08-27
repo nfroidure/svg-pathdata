@@ -1,3 +1,12 @@
+## [7.0.1](https://github.com/nfroidure/svg-pathdata/compare/v7.0.0...v7.0.1) (2024-08-27)
+
+
+### Bug Fixes
+
+* correct condition check for 'y2' in ROUND function ([9f332a6](https://github.com/nfroidure/svg-pathdata/commit/9f332a6ffc005322f936f997458adf781900e88c))
+
+
+
 # [7.0.0](https://github.com/nfroidure/svg-pathdata/compare/v6.0.3...v7.0.0) (2024-07-29)
 
 
