@@ -1,5 +1,5 @@
 import { SVGPathData } from './SVGPathData.js';
-import { SVGCommand } from './types.js';
+import type { SVGCommand } from './types.js';
 
 // Encode SVG PathData
 // http://www.w3.org/TR/SVG/paths.html#PathDataBNF

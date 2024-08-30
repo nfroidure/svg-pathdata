@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
 import { assertThrows } from './testUtils.js';
-import { CommandS } from '../types.js';
+import type { CommandS } from '../types.js';
 
 describe('Parsing smooth curve to commands', () => {
   test('should not work when badly declared', () => {

@@ -2,7 +2,7 @@ import { encodeSVGPath } from './SVGPathDataEncoder.js';
 import { SVGPathDataParser } from './SVGPathDataParser.js';
 import { SVGPathDataTransformer } from './SVGPathDataTransformer.js';
 import { TransformableSVG } from './TransformableSVG.js';
-import { SVGCommand } from './types.js';
+import type { SVGCommand } from './types.js';
 
 export class SVGPathData extends TransformableSVG {
   commands: SVGCommand[];

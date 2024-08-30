@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
 import { assertThrows } from './testUtils.js';
-import { CommandM } from '../types.js';
+import type { CommandM } from '../types.js';
 
 describe('Parsing move to commands', () => {
   test('should not work with single coordinate', () => {

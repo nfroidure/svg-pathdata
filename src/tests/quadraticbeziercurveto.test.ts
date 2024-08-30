@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
 import { assertThrows } from './testUtils.js';
-import { CommandQ } from '../types.js';
+import type { CommandQ } from '../types.js';
 
 describe('Parsing quadratic bezier curve to commands', () => {
   test('should not work when badly declared', () => {

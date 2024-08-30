@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
 import { assertThrows } from './testUtils.js';
-import { CommandT } from '../types.js';
+import type { CommandT } from '../types.js';
 
 describe('Parsing smooth quadratic curve to commands', () => {
   test('should fail with a with single coordinate', () => {

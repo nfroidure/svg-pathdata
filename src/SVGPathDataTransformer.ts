@@ -13,7 +13,7 @@ import {
   intersectionUnitCircleLine,
 } from './mathUtils.js';
 import { SVGPathData } from './SVGPathData.js';
-import { SVGCommand, TransformFunction } from './types.js';
+import type { SVGCommand, TransformFunction } from './types.js';
 
 // Predefined transforming functions
 // Rounds commands values
