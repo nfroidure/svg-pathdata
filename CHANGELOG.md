@@ -1,3 +1,12 @@
+# [7.1.0](https://github.com/nfroidure/svg-pathdata/compare/v7.0.1...v7.1.0) (2024-08-30)
+
+
+### Features
+
+* **types:** export core types ([4ccd1fa](https://github.com/nfroidure/svg-pathdata/commit/4ccd1fa244264143186d96cd58a68886d7997f60)), closes [#75](https://github.com/nfroidure/svg-pathdata/issues/75)
+
+
+
 ## [7.0.1](https://github.com/nfroidure/svg-pathdata/compare/v7.0.0...v7.0.1) (2024-08-27)
 
 
