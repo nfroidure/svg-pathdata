@@ -571,12 +571,12 @@ function SCALE(dX: number, dY = dX) {
 
 function SKEW_X(a: number) {
   assertNumbers(a);
-  return MATRIX(1, 0, Math.atan(a), 1, 0, 0);
+  return MATRIX(1, 0, Math.tan(a), 1, 0, 0);
 }
 
 function SKEW_Y(a: number) {
   assertNumbers(a);
-  return MATRIX(1, Math.atan(a), 0, 1, 0, 0);
+  return MATRIX(1, Math.tan(a), 0, 1, 0, 0);
 }
 
 function X_AXIS_SYMMETRY(xOffset = 0) {
