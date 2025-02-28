@@ -32,17 +32,15 @@ describe('X axis skew', () => {
   });
 
   test('should work with relative path | 30deg', () => {
-    const angleInRadians = 30 * Math.PI / 180;
     expect(
-      new SVGPathData('m100 75l-50 -45l0 90z').skewX(angleInRadians).encode(),
+      new SVGPathData('m100 75l-50 -45l0 90z').skewX(30 * Math.PI / 180).encode(),
     ).toEqual(
       'm143.30127018922192 75l-75.98076211353316 -45l51.96152422706631 90z',
     );
   });
   test('should work with absolute path | 30deg', () => {
-    const angleInRadians = 30 * Math.PI / 180;
     expect(
-      new SVGPathData('M 100,75 50,30 50,120 z').skewX(angleInRadians).encode(),
+      new SVGPathData('M 100,75 50,30 50,120 z').skewX(30 * Math.PI / 180).encode(),
     ).toEqual(
       'M143.30127018922192 75L67.32050807568876 30L119.28203230275508 120z',
     );
@@ -77,16 +75,14 @@ describe('Y axis skew', () => {
   });
 
   test('should work with relative path | 30deg', () => {
-    const angleInRadians = 30 * Math.PI / 180;
     expect(
-      new SVGPathData('m100 75l-50 -45l0 90z').skewY(angleInRadians).encode(),
+      new SVGPathData('m100 75l-50 -45l0 90z').skewY(30 * Math.PI / 180).encode(),
     ).toEqual('m100 132.73502691896257l-50 -73.86751345948129l0 90z');
   });
 
   test('should work with absolute path | 30deg', () => {
-    const angleInRadians = 30 * Math.PI / 180;
     expect(
-      new SVGPathData('M 100,75 50,30 50,120 z').skewY(angleInRadians).encode(),
+      new SVGPathData('M 100,75 50,30 50,120 z').skewY(30 * Math.PI / 180).encode(),
     ).toEqual(
       'M100 132.73502691896257L50 58.86751345948129L50 148.8675134594813z',
     );
