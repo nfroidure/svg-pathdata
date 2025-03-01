@@ -112,5 +112,12 @@ describe('Reverse paths', () => {
         'Curve commands are not supported, convert them first',
       );
     });
+
+    test('throw on path with multiple Z commands', () => {
+      const input = 'M10,10 L20,20 Z M30,30 L40,40 Z';
+      expect(() => new SVGPathData(input).reverse().encode()).toThrow(
+        'Multiple close path commands are not supported',
+      );
+    });
   });
 });

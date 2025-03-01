@@ -10,27 +10,15 @@ import type { SVGCommand } from '../types.js';
  * @returns New SVG commands in reverse order with absolute coordinates
  */
 export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
-  const supportedCommands =
-    SVGPathData.MOVE_TO |
-    SVGPathData.LINE_COMMANDS |
-    SVGPathData.CURVE_TO |
-    SVGPathData.CLOSE_PATH;
-
   if (commands.length < 2) return commands;
 
   // Extract absolute points using the transformer to track current position
   const points = commands.map(
-    SVGPathDataTransformer.INFO((command, px, py) => {
-      if (command.relative) {
-        throw new Error(
-          'Relative command are not supported convert first with `abs()`',
-        );
-      }
-      if ((command.type & supportedCommands) === 0) {
-        throw new Error('Curve commands are not supported, convert them first');
-      }
-      return { ...command, x: command.x ?? px, y: command.y ?? py };
-    }),
+    SVGPathDataTransformer.INFO((command, px, py) => ({
+      ...command,
+      x: command.x ?? px,
+      y: command.y ?? py,
+    })),
   );
 
   // Check if path is explicitly closed (ends with CLOSE_PATH)
@@ -56,6 +44,12 @@ export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
   for (let i = startPointIndex; i > 0; i--) {
     const curCmd = points[i];
     const prevPoint = points[i - 1];
+
+    if (curCmd.relative) {
+      throw new Error(
+        'Relative command are not supported convert first with `abs()`',
+      );
+    }
 
     // Handle the current command type
     switch (curCmd.type) {
@@ -103,10 +97,10 @@ export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
 
       // Skip close path - we'll add it at the end if needed
       case SVGPathData.CLOSE_PATH:
-        break;
+        throw new Error('Multiple close path commands are not supported');
 
       default:
-        console.debug('Skipping unsupported command type:', curCmd.type);
+        throw new Error('Curve commands are not supported, convert them first');
     }
   }
 
