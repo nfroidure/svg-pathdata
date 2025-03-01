@@ -3,11 +3,19 @@ import { SVGPathData } from '../index.js';
 
 describe('Reverse paths', () => {
   describe('Valid', () => {
-    test('single move to', () => {
+    test('empty path', () => {
+      const input = '';
+      const expected = '';
+      expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
+    });
+
+    test('single point path', () => {
       const input = 'M10,10';
+      // A single point path results in just a move command
       const expected = 'M10 10';
       expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
     });
+
     test('simple line path', () => {
       const input = 'M10,10 L20,20 L30,10';
       const expected = 'M30 10L20 20L10 10';
@@ -34,19 +42,6 @@ describe('Reverse paths', () => {
       expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
     });
 
-    test('single point path', () => {
-      const input = 'M10,10';
-      // A single point path results in just a move command
-      const expected = 'M10 10';
-      expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
-    });
-
-    test('empty path', () => {
-      const input = '';
-      const expected = '';
-      expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
-    });
-
     test('path closed both explicitly and implicitly', () => {
       const input = 'M10,10 L20,20 L30,10 L10,10 Z'; // Note: Last point (10,10) matches first point + Z
       // Should still reverse correctly and maintain Z
@@ -58,6 +53,20 @@ describe('Reverse paths', () => {
       const input = 'M10,10 L20,20 L30,10 L10,10'; // Note: Last point matches first point, but no Z
       // Should still reverse correctly and maintain implicit closure
       const expected = 'M10 10L30 10L20 20L10 10';
+      expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
+    });
+
+    test('complex mixed path with multiple command types', () => {
+      const input = 'M10,10 H30 V30 L40,40 C50,50 60,40 70,30 H80 V20 Z';
+      const expected = 'M80 20V30H70C60 40 50 50 40 40L30 30V10H10z';
+      expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
+    });
+
+    test('bezier curve with high precision coordinates', () => {
+      const input =
+        'M10.123456789,10.987654321 C20.111222333,20.444555666 40.777888999,20.111222333 50.555666777,10.333222111';
+      const expected =
+        'M50.555666777 10.333222111C40.777888999 20.111222333 20.111222333 20.444555666 10.123456789 10.987654321';
       expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
     });
   });
