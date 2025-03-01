@@ -42,6 +42,12 @@ describe('Reverse paths', () => {
       expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
     });
 
+    test('path with cubic bezier curve as second command', () => {
+      const input = 'M10,10 C20,20 30,30 40,10';
+      const expected = 'M40 10C30 30 20 20 10 10';
+      expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
+    });
+
     test('path closed both explicitly and implicitly', () => {
       const input = 'M10,10 L20,20 L30,10 L10,10 Z'; // Note: Last point (10,10) matches first point + Z
       // Should still reverse correctly and maintain Z
