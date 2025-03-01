@@ -1,4 +1,4 @@
-import { SVGPathData } from '../SVGPathData.js';
+import { SVGPathData } from '../index.js';
 import { SVGPathDataTransformer } from '../SVGPathDataTransformer.js';
 import type { SVGCommand } from '../types.js';
 
@@ -10,25 +10,41 @@ import type { SVGCommand } from '../types.js';
  * @returns New SVG commands in reverse order with absolute coordinates
  */
 export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
+  const supportedCommands =
+    SVGPathData.MOVE_TO |
+    SVGPathData.HORIZ_LINE_TO |
+    SVGPathData.VERT_LINE_TO |
+    SVGPathData.LINE_TO |
+    SVGPathData.CURVE_TO |
+    SVGPathData.CLOSE_PATH;
+
   if (commands.length < 2) return commands;
 
   // Extract absolute points using the transformer to track current position
   const points = commands.map(
-    SVGPathDataTransformer.INFO((command, px, py) => ({
-      ...command,
-      x: command.x ?? px,
-      y: command.y ?? py,
-    })),
+    SVGPathDataTransformer.INFO((command, px, py) => {
+      if (command.relative) {
+        throw new Error(
+          'Relative command are not supported convert first with `abs()`',
+        );
+      }
+      if ((command.type & supportedCommands) === 0) {
+        throw new Error('Curve commands are not supported, convert them first');
+      }
+      return { ...command, x: command.x ?? px, y: command.y ?? py };
+    }),
   );
 
   // Check if path is explicitly closed (ends with CLOSE_PATH)
-  const isExplicitlyClosed = commands.at(-1)?.type === SVGPathData.CLOSE_PATH;
+  const isExplicitlyClosed =
+    commands[commands.length - 1]?.type === SVGPathData.CLOSE_PATH;
 
   // Start with a move to the last explicit point
   // (if path ends with Z, use the point before Z)
   const startPointIndex = isExplicitlyClosed
     ? points.length - 2
     : points.length - 1;
+
   const reversed: SVGCommand[] = [
     {
       type: SVGPathData.MOVE_TO,
@@ -82,22 +98,6 @@ export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
           y: prevPoint.y,
           x1: curCmd.x2,
           y1: curCmd.y2,
-          x2: curCmd.x1,
-          y2: curCmd.y1,
-        });
-        break;
-
-      // For completeness, handle quadratic curves too
-      case SVGPathData.QUAD_TO:
-        // Convert to cubic with equivalent control points
-        reversed.push({
-          type: SVGPathData.CURVE_TO,
-          relative: false,
-          x: prevPoint.x,
-          y: prevPoint.y,
-          // For quadratic to cubic conversion:
-          x1: curCmd.x1,
-          y1: curCmd.y1,
           x2: curCmd.x1,
           y2: curCmd.y1,
         });
