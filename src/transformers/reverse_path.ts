@@ -7,9 +7,13 @@ import type { SVGCommand } from '../types.js';
  * IMPORTANT: This function expects absolute commands as input.
  * It doesn't convert relative to absolute - use SVGPathDataTransformer.TO_ABS() first if needed.
  * @param commands SVG path commands in absolute form to reverse
+ * @param preserveSubpathOrder If true, keeps subpaths in their original order
  * @returns New SVG commands in reverse order with absolute coordinates
  */
-export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
+export function REVERSE_PATH(
+  commands: SVGCommand[],
+  preserveSubpathOrder = true,
+): SVGCommand[] {
   if (commands.length < 2) return commands;
 
   // Extract absolute points using the transformer to track current position
@@ -26,14 +30,22 @@ export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
     const cmd = normalized(original);
     // Start a new subpath if needed
     if (cmd.type === SVGPathData.MOVE_TO && processing.length > 0) {
-      result.push(...reverseSubpath(processing));
+      if (preserveSubpathOrder) {
+        result.push(...reverseSubpath(processing));
+      } else {
+        result.unshift(...reverseSubpath(processing));
+      }
       processing = []; // Clear the current subpath
     }
     processing.push(cmd);
   }
 
   if (processing.length > 0) {
-    result.push(...reverseSubpath(processing));
+    if (preserveSubpathOrder) {
+      result.push(...reverseSubpath(processing));
+    } else {
+      result.unshift(...reverseSubpath(processing));
+    }
   }
 
   // Join the reversed subpaths in original order

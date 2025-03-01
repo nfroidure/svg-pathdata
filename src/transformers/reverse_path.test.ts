@@ -87,6 +87,18 @@ describe('Reverse paths', () => {
       const expected = 'M20 20L10 10M40 40L30 30';
       expect(new SVGPathData(input).reverse().encode()).toEqual(expected);
     });
+
+    test('path with multiple subpaths and reversed subpath order', () => {
+      const input = 'M10,10 L20,20 Z M30,30 L40,40 Z';
+      const expected = 'M40 40L30 30zM20 20L10 10z';
+      expect(new SVGPathData(input).reverse(false).encode()).toEqual(expected);
+    });
+
+    test('path with multiple open subpaths and reversed subpath order', () => {
+      const input = 'M10,10 L20,20 M30,30 L40,40 M50,50 L60,60';
+      const expected = 'M60 60L50 50M40 40L30 30M20 20L10 10';
+      expect(new SVGPathData(input).reverse(false).encode()).toEqual(expected);
+    });
   });
 
   describe('Invalid', () => {
