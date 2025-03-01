@@ -13,14 +13,34 @@ export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
   if (commands.length < 2) return commands;
 
   // Extract absolute points using the transformer to track current position
-  const points = commands.map(
-    SVGPathDataTransformer.INFO((command, px, py) => ({
-      ...command,
-      x: command.x ?? px,
-      y: command.y ?? py,
-    })),
-  );
+  const normalized = SVGPathDataTransformer.INFO((command, px, py) => ({
+    ...command,
+    x: command.x ?? px,
+    y: command.y ?? py,
+  }));
 
+  const result: SVGCommand[] = [];
+  let processing: SVGCommand[] = [];
+
+  for (const original of commands) {
+    const cmd = normalized(original);
+    // Start a new subpath if needed
+    if (cmd.type === SVGPathData.MOVE_TO && processing.length > 0) {
+      result.push(...reverseSubpath(processing));
+      processing = []; // Clear the current subpath
+    }
+    processing.push(cmd);
+  }
+
+  if (processing.length > 0) {
+    result.push(...reverseSubpath(processing));
+  }
+
+  // Join the reversed subpaths in original order
+  return result;
+}
+
+function reverseSubpath(commands: SVGCommand[]): SVGCommand[] {
   // Check if path is explicitly closed (ends with CLOSE_PATH)
   const isExplicitlyClosed =
     commands[commands.length - 1]?.type === SVGPathData.CLOSE_PATH;
@@ -28,22 +48,22 @@ export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
   // Start with a move to the last explicit point
   // (if path ends with Z, use the point before Z)
   const startPointIndex = isExplicitlyClosed
-    ? points.length - 2
-    : points.length - 1;
+    ? commands.length - 2
+    : commands.length - 1;
 
   const reversed: SVGCommand[] = [
     {
       type: SVGPathData.MOVE_TO,
       relative: false,
-      x: points[startPointIndex].x,
-      y: points[startPointIndex].y,
+      x: commands[startPointIndex].x,
+      y: commands[startPointIndex].y,
     },
   ];
 
   // Process each segment in reverse order
   for (let i = startPointIndex; i > 0; i--) {
-    const curCmd = points[i];
-    const prevPoint = points[i - 1];
+    const curCmd = commands[i];
+    const prevPoint = commands[i - 1];
 
     if (curCmd.relative) {
       throw new Error(
@@ -82,7 +102,7 @@ export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
         break;
 
       case SVGPathData.CURVE_TO:
-        // Reverse curve control points
+        // Reverse curve control commands
         reversed.push({
           type: SVGPathData.CURVE_TO,
           relative: false,
@@ -95,12 +115,14 @@ export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
         });
         break;
 
-      // Skip close path - we'll add it at the end if needed
-      case SVGPathData.CLOSE_PATH:
-        throw new Error('Multiple close path commands are not supported');
-
-      default:
-        throw new Error('Curve commands are not supported, convert them first');
+      case SVGPathData.SMOOTH_CURVE_TO:
+        throw new Error(`Unsupported command: S (smooth cubic bezier)`);
+      case SVGPathData.SMOOTH_QUAD_TO:
+        throw new Error(`Unsupported command: T (smooth quadratic bezier)`);
+      case SVGPathData.ARC:
+        throw new Error(`Unsupported command: A (arc)`);
+      case SVGPathData.QUAD_TO:
+        throw new Error(`Unsupported command: Q (quadratic bezier)`);
     }
   }
 
