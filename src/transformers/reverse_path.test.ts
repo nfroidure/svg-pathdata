@@ -76,5 +76,26 @@ describe('Reverse paths', () => {
         'Curve commands are not supported, convert them first',
       );
     });
+
+    test('throw on smooth cubic bezier curve (S)', () => {
+      const input = 'M10,10 S25,25 40,10';
+      expect(() => new SVGPathData(input).reverse().encode()).toThrow(
+        'Curve commands are not supported, convert them first',
+      );
+    });
+
+    test('throw on smooth quadratic bezier curve (T)', () => {
+      const input = 'M10,10 T40,10';
+      expect(() => new SVGPathData(input).reverse().encode()).toThrow(
+        'Curve commands are not supported, convert them first',
+      );
+    });
+
+    test('throw on arc commands (A)', () => {
+      const input = 'M10,10 A5,5 0 0 1 20,20';
+      expect(() => new SVGPathData(input).reverse().encode()).toThrow(
+        'Curve commands are not supported, convert them first',
+      );
+    });
   });
 });

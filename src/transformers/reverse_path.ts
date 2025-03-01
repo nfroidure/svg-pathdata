@@ -12,9 +12,7 @@ import type { SVGCommand } from '../types.js';
 export function REVERSE_PATH(commands: SVGCommand[]): SVGCommand[] {
   const supportedCommands =
     SVGPathData.MOVE_TO |
-    SVGPathData.HORIZ_LINE_TO |
-    SVGPathData.VERT_LINE_TO |
-    SVGPathData.LINE_TO |
+    SVGPathData.LINE_COMMANDS |
     SVGPathData.CURVE_TO |
     SVGPathData.CLOSE_PATH;
 
