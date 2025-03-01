@@ -44,6 +44,11 @@ export class SVGPathData extends TransformableSVG {
     return this;
   }
 
+  reverse() {
+    this.commands = SVGPathDataTransformer.REVERSE_PATH(this.commands);
+    return this;
+  }
+
   static encode(commands: SVGCommand[]) {
     return encodeSVGPath(commands);
   }
