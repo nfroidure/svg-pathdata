@@ -21,7 +21,7 @@ describe('X axis skew', () => {
 
   test('should work with relative path | 90deg', () => {
     expect(
-      new SVGPathData('m100 75l-50 -45l0 90z').skewX(Math.PI / 2).encode(),
+      new SVGPathData('m100 75l-50 -45l0 90z').skewX(degToRad(90)).encode(),
     ).toEqual(
       'm1224842951489652700 75l-734905770893791600 -45l1469811541787583200 90z',
     );
@@ -29,7 +29,7 @@ describe('X axis skew', () => {
 
   test('should work with absolute path | 90deg', () => {
     expect(
-      new SVGPathData('M 100,75 50,30 50,120 z').skewX(Math.PI / 2).encode(),
+      new SVGPathData('M 100,75 50,30 50,120 z').skewX(degToRad(90)).encode(),
     ).toEqual(
       'M1224842951489652700 75L489937180595861200 30L1959748722383444500 120z',
     );
@@ -66,13 +66,13 @@ describe('Y axis skew', () => {
 
   test('should work with relative path | 90deg', () => {
     expect(
-      new SVGPathData('m100 75l-50 -45l0 90z').skewY(Math.PI / 2).encode(),
+      new SVGPathData('m100 75l-50 -45l0 90z').skewY(degToRad(90)).encode(),
     ).toEqual('m100 1633123935319537000l-50 -816561967659768400l0 90z');
   });
 
   test('should work with absolute path | 90deg', () => {
     expect(
-      new SVGPathData('M 100,75 50,30 50,120 z').skewY(Math.PI / 2).encode(),
+      new SVGPathData('M 100,75 50,30 50,120 z').skewY(degToRad(90)).encode(),
     ).toEqual(
       'M100 1633123935319537000L50 816561967659768400L50 816561967659768600z',
     );
