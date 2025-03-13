@@ -757,7 +757,7 @@ function CALCULATE_BOUNDS() {
           : -180 > c.phi2
             ? [c.phi2 + 360, c.phi1 + 360]
             : [c.phi2, c.phi1];
-      const normalizeXiEta = ([xi, eta]: Point) => {
+      const normalizeXiEta = ([xi, eta]: [number, number]) => {
         const phiRad = Math.atan2(eta, xi);
         const phi = (phiRad * 180) / Math.PI;
 
