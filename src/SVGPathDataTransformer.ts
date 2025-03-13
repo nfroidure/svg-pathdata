@@ -12,7 +12,7 @@ import {
   bezierRoot,
   intersectionUnitCircleLine,
   arePointsCollinear,
-  Point,
+  type Point,
 } from './mathUtils.js';
 import { SVGPathData } from './SVGPathData.js';
 import type { SVGCommand, TransformFunction } from './types.js';
