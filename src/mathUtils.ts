@@ -181,6 +181,8 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
   if (!arc.cX) {
     annotateArcCommand(arc, x0, y0);
   }
+  // Convert xRot to radians
+  const xRotRad = (arc.xRot / 180) * PI;
 
   // Calculate angle difference, always positive and normalized to avoid too large segments
   const deltaPhi = Math.abs(arc.phi2! - arc.phi1!);
@@ -215,7 +217,6 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
     };
 
     const transform = (x: number, y: number) => {
-      const xRotRad = (arc.xRot / 180) * PI;
       const [xTemp, yTemp] = rotate([x * arc.rX, y * arc.rY], xRotRad);
       return [arc.cX! + xTemp, arc.cY! + yTemp];
     };
