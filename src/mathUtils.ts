@@ -238,12 +238,12 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
 
 /**
  * Determines if three points are collinear (lie on the same straight line)
- * Uses cross product approach with tolerance for floating point errors
+ * and the middle point is on the line segment between the first and third points
  *
  * @param p1 First point [x, y]
- * @param p2 Second point [x, y]
- * @param p3 Third point [x, y]
- * @returns true if the points are collinear
+ * @param p2 Middle point that might be removed
+ * @param p3 Last point [x, y]
+ * @returns true if the points are collinear and p2 is on the segment p1-p3
  */
 export function arePointsCollinear(p1: Point, p2: Point, p3: Point): boolean {
   // Create vectors
@@ -255,7 +255,22 @@ export function arePointsCollinear(p1: Point, p2: Point, p3: Point): boolean {
   // Cross product: v1 × v2 = v1x * v2y - v1y * v2x
   // If cross product is close to zero, points are collinear
   const cross = v1x * v2y - v1y * v2x;
+  const isCollinear = Math.abs(cross) < 1e-10;
 
-  // Use small epsilon for floating point comparison
-  return Math.abs(cross) < 1e-10;
+  if (!isCollinear) return false;
+
+  // Now check if p2 is on the segment p1-p3
+  // For this we check if the projection of v1 onto v2 is between 0 and |v2|
+
+  // Calculate dot product
+  const dot = v1x * v2x + v1y * v2y;
+
+  // Calculate squared lengths
+  const lenSqV1 = v1x * v1x + v1y * v1y;
+  const lenSqV2 = v2x * v2x + v2y * v2y;
+
+  // p2 is on segment p1-p3 if:
+  // 1. 0 ≤ dot(v1,v2) ≤ dot(v2,v2) - this checks if projection is within segment
+  // 2. |v1| ≤ |v2| - this checks if p2 is not beyond p3
+  return 0 <= dot && dot <= lenSqV2 && lenSqV1 <= lenSqV2;
 }
