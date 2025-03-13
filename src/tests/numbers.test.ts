@@ -1,6 +1,5 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
-import { assertThrows } from './testUtils.js';
 import { type CommandM } from '../types.js';
 
 describe('Parsing commands with different numbers', () => {
@@ -115,10 +114,8 @@ describe('Parsing commands with different numbers', () => {
   });
 
   test('should fail with eE', () => {
-    assertThrows(
-      () => new SVGPathData('H1ee2'),
-      SyntaxError,
-      'Invalid number ending at 0',
+    expect(() => new SVGPathData('H1ee2')).toThrow(
+      new SyntaxError('Invalid number ending at 0'),
     );
   });
 });

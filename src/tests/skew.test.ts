@@ -1,17 +1,16 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
-import { assertThrows } from './testUtils.js';
 
 describe('X axis skew', () => {
   test('should fail with bad args', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('m20,30l10,10z')
-          .skewX(undefined as unknown as number)
-          .encode();
-      },
-      Error,
-      'assertNumbers arguments[0] is not a number. undefined == typeof undefined',
+    expect(() =>
+      new SVGPathData('m20,30l10,10z')
+        .skewX(undefined as unknown as number)
+        .encode(),
+    ).toThrow(
+      new Error(
+        'assertNumbers arguments[0] is not a number. undefined == typeof undefined',
+      ),
     );
   });
 
@@ -34,14 +33,14 @@ describe('X axis skew', () => {
 
 describe('Y axis skew', () => {
   test('should fail with bad args', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('m20,30l10,10z')
-          .skewY(undefined as unknown as number)
-          .encode();
-      },
-      Error,
-      'assertNumbers arguments[0] is not a number. undefined == typeof undefined',
+    expect(() =>
+      new SVGPathData('m20,30l10,10z')
+        .skewY(undefined as unknown as number)
+        .encode(),
+    ).toThrow(
+      new Error(
+        'assertNumbers arguments[0] is not a number. undefined == typeof undefined',
+      ),
     );
   });
 

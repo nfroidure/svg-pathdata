@@ -1,26 +1,17 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
-import { assertThrows } from './testUtils.js';
 import type { CommandT } from '../types.js';
 
 describe('Parsing smooth quadratic curve to commands', () => {
   test('should fail with a with single coordinate', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('T100');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('T100')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
   });
 
   test('should fail with a single complexer coordinate', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('t-10e-5');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('t-10e-5')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
   });
 
