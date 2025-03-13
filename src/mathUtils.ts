@@ -257,6 +257,5 @@ export function arePointsCollinear(p1: Point, p2: Point, p3: Point): boolean {
   const cross = v1x * v2y - v1y * v2x;
 
   // Use small epsilon for floating point comparison
-  const EPSILON = 1e-10;
-  return Math.abs(cross) < EPSILON;
+  return Math.abs(cross) < 1e-10;
 }
