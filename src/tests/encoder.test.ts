@@ -1,4 +1,4 @@
-import { describe, test, expect } from '@jest/globals';
+import { describe, test, expect } from 'vitest';
 import { encodeSVGPath } from '../index.js';
 import { type SVGCommand } from '../types.js';
 
