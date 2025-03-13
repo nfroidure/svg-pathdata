@@ -10,9 +10,7 @@
     "esModuleInterop": true,
     "strict": true,
     "declaration": true,
-    "outDir": "dist",
-    "sourceMap": true,
-    "skipLibCheck": true
+    "noEmit": true
   },
   "include": [
     "src/**/*.ts"
