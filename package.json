@@ -1,27 +1,4 @@
 {
-  "metapak": {
-    "configs": [
-      "main",
-      "readme",
-      "tsesm",
-      "jest",
-      "eslint",
-      "codeclimate",
-      "ghactions"
-    ],
-    "data": {
-      "files": "'src/**/*.ts'",
-      "testsFiles": "'src/**/*.test.ts'",
-      "distFiles": "'dist/**/*.js'",
-      "ignore": [
-        "dist"
-      ],
-      "bundleFiles": [
-        "dist",
-        "src"
-      ]
-    }
-  },
   "name": "svg-pathdata",
   "version": "7.1.0",
   "description": "Manipulate SVG path data (path[d] attribute content) simply and efficiently.",
