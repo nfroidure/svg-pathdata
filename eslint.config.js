@@ -6,7 +6,7 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import eslintPluginVitest from 'eslint-plugin-vitest';
+import eslintPluginVitest from '@vitest/eslint-plugin';
 
 export default tseslint.config(
   eslint.configs.recommended,
