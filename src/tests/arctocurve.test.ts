@@ -52,6 +52,23 @@ describe('Converting elliptical arc commands to curves', () => {
     );
   });
 
+  test('should handle zero radius arcs by converting to lines', () => {
+    // Zero y-radius
+    expect(testArcToCurve('M0 0A80 0 0 0 0 125 125')).toEqual(
+      'M0 0C41.6666666666667 41.6666666666667 83.3333333333333 83.3333333333333 125 125',
+    );
+
+    // Zero x-radius
+    expect(testArcToCurve('M0 0A0 80 0 0 0 125 125')).toEqual(
+      'M0 0C41.6666666666667 41.6666666666667 83.3333333333333 83.3333333333333 125 125',
+    );
+
+    // Both x and y radius zero
+    expect(testArcToCurve('M0 0A0 0 0 0 0 125 125')).toEqual(
+      'M0 0C41.6666666666667 41.6666666666667 83.3333333333333 83.3333333333333 125 125',
+    );
+  });
+
   test('should convert to correct arc', () => {
     expect(testArcToCurve('M 30 30 A 30 30 90 0 0 30 80 Z')).toEqual(
       'M30 30C21.6206442862417 35.5582357774914 16.583123951777 44.9447731434901 16.583123951777 55C16.583123951777 65.0552268565099 21.6206442862417 74.4417642225086 30 80z',

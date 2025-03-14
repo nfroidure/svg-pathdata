@@ -11,6 +11,8 @@ import {
   bezierAt,
   bezierRoot,
   intersectionUnitCircleLine,
+  arePointsCollinear,
+  type Point,
 } from './mathUtils.js';
 import { SVGPathData } from './SVGPathData.js';
 import type { SVGCommand, TransformFunction } from './types.js';
@@ -115,11 +117,12 @@ function TO_REL() {
     return command;
   });
 }
-// Convert H, V, Z and A with rX = 0 to L
+// Convert H, V, Z, A with rX = 0, and straight Bezier curves to L
 function NORMALIZE_HVZ(
   normalizeZ = true,
   normalizeH = true,
   normalizeV = true,
+  normalizeC = true,
 ) {
   return INFO((command, prevX, prevY, pathStartX, pathStartY) => {
     if (isNaN(pathStartX) && !(command.type & SVGPathData.MOVE_TO)) {
@@ -138,6 +141,8 @@ function NORMALIZE_HVZ(
       command.x = command.relative ? pathStartX - prevX : pathStartX;
       command.y = command.relative ? pathStartY - prevY : pathStartY;
     }
+
+    // Handle degenerate arcs
     if (
       command.type & SVGPathData.ARC &&
       (0 === command.rX || 0 === command.rY)
@@ -149,6 +154,52 @@ function NORMALIZE_HVZ(
       delete command.lArcFlag;
       delete command.sweepFlag;
     }
+
+    // Check for quad curves that are lines
+    if (normalizeC && command.type & SVGPathData.QUAD_TO) {
+      const startPoint: Point = [prevX, prevY];
+      const controlPoint: Point = command.relative
+        ? [prevX + command.x1, prevY + command.y1]
+        : [command.x1, command.y1];
+      const endPoint: Point = command.relative
+        ? [prevX + command.x, prevY + command.y]
+        : [command.x, command.y];
+
+      if (arePointsCollinear(startPoint, controlPoint, endPoint)) {
+        command.type = SVGPathData.LINE_TO;
+        // Keep the endpoint
+        delete command.x1;
+        delete command.y1;
+      }
+    }
+
+    // Check for cubic curves that are lines
+    if (normalizeC && command.type & SVGPathData.CURVE_TO) {
+      const startPoint: Point = [prevX, prevY];
+      const control1: Point = command.relative
+        ? [prevX + command.x1, prevY + command.y1]
+        : [command.x1, command.y1];
+      const control2: Point = command.relative
+        ? [prevX + command.x2, prevY + command.y2]
+        : [command.x2, command.y2];
+      const endPoint: Point = command.relative
+        ? [prevX + command.x, prevY + command.y]
+        : [command.x, command.y];
+
+      // All points need to be collinear
+      if (
+        arePointsCollinear(startPoint, control1, endPoint) &&
+        arePointsCollinear(startPoint, control2, endPoint)
+      ) {
+        command.type = SVGPathData.LINE_TO;
+        // Keep the endpoint
+        delete command.x1;
+        delete command.y1;
+        delete command.x2;
+        delete command.y2;
+      }
+    }
+
     return command;
   });
 }
@@ -571,12 +622,12 @@ function SCALE(dX: number, dY = dX) {
 
 function SKEW_X(a: number) {
   assertNumbers(a);
-  return MATRIX(1, 0, Math.atan(a), 1, 0, 0);
+  return MATRIX(1, 0, Math.tan(a), 1, 0, 0);
 }
 
 function SKEW_Y(a: number) {
   assertNumbers(a);
-  return MATRIX(1, Math.atan(a), 0, 1, 0, 0);
+  return MATRIX(1, Math.tan(a), 0, 1, 0, 0);
 }
 
 function X_AXIS_SYMMETRY(xOffset = 0) {
