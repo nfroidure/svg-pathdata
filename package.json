@@ -142,9 +142,6 @@
     "trailingComma": "all",
     "proseWrap": "always"
   },
-  "dependencies": {
-    "yerror": "^8.0.0"
-  },
   "jest": {
     "coverageReporters": [
       "lcov"
