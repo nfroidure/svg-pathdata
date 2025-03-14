@@ -1,65 +1,39 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
-import { assertThrows } from './testUtils.js';
 import { type CommandC } from '../types.js';
 
 describe('Parsing curve to commands', () => {
   test('should not work when badly declared', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('C');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('C')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('C10');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+
+    expect(() => new SVGPathData('C10')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('C10 10');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+
+    expect(() => new SVGPathData('C10 10')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('C10 10 10');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+
+    expect(() => new SVGPathData('C10 10 10')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('C10 10 10 10');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+
+    expect(() => new SVGPathData('C10 10 10 10')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('C10 10 10 10 10');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+
+    expect(() => new SVGPathData('C10 10 10 10 10')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('C10 10 10 10 10 10 10 10');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+
+    expect(() => new SVGPathData('C10 10 10 10 10 10 10 10')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('C10 10 10C10 10 10 10 10 10');
-      },
-      SyntaxError,
-      'Unterminated command at index 9.',
+
+    expect(() => new SVGPathData('C10 10 10C10 10 10 10 10 10')).toThrow(
+      new SyntaxError('Unterminated command at index 9.'),
     );
   });
 

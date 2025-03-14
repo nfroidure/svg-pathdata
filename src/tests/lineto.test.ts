@@ -1,36 +1,23 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
-import { assertThrows } from './testUtils.js';
 import { type CommandL } from '../types.js';
 
 describe('Parsing line to commands', () => {
   test('should not work with single coordinate', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('L100');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('L100')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
   });
 
   test('should not work with single complexer coordinate', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('l-10e-5');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('l-10e-5')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
   });
 
   test('should work with single coordinate followed by another', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('l-10l10 10');
-      },
-      SyntaxError,
-      'Unterminated command at index 4.',
+    expect(() => new SVGPathData('l-10l10 10')).toThrow(
+      new SyntaxError('Unterminated command at index 4.'),
     );
   });
 
