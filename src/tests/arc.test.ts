@@ -1,97 +1,57 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
-import { assertThrows } from './testUtils.js';
 import { type CommandA } from '../types.js';
 
 describe('Parsing elliptical arc commands', () => {
   test('should not work when badly declared', () => {
-    // assertThrows(() => {
-    //   new SVGPathData('A');
-    // }, SyntaxError, 'Unterminated command at the path end.');
-    // assertThrows(() => {
-    //   new SVGPathData('A 30');
-    // }, SyntaxError, 'Unterminated command at the path end.');
-    assertThrows(
-      () => {
-        new SVGPathData('A 30 50');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('A')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('A 30 50 0');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('A 30')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('A 30 50 0 0');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('A 30 50')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('A 30 50 0 0 1');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+
+    expect(() => new SVGPathData('A 30 50 0')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('A 30 50 0 0 1 162.55');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('A 30 50 0 0')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
-    assertThrows(
-      () => {
-        new SVGPathData('A 30 50 0 0 1 A 30 50 0 0 1 162.55 162.45');
-      },
-      SyntaxError,
-      'Unterminated command at index 14.',
+    expect(() => new SVGPathData('A 30 50 0 0 1')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
+    expect(() => new SVGPathData('A 30 50 0 0 1 162.55')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
+    );
+    expect(
+      () => new SVGPathData('A 30 50 0 0 1 A 30 50 0 0 1 162.55 162.45'),
+    ).toThrow(new SyntaxError('Unterminated command at index 14.'));
   });
 
   test('should not work with bad rX value', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('A-30,50,0,0,1,162.55,162.45');
-      },
-      SyntaxError,
-      'Expected positive number, got "-30" at index "4"',
+    expect(() => new SVGPathData('A-30,50,0,0,1,162.55,162.45')).toThrow(
+      new SyntaxError('Expected positive number, got "-30" at index "4"'),
     );
   });
 
   test('should not work with bad rY value', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('A30,-50,0,0,1,162.55,162.45');
-      },
-      SyntaxError,
-      'Expected positive number, got "-50" at index "7"',
+    expect(() => new SVGPathData('A30,-50,0,0,1,162.55,162.45')).toThrow(
+      new SyntaxError('Expected positive number, got "-50" at index "7"'),
     );
   });
 
   test('should not work with bad lArcFlag value', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('A30,50,0,15,1,162.55,162.45');
-      },
-      SyntaxError,
-      'Expected a flag, got "5" at index "11"',
+    expect(() => new SVGPathData('A30,50,0,15,1,162.55,162.45')).toThrow(
+      new SyntaxError('Expected a flag, got "5" at index "11"'),
     );
   });
 
   test('should not work with bad sweepFlag value', () => {
-    assertThrows(
-      () => {
-        new SVGPathData('A30,50,0,0,15,162.55,162.45');
-      },
-      SyntaxError,
-      'Unterminated command at the path end.',
+    expect(() => new SVGPathData('A30,50,0,0,15,162.55,162.45')).toThrow(
+      new SyntaxError('Unterminated command at the path end.'),
     );
   });
 
@@ -111,10 +71,10 @@ describe('Parsing elliptical arc commands', () => {
   });
 
   test('should not work with a comma immediately after A', () => {
-    assertThrows(
-      () => new SVGPathData('A,30,50,0,0,1,162.55,162.45'),
-      SyntaxError,
-      'Unexpected character "," at index 1. Command cannot follow comma',
+    expect(() => new SVGPathData('A,30,50,0,0,1,162.55,162.45')).toThrow(
+      new SyntaxError(
+        'Unexpected character "," at index 1. Command cannot follow comma',
+      ),
     );
   });
 
