@@ -278,9 +278,13 @@ describe('Transforming elliptical arc commands', () => {
     );
   });
 
-  test('should skew', () => {
+  test('should skew by -45deg', () => {
+    function degToRad(deg: number): number {
+      return deg * (Math.PI / 180);
+    }
+
     assertDeepCloseTo(
-      new SVGPathData('M 0,0 A 50,100 0 0 1 50,100z').skewX(Math.tan(-1))
+      new SVGPathData('M 0,0 A 50,100 0 0 1 50,100z').skewX(degToRad(-45))
         .commands,
       new SVGPathData('M 0,0 A 34.2,146.0 48.6 0 1 -50,100 Z').commands,
       0.1,
