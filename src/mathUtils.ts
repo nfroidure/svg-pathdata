@@ -184,13 +184,10 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
   // Convert xRot to radians
   const xRotRad = (arc.xRot / 180) * PI;
 
-  // Calculate angle difference, always positive and normalized to avoid too large segments
-  const deltaPhi = Math.abs(arc.phi2! - arc.phi1!);
-
-  // Use more segments for larger angles or rotated ellipses for better accuracy
-  const isRotated = Math.abs(arc.xRot % 180) > 1e-10;
-  const maxSegmentAngle = isRotated ? 60 : 90;
-  const partCount = Math.max(1, Math.ceil(deltaPhi / maxSegmentAngle));
+  const phiMin = Math.min(arc.phi1!, arc.phi2!),
+    phiMax = Math.max(arc.phi1!, arc.phi2!),
+    deltaPhi = phiMax - phiMin;
+  const partCount = Math.ceil(deltaPhi / 90);
 
   const result: CommandC[] = new Array(partCount);
   let prevX = x0,
