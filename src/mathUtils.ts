@@ -40,7 +40,8 @@ export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
 
   rX = Math.abs(c.rX);
   rY = Math.abs(c.rY);
-  const [x1_, y1_] = rotate([(x1 - x) / 2, (y1 - y) / 2], (-c.xRot / 180) * PI);
+  const xRotRad = (c.xRot / 180) * PI;
+  const [x1_, y1_] = rotate([(x1 - x) / 2, (y1 - y) / 2], -xRotRad);
   const testValue =
     Math.pow(x1_, 2) / Math.pow(rX, 2) + Math.pow(y1_, 2) / Math.pow(rY, 2);
 
@@ -62,7 +63,7 @@ export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
     );
   const cx_ = ((rX * y1_) / rY) * c_Scale;
   const cy_ = ((-rY * x1_) / rX) * c_Scale;
-  const cRot = rotate([cx_, cy_], (c.xRot / 180) * PI);
+  const cRot = rotate([cx_, cy_], xRotRad);
 
   c.cX = cRot[0] + (x1 + x) / 2;
   c.cY = cRot[1] + (y1 + y) / 2;
@@ -180,6 +181,8 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
   if (!arc.cX) {
     annotateArcCommand(arc, x0, y0);
   }
+  // Convert xRot to radians
+  const xRotRad = (arc.xRot / 180) * PI;
 
   const phiMin = Math.min(arc.phi1!, arc.phi2!),
     phiMax = Math.max(arc.phi1!, arc.phi2!),
@@ -211,7 +214,7 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
     };
 
     const transform = (x: number, y: number) => {
-      const [xTemp, yTemp] = rotate([x * arc.rX, y * arc.rY], arc.xRot);
+      const [xTemp, yTemp] = rotate([x * arc.rX, y * arc.rY], xRotRad);
       return [arc.cX! + xTemp, arc.cY! + yTemp];
     };
 
