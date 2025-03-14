@@ -38,6 +38,16 @@ export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
   let { rX, rY } = c;
   const { x, y } = c;
 
+  if (Math.abs(rX) < 1e-10 || Math.abs(rY) < 1e-10) {
+    c.rX = 0;
+    c.rY = 0;
+    c.cX = (x1 + x) / 2;
+    c.cY = (y1 + y) / 2;
+    c.phi1 = 0;
+    c.phi2 = 0;
+    return;
+  }
+
   rX = Math.abs(c.rX);
   rY = Math.abs(c.rY);
   const xRotRad = (c.xRot / 180) * PI;
@@ -131,6 +141,9 @@ export function arcAt(c: number, x1: number, x2: number, phiDeg: number) {
 
 export function bezierRoot(x0: number, x1: number, x2: number, x3: number) {
   const EPS = 1e-6;
+  // Coefficients for the derivative of a cubic Bezier curve
+  // B'(t) = 3(1-t)²(P₁-P₀) + 6(1-t)t(P₂-P₁) + 3t²(P₃-P₂)
+  // When rearranged to at² + bt + c:
   const x01 = x1 - x0;
   const x12 = x2 - x1;
   const x23 = x3 - x2;
@@ -140,8 +153,8 @@ export function bezierRoot(x0: number, x1: number, x2: number, x3: number) {
   // solve a * t² + b * t + c = 0
 
   if (Math.abs(a) < EPS) {
-    // equivalent to b * t + c =>
-    return [-c / b];
+    // For near-zero a, it becomes a linear equation: b * t + c = 0
+    return Math.abs(b) < EPS ? [] : [-c / b];
   }
   return pqFormula(b / a, c / a, EPS);
 }
@@ -153,7 +166,10 @@ export function bezierAt(
   x3: number,
   t: number,
 ) {
-  // console.log(x0, y0, x1, y1, x2, y2, x3, y3, t)
+  // Calculates a point on a cubic Bezier curve at parameter t.
+  // B(t) = (1-t)³P₀ + 3(1-t)²tP₁ + 3(1-t)t²P₂ + t³P₃
+  // Which is equivalent to:
+  // B(t) = (s³)P₀ + (3s²t)P₁ + (3st²)P₂ + (t³)P₃  where s = 1-t
   const s = 1 - t;
   const c0 = s * s * s;
   const c1 = 3 * s * s * t;
@@ -183,6 +199,22 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
   }
   // Convert xRot to radians
   const xRotRad = (arc.xRot / 180) * PI;
+
+  // Handle zero radius case - convert to a straight line represented as a curve
+  if (Math.abs(arc.rX) < 1e-10 || Math.abs(arc.rY) < 1e-10) {
+    return [
+      {
+        relative: arc.relative,
+        type: SVGPathData.CURVE_TO,
+        x1: x0 + (arc.x - x0) / 3,
+        y1: y0 + (arc.y - y0) / 3,
+        x2: x0 + (2 * (arc.x - x0)) / 3,
+        y2: y0 + (2 * (arc.y - y0)) / 3,
+        x: arc.x,
+        y: arc.y,
+      },
+    ];
+  }
 
   const phiMin = Math.min(arc.phi1!, arc.phi2!),
     phiMax = Math.max(arc.phi1!, arc.phi2!),
