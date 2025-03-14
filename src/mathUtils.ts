@@ -1,7 +1,9 @@
 import { SVGPathData } from './SVGPathData.js';
 import { type CommandA, type CommandC } from './types.js';
 
-export function rotate([x, y]: [number, number], rad: number) {
+export type Point = [x: number, y: number];
+
+export function rotate([x, y]: Point, rad: number) {
   return [
     x * Math.cos(rad) - y * Math.sin(rad),
     x * Math.sin(rad) + y * Math.cos(rad),
@@ -38,9 +40,20 @@ export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
   let { rX, rY } = c;
   const { x, y } = c;
 
+  if (Math.abs(rX) < 1e-10 || Math.abs(rY) < 1e-10) {
+    c.rX = 0;
+    c.rY = 0;
+    c.cX = (x1 + x) / 2;
+    c.cY = (y1 + y) / 2;
+    c.phi1 = 0;
+    c.phi2 = 0;
+    return;
+  }
+
   rX = Math.abs(c.rX);
   rY = Math.abs(c.rY);
-  const [x1_, y1_] = rotate([(x1 - x) / 2, (y1 - y) / 2], (-c.xRot / 180) * PI);
+  const xRotRad = (c.xRot / 180) * PI;
+  const [x1_, y1_] = rotate([(x1 - x) / 2, (y1 - y) / 2], -xRotRad);
   const testValue =
     Math.pow(x1_, 2) / Math.pow(rX, 2) + Math.pow(y1_, 2) / Math.pow(rY, 2);
 
@@ -62,7 +75,7 @@ export function annotateArcCommand(c: CommandA, x1: number, y1: number) {
     );
   const cx_ = ((rX * y1_) / rY) * c_Scale;
   const cy_ = ((-rY * x1_) / rX) * c_Scale;
-  const cRot = rotate([cx_, cy_], (c.xRot / 180) * PI);
+  const cRot = rotate([cx_, cy_], xRotRad);
 
   c.cX = cRot[0] + (x1 + x) / 2;
   c.cY = cRot[1] + (y1 + y) / 2;
@@ -130,6 +143,9 @@ export function arcAt(c: number, x1: number, x2: number, phiDeg: number) {
 
 export function bezierRoot(x0: number, x1: number, x2: number, x3: number) {
   const EPS = 1e-6;
+  // Coefficients for the derivative of a cubic Bezier curve
+  // B'(t) = 3(1-t)²(P₁-P₀) + 6(1-t)t(P₂-P₁) + 3t²(P₃-P₂)
+  // When rearranged to at² + bt + c:
   const x01 = x1 - x0;
   const x12 = x2 - x1;
   const x23 = x3 - x2;
@@ -139,8 +155,8 @@ export function bezierRoot(x0: number, x1: number, x2: number, x3: number) {
   // solve a * t² + b * t + c = 0
 
   if (Math.abs(a) < EPS) {
-    // equivalent to b * t + c =>
-    return [-c / b];
+    // For near-zero a, it becomes a linear equation: b * t + c = 0
+    return Math.abs(b) < EPS ? [] : [-c / b];
   }
   return pqFormula(b / a, c / a, EPS);
 }
@@ -152,7 +168,10 @@ export function bezierAt(
   x3: number,
   t: number,
 ) {
-  // console.log(x0, y0, x1, y1, x2, y2, x3, y3, t)
+  // Calculates a point on a cubic Bezier curve at parameter t.
+  // B(t) = (1-t)³P₀ + 3(1-t)²tP₁ + 3(1-t)t²P₂ + t³P₃
+  // Which is equivalent to:
+  // B(t) = (s³)P₀ + (3s²t)P₁ + (3st²)P₂ + (t³)P₃  where s = 1-t
   const s = 1 - t;
   const c0 = s * s * s;
   const c1 = 3 * s * s * t;
@@ -179,6 +198,24 @@ function pqFormula(p: number, q: number, PRECISION = 1e-6) {
 export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
   if (!arc.cX) {
     annotateArcCommand(arc, x0, y0);
+  }
+  // Convert xRot to radians
+  const xRotRad = (arc.xRot / 180) * PI;
+
+  // Handle zero radius case - convert to a straight line represented as a curve
+  if (Math.abs(arc.rX) < 1e-10 || Math.abs(arc.rY) < 1e-10) {
+    return [
+      {
+        relative: arc.relative,
+        type: SVGPathData.CURVE_TO,
+        x1: x0 + (arc.x - x0) / 3,
+        y1: y0 + (arc.y - y0) / 3,
+        x2: x0 + (2 * (arc.x - x0)) / 3,
+        y2: y0 + (2 * (arc.y - y0)) / 3,
+        x: arc.x,
+        y: arc.y,
+      },
+    ];
   }
 
   const phiMin = Math.min(arc.phi1!, arc.phi2!),
@@ -211,7 +248,7 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
     };
 
     const transform = (x: number, y: number) => {
-      const [xTemp, yTemp] = rotate([x * arc.rX, y * arc.rY], arc.xRot);
+      const [xTemp, yTemp] = rotate([x * arc.rX, y * arc.rY], xRotRad);
       return [arc.cX! + xTemp, arc.cY! + yTemp];
     };
 
@@ -232,4 +269,43 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
     result[i] = command as CommandC;
   }
   return result;
+}
+
+/**
+ * Determines if three points are collinear (lie on the same straight line)
+ * and the middle point is on the line segment between the first and third points
+ *
+ * @param p1 First point [x, y]
+ * @param p2 Middle point that might be removed
+ * @param p3 Last point [x, y]
+ * @returns true if the points are collinear and p2 is on the segment p1-p3
+ */
+export function arePointsCollinear(p1: Point, p2: Point, p3: Point): boolean {
+  // Create vectors
+  const v1x = p2[0] - p1[0];
+  const v1y = p2[1] - p1[1];
+  const v2x = p3[0] - p1[0];
+  const v2y = p3[1] - p1[1];
+
+  // Cross product: v1 × v2 = v1x * v2y - v1y * v2x
+  // If cross product is close to zero, points are collinear
+  const cross = v1x * v2y - v1y * v2x;
+  const isCollinear = Math.abs(cross) < 1e-10;
+
+  if (!isCollinear) return false;
+
+  // Now check if p2 is on the segment p1-p3
+  // For this we check if the projection of v1 onto v2 is between 0 and |v2|
+
+  // Calculate dot product
+  const dot = v1x * v2x + v1y * v2y;
+
+  // Calculate squared lengths
+  const lenSqV1 = v1x * v1x + v1y * v1y;
+  const lenSqV2 = v2x * v2x + v2y * v2y;
+
+  // p2 is on segment p1-p3 if:
+  // 1. 0 ≤ dot(v1,v2) ≤ dot(v2,v2) - this checks if projection is within segment
+  // 2. |v1| ≤ |v2| - this checks if p2 is not beyond p3
+  return 0 <= dot && dot <= lenSqV2 && lenSqV1 <= lenSqV2;
 }
