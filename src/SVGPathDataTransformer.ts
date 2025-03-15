@@ -16,6 +16,7 @@ import {
 } from './mathUtils.js';
 import { SVGPathData } from './SVGPathData.js';
 import { REVERSE_PATH } from './transformers/reverse_path.js';
+import { OUTLINE } from './transformers/outline/outline.js';
 import type { SVGCommand, TransformFunction } from './types.js';
 
 // Predefined transforming functions
@@ -816,4 +817,5 @@ export const SVGPathDataTransformer = {
   CLONE,
   CALCULATE_BOUNDS,
   REVERSE_PATH,
+  OUTLINE,
 };
