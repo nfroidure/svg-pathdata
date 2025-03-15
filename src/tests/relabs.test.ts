@@ -226,7 +226,7 @@ describe('toAbs', () => {
         .toAbs()
         .encode(),
     ).toEqual(
-      new SVGPathData(`M 0 0 
+      new SVGPathData(`M 0 0
       C100,100 100,100 100,100
       C200,200 200,200 200,200
       C300,300 300,300 300,300
@@ -244,7 +244,7 @@ describe('toAbs', () => {
         .toAbs()
         .encode(),
     ).toEqual(
-      new SVGPathData(`M 0 0 
+      new SVGPathData(`M 0 0
       S100,100 100,100
       S200,200 200,200
       S300,300 300,300
