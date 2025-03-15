@@ -124,8 +124,8 @@ function generateOutlinePath(
     .qtToC()
     .aToC()
     .normalizeST()
-    .sanitize();
-  pathData.commands = OUTLINE(pathData.commands, options);
+    .sanitize()
+    .createOutline(options);
   return pathData.round(1000).encode();
 }
 
