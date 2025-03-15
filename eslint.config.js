@@ -6,14 +6,14 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier';
-import eslintPluginVitest from '@vitest/eslint-plugin';
+import eslintPluginJest from 'eslint-plugin-jest';
 
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
     files: ['*.test.ts'],
-    ...eslintPluginVitest.configs['recommended'],
+    ...eslintPluginJest.configs['flat/recommended'],
   },
   eslintConfigPrettier,
   {
