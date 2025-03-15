@@ -1,3 +1,25 @@
+# [7.2.0](https://github.com/nfroidure/svg-pathdata/compare/v7.1.0...v7.2.0) (2025-03-15)
+
+
+### Bug Fixes
+
+* correct skew functions to use Math.tan for angle calculations and update tests for accuracy ([cb52591](https://github.com/nfroidure/svg-pathdata/commit/cb5259161e503e884348667a3d54e85d819e5adf))
+* correct type ([62ac9ac](https://github.com/nfroidure/svg-pathdata/commit/62ac9ac647e2084e902bcdbff3cb6443bce9f833))
+* correctly offset relative arcs that produce more than one bezier ([#91](https://github.com/nfroidure/svg-pathdata/issues/91)) ([72ad8cf](https://github.com/nfroidure/svg-pathdata/commit/72ad8cf711cf595b6925cb4a3b6d0fa1ba9193a1))
+* **math:** correct conversion of `arc.xRot` to rad ([#85](https://github.com/nfroidure/svg-pathdata/issues/85)) ([5014647](https://github.com/nfroidure/svg-pathdata/commit/50146470d6a95b2427693ef4f632b993f08a2246))
+* remove no longer needed test utils ([#87](https://github.com/nfroidure/svg-pathdata/issues/87)) ([5ae667e](https://github.com/nfroidure/svg-pathdata/commit/5ae667ec11db268e657e62a5a6ae41fd3299ae37))
+
+
+### Features
+
+* **math:** handle zero radius arcs by converting to lines ([b3a0358](https://github.com/nfroidure/svg-pathdata/commit/b3a03581c9b042c5f055c47c17b58e247c0998bc))
+* **mathUtils:** enhance collinearity check to verify middle point on segment ([83f6454](https://github.com/nfroidure/svg-pathdata/commit/83f6454ca267de8414f3d0b45b3565e83bc95839))
+* modernize build pipeline and dev dependencies ([#88](https://github.com/nfroidure/svg-pathdata/issues/88)) ([b9c184c](https://github.com/nfroidure/svg-pathdata/commit/b9c184ca56e5a6159a547ead0ececea7a4ab2f29))
+* reverse path ([#82](https://github.com/nfroidure/svg-pathdata/issues/82)) ([a2258f2](https://github.com/nfroidure/svg-pathdata/commit/a2258f23799252b55382c5909262d06c206a8d26))
+* **SVGPathData:** normalize bezier curves to lines and add collinearity check ([e4fc254](https://github.com/nfroidure/svg-pathdata/commit/e4fc254876ff4d7ba4c07b3e5c68d1e184c42c99))
+
+
+
 # [7.1.0](https://github.com/nfroidure/svg-pathdata/compare/v7.0.1...v7.1.0) (2024-08-30)
 
 
