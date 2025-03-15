@@ -127,6 +127,3 @@ Temporary Items
 
 # Coveralls key
 .coveralls.yml
-
-# Project custom ignored file
-dist
