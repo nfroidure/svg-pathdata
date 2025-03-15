@@ -8,13 +8,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
-    "cover": "vitest --coverage",
+    "cover": "jest --coverage",
     "format": "npm run prettier",
     "lint": "eslint \"src/**/*.ts\"",
     "precz": "npm t && npm run lint && npm run build",
     "prettier": "prettier --write \"src/**/*.ts\"",
     "preversion": "npm t && npm run lint && npm run build",
-    "test": "vitest run",
+    "test": "jest",
     "type-check": "tsc --pretty --noEmit",
     "version": "npm run changelog"
   },
@@ -54,14 +54,16 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@swc/core": "^1.11.9",
+    "@swc/jest": "^0.2.37",
     "@vitest/eslint-plugin": "^1.1.37",
     "conventional-changelog-cli": "^5.0.0",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.2",
+    "jest": "^29.7.0",
     "prettier": "^3.3.3",
     "typescript": "^5.7.0",
-    "typescript-eslint": "^8.25.0",
-    "vitest": "^3.0.8"
+    "typescript-eslint": "^8.25.0"
   },
   "files": [
     "dist",
@@ -69,5 +71,27 @@
     "LICENSE",
     "README.md",
     "CHANGELOG.md"
-  ]
+  ],
+  "jest": {
+    "coverageReporters": [
+      "lcov"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "transform": {
+      "^.+\\.(t|j)sx?$": "@swc/jest"
+    },
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "(.+)\\.js": "$1"
+    },
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "prettierPath": null
+  }
 }

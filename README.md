@@ -7,8 +7,6 @@
 [![Node version](https://img.shields.io/node/v/svg-pathdata.svg)](https://nodejs.org)
 [![Build status](https://img.shields.io/github/actions/workflow/status/nfroidure/svg-pathdata/test.yml)](https://github.com/nfroidure/svg-pathdata/actions)
 
-[//]: # "::contents:start"
-
 ## Usage
 
 Install the module:
@@ -25,7 +23,7 @@ import {
   SVGPathDataTransformer,
   SVGPathDataEncoder,
   SVGPathDataParser,
-} from "svg-pathdata";
+} from 'svg-pathdata';
 ```
 
 ## Reading PathData
@@ -52,16 +50,16 @@ console.log(pathData.commands);
 ```js
 const parser = new SVGPathDataParser();
 
-parser.parse("   "); // returns []
-parser.parse("M 10"); // returns []
-parser.parse(" 10"); // returns [{type: SVGPathData.MOVE_TO, relative: false, x: 10, y: 10 }]
+parser.parse('   '); // returns []
+parser.parse('M 10'); // returns []
+parser.parse(' 10'); // returns [{type: SVGPathData.MOVE_TO, relative: false, x: 10, y: 10 }]
 
-parser.write("H 60"); // returns [{type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 }]
+parser.write('H 60'); // returns [{type: SVGPathData.HORIZ_LINE_TO, relative: false, x: 60 }]
 
-parser.write("V"); // returns []
-parser.write("60"); // returns [{type: SVGPathData.VERT_LINE_TO, relative: false, y: 60 }]
+parser.write('V'); // returns []
+parser.write('60'); // returns [{type: SVGPathData.VERT_LINE_TO, relative: false, y: 60 }]
 
-parser.write("L 10 60 \n  Z");
+parser.write('L 10 60 \n  Z');
 // returns [
 //   {type: SVGPathData.LINE_TO, relative: false, x: 10, y: 60 },
 //   {type: SVGPathData.CLOSE_PATH }]
@@ -119,8 +117,8 @@ Here, we take SVGPathData from stdin and output it transformed to stdout.
 
 ```js
 const transformingParser = new SVGPathDataParser().toAbs().scale(2, 2);
-transformingParser.parse("m 0 0"); // returns [{ type: SVGPathData.MOVE_TO,       relative: false, x: 0, y: 0 }]
-transformingParser.parse("l 2 3"); // returns [{ type: SVGPathData.LINE_TO,       relative: false, x: 4, y: 6 }]
+transformingParser.parse('m 0 0'); // returns [{ type: SVGPathData.MOVE_TO,       relative: false, x: 0, y: 0 }]
+transformingParser.parse('l 2 3'); // returns [{ type: SVGPathData.LINE_TO,       relative: false, x: 4, y: 6 }]
 ```
 
 ## Supported transformations
@@ -156,8 +154,6 @@ Clone this project, run:
 ```sh
 npm install; npm test
 ```
-
-[//]: # "::contents:end"
 
 # Authors
 
