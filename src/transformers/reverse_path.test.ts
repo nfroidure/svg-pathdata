@@ -1,8 +1,8 @@
 import { describe, test, expect } from '@jest/globals';
 import { SVGPathData } from '../index.js';
 
-export function testReversePath(input: string) {
-  return new SVGPathData(input).reverse().encode();
+export function testReversePath(input: string, preserveSubpathOrder?: boolean) {
+  return new SVGPathData(input).reverse(preserveSubpathOrder).encode();
 }
 
 describe('Reverse paths', () => {
@@ -95,13 +95,13 @@ describe('Reverse paths', () => {
     test('path with multiple subpaths and reversed subpath order', () => {
       const input = 'M10,10 L20,20 Z M30,30 L40,40 Z';
       const expected = 'M40 40L30 30zM20 20L10 10z';
-      expect(new SVGPathData(input).reverse(false).encode()).toEqual(expected);
+      expect(testReversePath(input, false)).toEqual(expected);
     });
 
     test('path with multiple open subpaths and reversed subpath order', () => {
       const input = 'M10,10 L20,20 M30,30 L40,40 M50,50 L60,60';
       const expected = 'M60 60L50 50M40 40L30 30M20 20L10 10';
-      expect(new SVGPathData(input).reverse(false).encode()).toEqual(expected);
+      expect(testReversePath(input, false)).toEqual(expected);
     });
 
     // New tests for combined HVL commands
