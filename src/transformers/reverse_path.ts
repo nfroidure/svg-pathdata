@@ -2,6 +2,8 @@ import { SVGPathData } from '../index.js';
 import { SVGPathDataTransformer } from '../SVGPathDataTransformer.js';
 import type { SVGCommand } from '../types.js';
 
+type SVGCommandXY = SVGCommand & { x: number; y: number; relative: boolean };
+
 /**
  * Reverses the order of path commands to go from end to start
  * IMPORTANT: This function expects absolute commands as input.
@@ -21,13 +23,14 @@ export function REVERSE_PATH(
     ...command,
     x: command.x ?? px,
     y: command.y ?? py,
+    relative: command.relative ?? false,
   }));
 
   const result: SVGCommand[] = [];
-  let processing: SVGCommand[] = [];
+  let processing: SVGCommandXY[] = [];
 
   for (const original of commands) {
-    const cmd = normalized(original);
+    const cmd: SVGCommandXY = normalized(original);
     // Start a new subpath if needed
     if (cmd.type === SVGPathData.MOVE_TO && processing.length > 0) {
       if (preserveSubpathOrder) {
@@ -52,7 +55,7 @@ export function REVERSE_PATH(
   return result;
 }
 
-function reverseSubpath(commands: SVGCommand[]): SVGCommand[] {
+function reverseSubpath(commands: SVGCommandXY[]): SVGCommand[] {
   // Check if path is explicitly closed (ends with CLOSE_PATH)
   const isExplicitlyClosed =
     commands[commands.length - 1]?.type === SVGPathData.CLOSE_PATH;
@@ -79,14 +82,13 @@ function reverseSubpath(commands: SVGCommand[]): SVGCommand[] {
 
     if (curCmd.relative) {
       throw new Error(
-        'Relative command are not supported convert first with `abs()`',
+        'Relative command are not supported convert first with `toAbs()`',
       );
     }
 
     // Handle the current command type
     switch (curCmd.type) {
       case SVGPathData.HORIZ_LINE_TO:
-        // Add a line to the previous point
         reversed.push({
           type: SVGPathData.HORIZ_LINE_TO,
           relative: false,
@@ -94,7 +96,6 @@ function reverseSubpath(commands: SVGCommand[]): SVGCommand[] {
         });
         break;
       case SVGPathData.VERT_LINE_TO:
-        // Add a line to the previous point
         reversed.push({
           type: SVGPathData.VERT_LINE_TO,
           relative: false,
@@ -104,7 +105,6 @@ function reverseSubpath(commands: SVGCommand[]): SVGCommand[] {
 
       case SVGPathData.LINE_TO:
       case SVGPathData.MOVE_TO:
-        // Add a line to the previous point
         reversed.push({
           type: SVGPathData.LINE_TO,
           relative: false,
@@ -114,7 +114,6 @@ function reverseSubpath(commands: SVGCommand[]): SVGCommand[] {
         break;
 
       case SVGPathData.CURVE_TO:
-        // Reverse curve control commands
         reversed.push({
           type: SVGPathData.CURVE_TO,
           relative: false,
