@@ -224,37 +224,41 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
   const partCount = Math.ceil(deltaPhi / 90);
 
   const result: CommandC[] = new Array(partCount);
-  let prevX = x0,
-    prevY = y0;
+  let prevX = x0;
+  let prevY = y0;
+
+  const transform = (x: number, y: number): Point => {
+    const [xTemp, yTemp] = rotate([x * arc.rX, y * arc.rY], xRotRad);
+    return [arc.cX! + xTemp, arc.cY! + yTemp];
+  };
+
   for (let i = 0; i < partCount; i++) {
     const phiStart = lerp(arc.phi1!, arc.phi2!, i / partCount);
     const phiEnd = lerp(arc.phi1!, arc.phi2!, (i + 1) / partCount);
     const deltaPhi = phiEnd - phiStart;
     const f = (4 / 3) * Math.tan((deltaPhi * DEG) / 4);
     // x1/y1, x2/y2 and x/y coordinates on the unit circle for phiStart/phiEnd
-    const [x1, y1] = [
-      Math.cos(phiStart * DEG) - f * Math.sin(phiStart * DEG),
-      Math.sin(phiStart * DEG) + f * Math.cos(phiStart * DEG),
-    ];
-    const [x, y] = [Math.cos(phiEnd * DEG), Math.sin(phiEnd * DEG)];
-    const [x2, y2] = [
-      x + f * Math.sin(phiEnd * DEG),
-      y - f * Math.cos(phiEnd * DEG),
-    ];
+    const x1 = Math.cos(phiStart * DEG) - f * Math.sin(phiStart * DEG);
+    const y1 = Math.sin(phiStart * DEG) + f * Math.cos(phiStart * DEG);
+    const x = Math.cos(phiEnd * DEG);
+    const y = Math.sin(phiEnd * DEG);
+    const x2 = x + f * y;
+    const y2 = y - f * x;
 
-    const command: Partial<CommandC> = {
+    const cp1 = transform(x1, y1);
+    const cp2 = transform(x2, y2);
+    const end = transform(x, y);
+
+    const command: CommandC = {
       relative: arc.relative,
       type: SVGPathData.CURVE_TO,
+      x: end[0],
+      y: end[1],
+      x1: cp1[0],
+      y1: cp1[1],
+      x2: cp2[0],
+      y2: cp2[1],
     };
-
-    const transform = (x: number, y: number) => {
-      const [xTemp, yTemp] = rotate([x * arc.rX, y * arc.rY], xRotRad);
-      return [arc.cX! + xTemp, arc.cY! + yTemp];
-    };
-
-    [command.x1, command.y1] = transform(x1, y1);
-    [command.x2, command.y2] = transform(x2, y2);
-    [command.x, command.y] = transform(x, y);
 
     if (arc.relative) {
       command.x1 -= prevX;
@@ -264,9 +268,10 @@ export function a2c(arc: CommandA, x0: number, y0: number): CommandC[] {
       command.x -= prevX;
       command.y -= prevY;
     }
-    [prevX, prevY] = [command.x, command.y];
+    prevX = end[0];
+    prevY = end[1];
 
-    result[i] = command as CommandC;
+    result[i] = command;
   }
   return result;
 }
