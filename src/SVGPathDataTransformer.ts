@@ -15,6 +15,7 @@ import {
   type Point,
 } from './mathUtils.js';
 import { SVGPathData } from './SVGPathData.js';
+import { REVERSE_PATH } from './transformers/reverse_path.js';
 import type { SVGCommand, TransformFunction } from './types.js';
 
 // Predefined transforming functions
@@ -814,4 +815,5 @@ export const SVGPathDataTransformer = {
   ANNOTATE_ARCS,
   CLONE,
   CALCULATE_BOUNDS,
+  REVERSE_PATH,
 };
