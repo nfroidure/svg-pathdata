@@ -2,7 +2,6 @@ import { describe, test, expect } from '@jest/globals';
 
 import { SVGPathData } from '../SVGPathData.js';
 
-import { OUTLINE } from '../transformers/outline/outline.js';
 import type { OffsetOptions } from '../transformers/outline/options.js';
 
 // Group options by type
