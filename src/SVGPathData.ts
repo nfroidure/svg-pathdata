@@ -44,6 +44,19 @@ export class SVGPathData extends TransformableSVG {
     return this;
   }
 
+  /**
+   * Reverses the order of path commands to go from end to start
+   * IMPORTANT: This function expects absolute commands as input.
+   * @param preserveSubpathOrder If true, keeps subpaths in their original order
+   */
+  reverse(preserveSubpathOrder = true) {
+    this.commands = SVGPathDataTransformer.REVERSE_PATH(
+      this.commands,
+      preserveSubpathOrder,
+    );
+    return this;
+  }
+
   static encode(commands: SVGCommand[]) {
     return encodeSVGPath(commands);
   }
