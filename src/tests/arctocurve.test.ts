@@ -13,38 +13,58 @@ function testArcToCurve(input: string) {
 
 describe('Converting elliptical arc commands to curves', () => {
   test('should work sweepFlag on 0 and largeArcFlag on 0', () => {
+    // Absolute
     expect(
       testArcToCurve('M80 80 A 45 45, 0, 0, 0, 125 125 L 125 80 Z'),
     ).toEqual(
       'M80 80C80 104.8528137423857 100.1471862576143 125 125 125L125 80z',
     );
+
+    // Relative
+    expect(
+      testArcToCurve('M80 80 a 45 45, 0, 0, 0, 125 125 L 125 80 Z'),
+    ).toEqual(
+      'M80 80c-34.5177968644246 34.5177968644246 -34.5177968644246 90.4822031355754 0 125c34.5177968644246 34.5177968644246 90.4822031355754 34.5177968644246 125 0L125 80z',
+    );
   });
 
   test('should work sweepFlag on 1 and largeArcFlag on 0', () => {
+    // Absolute
     expect(
       testArcToCurve('M230 80 A 45 45, 0, 1, 0, 275 125 L 275 80 Z'),
     ).toEqual(
       'M230 80C205.1471862576143 80 185 100.1471862576143 185 125C185 149.8528137423857 205.1471862576143 170 230 170C254.8528137423857 170 275 149.8528137423857 275 125L275 80z',
     );
+
+    // Relative
+    expect(testArcToCurve('M230 80 a 45 45 0 1 0 45 45')).toEqual(
+      'M230 80c-24.8528137423857 0 -45 20.1471862576143 -45 45c0 24.8528137423857 20.1471862576143 45 45 45c24.8528137423857 0 45 -20.1471862576143 45 -45',
+    );
   });
 
   test('should work sweepFlag on 0 and largeArcFlag on 1', () => {
+    // Absolute
     expect(
       testArcToCurve('M80 230 A 45 45, 0, 0, 1, 125 275 L 125 230 Z'),
     ).toEqual(
       'M80 230C104.8528137423857 230 125 250.1471862576143 125 275L125 230z',
     );
+
+    // Relative
+    expect(testArcToCurve('M80 230 a 45 45 0 0 1 45 45')).toEqual(
+      'M80 230c24.8528137423857 0 45 20.1471862576143 45 45',
+    );
   });
 
   test('should work sweepFlag on 1 and largeArcFlag on 1', () => {
+    // Absolute
     expect(
       testArcToCurve('M230 230 A 45 45, 0, 1, 1, 275 275 L 275 230 Z'),
     ).toEqual(
       'M230 230C230 205.1471862576143 250.1471862576143 185 275 185C299.8528137423857 185 320 205.1471862576143 320 230C320 254.8528137423857 299.8528137423857 275 275 275L275 230z',
     );
-  });
 
-  test('should work sweepFlag on 0 and largeArcFlag on 0 with relative arc', () => {
+    // Relative
     expect(
       testArcToCurve('M80 80 a 45 45, 0, 0, 0, 125 125 L 125 80 Z'),
     ).toEqual(
@@ -53,19 +73,24 @@ describe('Converting elliptical arc commands to curves', () => {
   });
 
   test('should handle zero radius arcs by converting to lines', () => {
-    // Zero y-radius
+    // Zero y-radius (absolute)
     expect(testArcToCurve('M0 0A80 0 0 0 0 125 125')).toEqual(
       'M0 0C41.6666666666667 41.6666666666667 83.3333333333333 83.3333333333333 125 125',
     );
 
-    // Zero x-radius
+    // Zero x-radius (absolute)
     expect(testArcToCurve('M0 0A0 80 0 0 0 125 125')).toEqual(
       'M0 0C41.6666666666667 41.6666666666667 83.3333333333333 83.3333333333333 125 125',
     );
 
-    // Both x and y radius zero
+    // Both x and y radius zero (absolute)
     expect(testArcToCurve('M0 0A0 0 0 0 0 125 125')).toEqual(
       'M0 0C41.6666666666667 41.6666666666667 83.3333333333333 83.3333333333333 125 125',
+    );
+
+    // Both x and y radius zero (relative)
+    expect(testArcToCurve('M0 0 a 0 80 0 0 0 125 125')).toEqual(
+      'M0 0c41.6666666666667 41.6666666666667 83.3333333333333 83.3333333333333 125 125',
     );
   });
 
@@ -76,19 +101,29 @@ describe('Converting elliptical arc commands to curves', () => {
   });
 
   test('should correctly handle rotated arcs', () => {
-    // 45 degree rotation
+    // 45 degree rotation (absolute)
     expect(testArcToCurve('M 50 50 A 30 15 45 0 1 100 100')).toEqual(
       'M50 50C56.9035593728849 43.0964406271151 73.6928812542302 48.6928812542302 87.5 62.5C101.3071187457698 76.3071187457698 106.9035593728849 93.0964406271151 100 100',
     );
 
-    // 90 degree rotation
+    // 90 degree rotation (absolute)
     expect(testArcToCurve('M 30 30 A 30 15 90 0 1 80 80')).toEqual(
       'M30 30C36.9035593728849 2.3857625084603 53.6928812542302 -8.8071187457698 67.5 5C81.3071187457698 18.8071187457698 86.9035593728849 52.3857625084603 80 80',
     );
 
-    // 180 degree rotation (equivalent to flipping x and y radii)
+    // 180 degree rotation (absolute, equivalent to flipping x and y radii)
     expect(testArcToCurve('M 30 30 A 30 15 180 0 1 80 80')).toEqual(
       'M30 30C57.6142374125551 23.0964408852183 91.1928806985313 28.6928815616988 104.999999309466 42.5000001726335C118.8071179204008 56.3071187835682 107.6142370311837 73.096440503847 80 80',
+    );
+
+    // 45 degree rotation (relative)
+    expect(testArcToCurve('M 50 50 a 30 15 45 0 1 50 50')).toEqual(
+      'M50 50c6.9035593728849 -6.9035593728849 23.6928812542302 -1.3071187457698 37.5 12.5c13.8071187457698 13.8071187457698 19.4035593728849 30.5964406271151 12.5 37.5',
+    );
+
+    // 90 degree rotation (relative)
+    expect(testArcToCurve('M 30 30 a 30 15 90 0 1 50 50')).toEqual(
+      'M30 30c6.9035593728849 -27.6142374915397 23.6928812542302 -38.8071187457698 37.5 -25c13.8071187457698 13.8071187457698 19.4035593728849 47.3857625084603 12.5 75',
     );
   });
 
@@ -142,6 +177,23 @@ describe('Converting elliptical arc commands to curves', () => {
     // Very large radius
     expect(testArcToCurve('M 0 0 A 1000 1000 0 0 1 10 10')).toEqual(
       'M0 0C3.3568621862997 3.3097211449502 6.6902788550498 6.6431378137003 10 10',
+    );
+  });
+
+  test('should split arcs to mutiple curves', () => {
+    // Half circle (relative)
+    expect(testArcToCurve('M4.6 20 a 1.556 1.556 0 1 0 -2.2 -2.2z')).toEqual(
+      'M4.6 20c0.4073109040792 -0.3900354880021 0.5717037274325 -0.9699266164694 0.4296821520769 -1.5156918834261c-0.1420215753557 -0.5457652669567 -0.568225001694 -0.9719686932951 -1.1139902686508 -1.1139902686508c-0.5457652669567 -0.1420215753557 -1.125656395424 0.0223712479977 -1.5156918834261 0.4296821520769z',
+    );
+
+    // Almost full circle (absolute)
+    expect(testArcToCurve('M100 100 A50 50 0 1 1 101 100')).toEqual(
+      'M100 100C72.484720600949 99.7248334473379 50.363040023335 77.2688082346382 50.5006250195323 49.7524969373664C50.6382100157295 22.2361856400946 72.9833447337881 0.0025000625031 100.5 0.0025000625031C128.0166552662119 0.0025000625031 150.3617899842705 22.2361856400946 150.4993749804677 49.7524969373664C150.636959976665 77.2688082346382 128.5152793990511 99.7248334473379 101 100',
+    );
+
+    // Almost full circle (relative)
+    expect(testArcToCurve('M100 100 a50 50 0 1 1 1 0')).toEqual(
+      'M100 100c-27.515279399051 -0.2751665526621 -49.636959976665 -22.7311917653618 -49.4993749804677 -50.2475030626336c0.1375849961973 -27.5163112972718 22.4827197142558 -49.7499968748633 49.9993749804677 -49.7499968748633c27.5166552662119 0 49.8617899842705 22.2336855775915 49.9993749804677 49.7499968748633c0.1375849961973 27.5163112972718 -21.9840955814167 49.9723365099715 -49.4993749804677 50.2475030626336',
     );
   });
 });
