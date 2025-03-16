@@ -6,7 +6,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "clean": "tsc --build tsconfig.build.json --clean",
+    "rebuild": "tsc --build tsconfig.build.json",
+    "build": "npm run clean && npm run rebuild",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
     "cover": "jest --coverage",
     "format": "npm run prettier",
