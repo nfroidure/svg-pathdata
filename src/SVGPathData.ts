@@ -2,6 +2,7 @@ import { encodeSVGPath } from './SVGPathDataEncoder.js';
 import { SVGPathDataParser } from './SVGPathDataParser.js';
 import { SVGPathDataTransformer } from './SVGPathDataTransformer.js';
 import { TransformableSVG } from './TransformableSVG.js';
+import { OffsetOptions } from './transformers/outline/options.js';
 import type { SVGCommand } from './types.js';
 
 export class SVGPathData extends TransformableSVG {
@@ -13,6 +14,11 @@ export class SVGPathData extends TransformableSVG {
     } else {
       this.commands = content;
     }
+  }
+
+  createOutline(options?: Partial<OffsetOptions>): SVGPathData {
+    const outlineGen = SVGPathDataTransformer.OUTLINE(this.commands, options);
+    return new SVGPathData(outlineGen);
   }
 
   encode() {
