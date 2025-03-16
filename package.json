@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "tsc --build tsconfig.build.json --clean",
-    "rebuild": "tsc --build tsconfig.build.json",
+    "clean": "tsc --build tsconfig.json --clean",
+    "rebuild": "tsc --build tsconfig.json",
     "build": "npm run clean && npm run rebuild",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
     "cover": "jest --coverage",
@@ -73,7 +73,9 @@
     "src",
     "LICENSE",
     "README.md",
-    "CHANGELOG.md"
+    "!src/tests",
+    "!dist/tests",
+    "!dist/tsconfig.tsbuildinfo"
   ],
   "jest": {
     "coverageReporters": [
