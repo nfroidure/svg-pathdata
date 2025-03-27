@@ -57,6 +57,11 @@ export class SVGPathData extends TransformableSVG {
     return this;
   }
 
+  removeCollinear() {
+    this.commands = SVGPathDataTransformer.REMOVE_COLLINEAR(this.commands);
+    return this;
+  }
+
   static encode(commands: SVGCommand[]) {
     return encodeSVGPath(commands);
   }
