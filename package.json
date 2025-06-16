@@ -6,7 +6,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "clean": "tsc --build tsconfig.json --clean",
+    "build": "tsc --build tsconfig.json",
+    "rebuild": "npm run clean && npm run rebuild",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
     "cover": "jest --coverage",
     "format": "npm run prettier",
@@ -14,7 +16,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "precz": "npm t && npm run lint && npm run build",
     "prettier": "prettier --write \"src/**/*.ts\"",
-    "preversion": "npm t && npm run lint && npm run build",
+    "preversion": "npm t && npm run lint && npm run rebuild",
     "test": "jest",
     "type-check": "tsc --pretty --noEmit",
     "version": "npm run changelog"
@@ -71,7 +73,9 @@
     "src",
     "LICENSE",
     "README.md",
-    "CHANGELOG.md"
+    "!src/tests",
+    "!dist/tests",
+    "!dist/tsconfig.tsbuildinfo"
   ],
   "jest": {
     "coverageReporters": [
