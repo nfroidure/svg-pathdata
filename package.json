@@ -40,9 +40,9 @@
     "jest": "NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest",
     "lint": "eslint 'src/**/*.ts'",
     "metapak": "metapak",
-    "precz": "node --run test && node --run lint && node --run doc && node --run build && node --run metapak -- -s",
+    "precz": "node --run test && node --run lint && node --run build && node --run doc && node --run metapak -- -s",
     "prettier": "prettier --write 'src/**/*.ts'",
-    "preversion": "node --run test && node --run lint && node --run doc && node --run build && node --run metapak -- -s",
+    "preversion": "node --run test && node --run lint && node --run build && node --run doc && node --run metapak -- -s",
     "rebuild": "swc ./src -s -d dist -C jsc.target=es2022",
     "test": "node --run jest",
     "version": "node --run changelog"
