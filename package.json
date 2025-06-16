@@ -24,7 +24,7 @@
     ]
   },
   "name": "svg-pathdata",
-  "version": "7.2.0",
+  "version": "8.0.0",
   "description": "Manipulate SVG path data (path[d] attribute content) simply and efficiently.",
   "type": "module",
   "main": "dist/index.js",

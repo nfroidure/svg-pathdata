@@ -1,3 +1,13 @@
+# [8.0.0](https://github.com/nfroidure/svg-pathdata/compare/v7.2.0...v8.0.0) (2025-06-16)
+
+
+### Features
+
+* add removeCollinear method to optimize SVG path data ([161e4e1](https://github.com/nfroidure/svg-pathdata/commit/161e4e10a3cb53a336fc9a3517282e800da699c0))
+* add SVGShapes utility functions for creating shapes ([6fab2d7](https://github.com/nfroidure/svg-pathdata/commit/6fab2d7a009a830b8c03463621debfb2395cfa73))
+
+
+
 # [7.2.0](https://github.com/nfroidure/svg-pathdata/compare/v7.1.0...v7.2.0) (2025-03-15)
 
 
