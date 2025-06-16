@@ -1,4 +1,28 @@
 {
+  "metapak": {
+    "data": {
+      "files": "'src/**/*.ts'",
+      "testsFiles": "'src/**/*.test.ts'",
+      "distFiles": "'dist/**/*.js'",
+      "ignore": [
+        "dist"
+      ],
+      "bundleFiles": [
+        "dist",
+        "src"
+      ]
+    },
+    "configs": [
+      "main",
+      "readme",
+      "eslint",
+      "tsesm",
+      "jest",
+      "jsdocs",
+      "ghactions",
+      "coveralls"
+    ]
+  },
   "name": "svg-pathdata",
   "version": "7.2.0",
   "description": "Manipulate SVG path data (path[d] attribute content) simply and efficiently.",
@@ -6,18 +30,22 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "rimraf 'dist' && tsc --outDir dist",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md",
-    "cover": "jest --coverage",
+    "cli": "env NODE_ENV=${NODE_ENV:-cli}",
+    "cover": "node --run jest -- --coverage",
+    "cz": "env NODE_ENV=${NODE_ENV:-cli} git cz",
+    "doc": "echo \"# API\" > API.md; jsdoc2md 'dist/**/*.js' >> API.md && git add API.md",
     "format": "npm run prettier",
-    "jest": "jest",
-    "lint": "eslint \"src/**/*.ts\"",
-    "precz": "npm t && npm run lint && npm run build",
-    "prettier": "prettier --write \"src/**/*.ts\"",
-    "preversion": "npm t && npm run lint && npm run build",
-    "test": "jest",
-    "type-check": "tsc --pretty --noEmit",
-    "version": "npm run changelog"
+    "jest": "NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest",
+    "lint": "eslint 'src/**/*.ts'",
+    "metapak": "metapak",
+    "precz": "node --run test && node --run lint && node --run doc && node --run build && node --run metapak -- -s",
+    "prettier": "prettier --write 'src/**/*.ts'",
+    "preversion": "node --run test && node --run lint && node --run doc && node --run build && node --run metapak -- -s",
+    "rebuild": "swc ./src -s -d dist -C jsc.target=es2022",
+    "test": "node --run jest",
+    "version": "node --run changelog"
   },
   "repository": {
     "type": "git",
@@ -51,20 +79,29 @@
     "url": "https://github.com/nfroidure/SVGPathData/issues"
   },
   "engines": {
-    "node": ">=20.11.1"
+    "node": ">=22.16.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
-    "@swc/core": "^1.11.9",
-    "@swc/jest": "^0.2.37",
+    "@eslint/js": "^9.29.0",
+    "@swc/cli": "^0.7.7",
+    "@swc/core": "^1.12.1",
+    "@swc/helpers": "^0.5.17",
+    "@swc/jest": "^0.2.38",
+    "commitizen": "^4.3.1",
     "conventional-changelog-cli": "^5.0.0",
-    "eslint": "^9.21.0",
-    "eslint-config-prettier": "^10.0.2",
-    "eslint-plugin-jest": "^28.11.0",
-    "jest": "^29.7.0",
-    "prettier": "^3.3.3",
-    "typescript": "^5.7.0",
-    "typescript-eslint": "^8.25.0"
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-jest": "^28.14.0",
+    "eslint-plugin-prettier": "^5.4.1",
+    "jest": "^30.0.0",
+    "jsdoc-to-markdown": "^9.1.1",
+    "metapak": "^6.0.3",
+    "metapak-nfroidure": "20.0.4",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.34.0"
   },
   "files": [
     "dist",
@@ -73,6 +110,42 @@
     "README.md",
     "CHANGELOG.md"
   ],
+  "funding": {
+    "type": "individual",
+    "url": "https://github.com/sponsors/nfroidure"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "greenkeeper": {
+    "ignore": [
+      "commitizen",
+      "cz-conventional-changelog",
+      "conventional-changelog-cli",
+      "eslint",
+      "prettier",
+      "eslint-config-prettier",
+      "eslint-plugin-prettier",
+      "typescript-eslint",
+      "typescript",
+      "rimraf",
+      "@swc/cli",
+      "@swc/core",
+      "@swc/helpers",
+      "jest",
+      "@swc/jest",
+      "jsdoc-to-markdown"
+    ]
+  },
+  "prettier": {
+    "semi": true,
+    "printWidth": 80,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "proseWrap": "always"
+  },
   "jest": {
     "coverageReporters": [
       "lcov"
@@ -84,7 +157,10 @@
       "<rootDir>/src"
     ],
     "transform": {
-      "^.+\\.(t|j)sx?$": "@swc/jest"
+      "^.+\\.tsx?$": [
+        "@swc/jest",
+        {}
+      ]
     },
     "testEnvironment": "node",
     "moduleNameMapper": {
@@ -92,7 +168,13 @@
     },
     "extensionsToTreatAsEsm": [
       ".ts"
-    ],
-    "prettierPath": null
+    ]
+  },
+  "jsarch": {
+    "parserOptions": {
+      "plugins": [
+        "typescript"
+      ]
+    }
   }
 }
