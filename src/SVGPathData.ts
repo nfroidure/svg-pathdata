@@ -19,6 +19,14 @@ export class SVGPathData extends TransformableSVG {
     return SVGPathData.encode(this.commands);
   }
 
+  /**
+   * Copies every command, so transforming the copy leaves this path data
+   * unchanged
+   */
+  clone() {
+    return new SVGPathData(this.commands.map(SVGPathDataTransformer.CLONE()));
+  }
+
   getBounds() {
     const boundsTransform = SVGPathDataTransformer.CALCULATE_BOUNDS();
 
