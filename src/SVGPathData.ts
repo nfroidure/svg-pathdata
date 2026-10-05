@@ -62,6 +62,15 @@ export class SVGPathData extends TransformableSVG {
     return this;
   }
 
+  /**
+   * Reorients the subpaths of a path filled with the `evenodd` rule so that
+   * the `nonzero` rule fills the same area
+   */
+  evenoddToNonzero() {
+    this.commands = SVGPathDataTransformer.EVENODD_TO_NONZERO(this.commands);
+    return this;
+  }
+
   static encode(commands: SVGCommand[]) {
     return encodeSVGPath(commands);
   }

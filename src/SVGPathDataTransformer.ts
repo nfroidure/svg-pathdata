@@ -15,6 +15,7 @@ import {
   type Point,
 } from './mathUtils.js';
 import { SVGPathData } from './SVGPathData.js';
+import { EVENODD_TO_NONZERO } from './transformers/evenodd_to_nonzero.js';
 import { REMOVE_COLLINEAR } from './transformers/remove_collinear.js';
 import { REVERSE_PATH } from './transformers/reverse_path.js';
 import type { SVGCommand, TransformFunction } from './types.js';
@@ -818,4 +819,5 @@ export const SVGPathDataTransformer = {
   CALCULATE_BOUNDS,
   REVERSE_PATH,
   REMOVE_COLLINEAR,
+  EVENODD_TO_NONZERO,
 };
